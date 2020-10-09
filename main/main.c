@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #define PULSE_PERIPHERAL
+#define PULSES_KW 225
 char *TAG = "INFO";
 
 void task_pulse(void *arg) {
@@ -18,18 +19,27 @@ void task_pulse(void *arg) {
     int pinLevel;
     int pulses   = 0;
     bool counted = false;
-
+    int decimal  = 0;
+    int energyKW = 0;
     while (1) {
         pinLevel = gpio_get_level(GPIO_NUM_0);
         if (pinLevel == 1 && counted == false) {
             pulses++;
             counted = true;
-            ESP_LOGI(TAG, "PULSE!... level is: %d", pinLevel);
+            ESP_LOGI(TAG, "PULSE! %d", pinLevel);
+            decimal = pulses * 1000 / PULSES_KW; // xxx
+            if (decimal == 1000) {               // xxx
+                decimal = 0;
+                pulses  = 0;
+                energyKW++;
+            }
+            ESP_LOGI(TAG, "Energy is: %d,%d", energyKW, decimal);
         }
+
         if (pinLevel == 0 && counted == true) {
             counted = false;
-            ESP_LOGI(TAG, "level is: %d", pinLevel);
         }
+
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
