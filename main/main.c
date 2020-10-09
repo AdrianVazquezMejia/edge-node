@@ -3,20 +3,20 @@
  * Date: 10-07-2020
  */
 
+#include "driver/gpio.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#define driver "driver/gpio.h"
-#include "esp_log.h"
 #include <stdio.h>
 
 #define PULSE_PERIPHERAL
 char *TAG = "INFO";
 
 void task_pulse(void *arg) {
-    ESP_LOGI(TAG, "Pulse counter taks Started");
-
+    ESP_LOGI(TAG, "Pulse counter task started");
+    gpio_set_direction(GPIO_NUM_0, GPIO_MODE_INPUT);
     while (1) {
-
+        ESP_LOGI(TAG, "level is: %d", gpio_get_level(GPIO_NUM_0));
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
