@@ -3,6 +3,7 @@
  * Date: 10-07-2020
  */
 
+#include "CRC.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
 #include "esp_log.h"
@@ -48,7 +49,7 @@ void task_modbus_slave(void *arg) {
     while (xQueueReceive(uart_queue, (void *)&event,
                          (portTickType)portMAX_DELAY)) {
         bzero(dtmp, RX_BUF_SIZE);
-        ESP_LOGI(TAG, "uart[%d] event:", UART_NUM_1);
+
         switch (event.type) {
         case UART_DATA:
             uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
@@ -57,6 +58,12 @@ void task_modbus_slave(void *arg) {
                 printf("%x ", dtmp[i]);
             }
             printf("\n");
+            if (CRC16(dtmp, event.size) == 0) {
+                ESP_LOGI(TAG, "Modbus frame verified");
+            } else
+                ESP_LOGI(TAG, "Frame not verified: %d",
+                         CRC16(dtmp, event.size));
+
             break;
         default:
             ESP_LOGI(TAG, "Nothing happened");
