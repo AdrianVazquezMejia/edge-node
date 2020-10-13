@@ -8,6 +8,7 @@
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "modbus_slave.h"
 #include <stdio.h>
 
 #define PULSES_KW 225
@@ -35,6 +36,7 @@ void task_pulse(void *arg) {
     }
 }
 void task_modbus_slave(void *arg) {
+    uart_init();
     while (1) {
         ESP_LOGI(TAG, "Modbus slave active");
         vTaskDelay(1000 / portTICK_PERIOD_MS);
