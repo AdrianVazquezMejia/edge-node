@@ -4,15 +4,20 @@
  */
 
 #include "driver/gpio.h"
+#include "driver/uart.h"
 #include "esp_log.h"
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "modbus_slave.h"
+#include "strings.h"
 #include <stdio.h>
 
 #define PULSES_KW 225
-char *TAG = "INFO";
+
+#define RX_BUF_SIZE 1024
+#define TX_BUF_SIZE 1024
+static char *TAG = "INFO";
 
 void task_pulse(void *arg) {
     ESP_LOGI(TAG, "Pulse counter task started");
@@ -36,10 +41,26 @@ void task_pulse(void *arg) {
     }
 }
 void task_modbus_slave(void *arg) {
-    uart_init();
-    while (1) {
-        ESP_LOGI(TAG, "Modbus slave active");
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    QueueHandle_t uart_queue;
+    uart_event_t event;
+    uint8_t *dtmp = (uint8_t *)malloc(RX_BUF_SIZE);
+    uart_init(&uart_queue);
+    while (xQueueReceive(uart_queue, (void *)&event,
+                         (portTickType)portMAX_DELAY)) {
+        bzero(dtmp, RX_BUF_SIZE);
+        ESP_LOGI(TAG, "uart[%d] event:", UART_NUM_1);
+        switch (event.type) {
+        case UART_DATA:
+            uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
+            ESP_LOGI(TAG, "Received data is:");
+            for (int i = 0; i < event.size; i++) {
+                printf("%x ", dtmp[i]);
+            }
+            printf("\n");
+            break;
+        default:
+            ESP_LOGI(TAG, "Nothing happened");
+        }
     }
 }
 void app_main() {

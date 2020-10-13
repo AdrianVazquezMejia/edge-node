@@ -7,6 +7,8 @@
 
 #ifndef MAIN_INCLUDE_MODBUS_SLAVE_H_
 #define MAIN_INCLUDE_MODBUS_SLAVE_H_
-void uart_init(void);
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+void uart_init(QueueHandle_t *queue);
 
 #endif /* MAIN_INCLUDE_MODBUS_SLAVE_H_ */
