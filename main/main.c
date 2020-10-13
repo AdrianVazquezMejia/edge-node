@@ -5,6 +5,7 @@
 
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <stdio.h>
@@ -17,29 +18,20 @@ void task_pulse(void *arg) {
     ESP_LOGI(TAG, "Pulse counter task started");
     gpio_set_direction(GPIO_NUM_0, GPIO_MODE_INPUT);
     int pinLevel;
-    int pulses   = 0;
-    bool counted = false;
-    int decimal  = 0;
-    int energyKW = 0;
+    uint32_t pulses = 0;
+    bool counted    = false;
+    flash_get(&pulses);
     while (1) {
         pinLevel = gpio_get_level(GPIO_NUM_0);
         if (pinLevel == 1 && counted == false) {
             pulses++;
+            flash_save(pulses);
             counted = true;
-            ESP_LOGI(TAG, "PULSE! %d", pinLevel);
-            decimal = pulses * 1000 / PULSES_KW; // xxx
-            if (decimal == 1000) {               // xxx
-                decimal = 0;
-                pulses  = 0;
-                energyKW++;
-            }
-            ESP_LOGI(TAG, "Energy is: %d,%d", energyKW, decimal);
+            ESP_LOGI(TAG, "Pulse number %d", pulses);
         }
-
         if (pinLevel == 0 && counted == true) {
             counted = false;
         }
-
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
