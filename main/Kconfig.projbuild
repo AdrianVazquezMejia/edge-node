@@ -1,14 +1,16 @@
 menu "Custom Configuration"
 
-    config BLINK_GPIO
-        int "Blink GPIO number"
-        range 0 34
-        default 5
+    config PULSE_PERIPHERAL
+        bool "Pulse counter peripheral available"
+        default "n"
         help
-            GPIO number (IOxx) to blink on and off.
-
-            Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to blink.
-
-            GPIOs 35-39 are input-only so cannot be used as outputs.
-
+            When this is not enable the task that counts pulse will be unavailable
+   
+   
+    config SLAVE_MODBUS
+        bool "Slave Modbus active"
+        default "n"
+        help
+            This functions provides a slave Modbus RTU functionality through RS485
+           
 endmenu

@@ -10,7 +10,6 @@
 #include "freertos/task.h"
 #include <stdio.h>
 
-#define PULSE_PERIPHERAL
 #define PULSES_KW 225
 char *TAG = "INFO";
 
@@ -35,13 +34,23 @@ void task_pulse(void *arg) {
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
-
+void task_modbus_slave(void *arg) {
+    while (1) {
+        ESP_LOGI(TAG, "Modbus slave active");
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized");
-
-#ifdef PULSE_PERIPHERAL
+#ifdef CONFIG_PULSE_PERIPHERAL
     ESP_LOGI(TAG, "Start peripheral");
     xTaskCreatePinnedToCore(task_pulse, "task_pulse", 1024 * 2, NULL, 10, NULL,
                             0);
+#endif
+
+#ifdef CONFIG_SLAVE_MODBUS
+    ESP_LOGI(TAG, "Start Modbus slave task");
+    xTaskCreatePinnedToCore(task_modbus_slave, "task_modbus_slave", 1024 * 2,
+                            NULL, 10, NULL, 1);
 #endif
 }
