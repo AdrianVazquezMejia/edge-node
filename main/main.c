@@ -18,6 +18,9 @@
 
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
+
+#define ID 255
+
 static char *TAG = "INFO";
 
 void task_pulse(void *arg) {
@@ -45,6 +48,11 @@ void task_modbus_slave(void *arg) {
     QueueHandle_t uart_queue;
     uart_event_t event;
     uint8_t *dtmp = (uint8_t *)malloc(RX_BUF_SIZE);
+    uint16_t *modbus_registers[4];
+    uint16_t inputRegister[512] = {0};
+    modbus_registers[1]         = &inputRegister[0];
+    inputRegister[0]            = 0x2324;
+    inputRegister[1]            = 0x2526;
     uart_init(&uart_queue);
     while (xQueueReceive(uart_queue, (void *)&event,
                          (portTickType)portMAX_DELAY)) {
@@ -60,15 +68,21 @@ void task_modbus_slave(void *arg) {
             printf("\n");
             if (CRC16(dtmp, event.size) == 0) {
                 ESP_LOGI(TAG, "Modbus frame verified");
+                if (dtmp[0] == ID) {
+                    ESP_LOGI(TAG, "Frame to this slave");
+                    modbus_slave_functions(dtmp, event.size, modbus_registers);
+                }
             } else
                 ESP_LOGI(TAG, "Frame not verified: %d",
                          CRC16(dtmp, event.size));
 
             break;
         default:
-            ESP_LOGI(TAG, "Nothing happened");
+            ESP_LOGI(TAG, "UART event");
         }
     }
+    free(dtmp);
+    dtmp = NULL;
 }
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized");
@@ -80,7 +94,7 @@ void app_main() {
 
 #ifdef CONFIG_SLAVE_MODBUS
     ESP_LOGI(TAG, "Start Modbus slave task");
-    xTaskCreatePinnedToCore(task_modbus_slave, "task_modbus_slave", 1024 * 2,
+    xTaskCreatePinnedToCore(task_modbus_slave, "task_modbus_slave", 2048 * 2,
                             NULL, 10, NULL, 1);
 #endif
 }
