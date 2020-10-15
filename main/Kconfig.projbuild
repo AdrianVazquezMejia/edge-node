@@ -12,5 +12,11 @@ menu "Custom Configuration"
         default "n"
         help
             This functions provides a slave Modbus RTU functionality through RS485
-           
+   
+    config MASTER_MODBUS
+        bool "Master Modbus active"
+        default "n"
+        help
+            This functions provides a master Modbus RTU functionality through RS485
+          
 endmenu

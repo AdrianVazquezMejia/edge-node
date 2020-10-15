@@ -10,6 +10,7 @@
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "modbus_master.h"
 #include "modbus_slave.h"
 #include "strings.h"
 #include <stdio.h>
@@ -20,6 +21,8 @@
 #define TX_BUF_SIZE 1024
 
 #define ID 255
+
+#define TIME_SCAN 2000
 
 static char *TAG = "INFO";
 
@@ -84,6 +87,52 @@ void task_modbus_slave(void *arg) {
     free(dtmp);
     dtmp = NULL;
 }
+
+static void task_modbus_master(void *arg) {
+    QueueHandle_t uart_queue;
+    uart_event_t event;
+    uint8_t *dtmp = (uint8_t *)malloc(RX_BUF_SIZE);
+    uint16_t *modbus_registers[4];
+    uint16_t inputRegister[512] = {0};
+    modbus_registers[1]         = &inputRegister[0];
+    uart_init(&uart_queue);
+    uint8_t slave            = 1;
+    const uint16_t start_add = 0x0000;
+    uint16_t quantity        = 2;
+    while (1) {
+        read_input_register(slave, start_add, quantity);
+
+        if (xQueuePeek(uart_queue, (void *)&event, (portTickType)1000)) {
+            ESP_LOGI(TAG, "Cleaned");
+            if (event.type == UART_BREAK) {
+                xQueueReset(uart_queue);
+            }
+        }
+        if (xQueueReceive(uart_queue, (void *)&event, (portTickType)1000)) {
+            switch (event.type) {
+            case UART_DATA:
+                uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
+                ESP_LOGI(TAG, "Received data is:");
+                for (int i = 0; i < event.size; i++) {
+                    printf("%x ", dtmp[i]);
+                }
+                printf("\n");
+                if (CRC16(dtmp, event.size) == 0) {
+                    ESP_LOGI(TAG, "Modbus frame verified");
+                    save_register(dtmp, event.size, modbus_registers);
+                } else
+                    ESP_LOGI(TAG, "Frame not verified: %d",
+                             CRC16(dtmp, event.size));
+                break;
+            default:
+                ESP_LOGI(TAG, "uart event type: %d", event.type);
+                break;
+            }
+        } else
+            ESP_LOGI(TAG, "Timeout");
+        vTaskDelay(TIME_SCAN / portTICK_PERIOD_MS);
+    }
+}
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized");
 #ifdef CONFIG_PULSE_PERIPHERAL
@@ -95,6 +144,12 @@ void app_main() {
 #ifdef CONFIG_SLAVE_MODBUS
     ESP_LOGI(TAG, "Start Modbus slave task");
     xTaskCreatePinnedToCore(task_modbus_slave, "task_modbus_slave", 2048 * 2,
+                            NULL, 10, NULL, 1);
+#endif
+
+#ifdef CONFIG_MASTER_MODBUS
+    ESP_LOGI(TAG, "Start Modbus master task");
+    xTaskCreatePinnedToCore(task_modbus_master, "task_modbus_master", 2048 * 2,
                             NULL, 10, NULL, 1);
 #endif
 }

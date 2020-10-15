@@ -16,6 +16,9 @@ static char *TAG = "UART";
 #define CTS_PIN     19
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
+
+enum modbus_function_t { READ_HOLDING = 3, READ_INPUT };
+
 void uart_init(QueueHandle_t *queue) {
     uart_driver_delete(UART_NUM_1);
     int uart_baudarate = 9600;
@@ -34,7 +37,7 @@ void uart_init(QueueHandle_t *queue) {
     uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
 }
 
-void modbus_slave_functions(const uint8_t *frame, uint8_t lengh,
+void modbus_slave_functions(const uint8_t *frame, uint8_t length,
                             uint16_t **modbus_registers) {
     uint8_t FUNCTION = frame[1];
     INT_VAL address;
@@ -49,7 +52,7 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t lengh,
     INT_VAL *inputRegister  = (INT_VAL *)modbus_registers[1];
     response_frame[0]       = frame[0];
     response_frame[1]       = frame[1];
-    if (CRC16(frame, lengh) == 0) {
+    if (CRC16(frame, length) == 0) {
         switch (FUNCTION) {
         case READ_INPUT:
             ESP_LOGI(TAG, "Reading inputs Registers");
