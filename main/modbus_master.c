@@ -20,6 +20,9 @@ typedef union {
     } byte;
 
 } INT_VAL;
+
+enum modbus_function_t { READ_HOLDING = 3, READ_INPUT };
+
 void read_input_register(uint8_t slave, uint16_t start_address,
                          uint16_t quantity) {
     INT_VAL address;
@@ -41,4 +44,21 @@ void read_input_register(uint8_t slave, uint16_t start_address,
     uart_write_bytes(UART_NUM_1, (const char *)frame, 8);
     free(frame);
     ESP_LOGI(TAG, "Poll sent...");
+}
+void save_register(uint8_t *data, uint8_t length, uint16_t **modbus_registers) {
+    uint8_t FUNCTION        = data[1];
+    uint16_t *inputRegister = modbus_registers[1];
+    uint8_t SLAVE           = data[0];
+    switch (FUNCTION) {
+    case READ_INPUT:;
+        uint8_t byte_count = data[2];
+        INT_VAL aux_registro;
+        for (uint8_t i = 0; i < byte_count / 2; i++) {
+            aux_registro.byte.HB     = data[3 + 2 * i];
+            aux_registro.byte.LB     = data[4 + 2 * i];
+            inputRegister[SLAVE + i] = aux_registro.Val;
+        }
+        ESP_LOGI(TAG, "Received data saved...");
+        break;
+    }
 }

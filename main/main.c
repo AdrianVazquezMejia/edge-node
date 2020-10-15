@@ -119,7 +119,7 @@ static void task_modbus_master(void *arg) {
                 printf("\n");
                 if (CRC16(dtmp, event.size) == 0) {
                     ESP_LOGI(TAG, "Modbus frame verified");
-                    save_register(dtmp, modbus_registers);
+                    save_register(dtmp, event.size, modbus_registers);
                 } else
                     ESP_LOGI(TAG, "Frame not verified: %d",
                              CRC16(dtmp, event.size));
