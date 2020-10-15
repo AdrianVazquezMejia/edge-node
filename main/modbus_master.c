@@ -43,7 +43,7 @@ void read_input_register(uint8_t slave, uint16_t start_address,
     frame[7]       = CRC.byte.HB;
     uart_write_bytes(UART_NUM_1, (const char *)frame, 8);
     free(frame);
-    ESP_LOGI(TAG, "Poll sent...");
+    ESP_LOGI(TAG, "Poll sent to slave : %d...", slave);
 }
 void save_register(uint8_t *data, uint8_t length, uint16_t **modbus_registers) {
     uint8_t FUNCTION        = data[1];
