@@ -7,12 +7,14 @@
 #include "driver/gpio.h"
 #include "driver/uart.h"
 #include "esp_log.h"
+#include "esp_rf1276.h"
 #include "esp_task_wdt.h"
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "modbus_master.h"
 #include "modbus_slave.h"
+#include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
 #define PULSES_KW 225
