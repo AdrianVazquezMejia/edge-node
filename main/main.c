@@ -106,7 +106,7 @@ void task_modbus_slave(void *arg) {
     dtmp = NULL;
 }
 
-static void task_modbus_master(void *arg) {
+void task_modbus_master(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
@@ -161,6 +161,29 @@ static void task_modbus_master(void *arg) {
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
 }
+static void task_lora(void *arg) {
+    ESP_LOGI(TAG, "Task LoRa initialized");
+    QueueHandle_t lora_queue;
+    while (1) {
+        ESP_LOGI(TAG, "Task LoRa initialized");
+        const struct config_uart config = {
+            .uart_tx = 25, .uart_rx = 14, .baud_rate = 9600};
+
+        const config_rf1276_t config_mesh = {.baud_rate    = 9600,
+                                             .network_id   = 1,
+                                             .node_id      = 2,
+                                             .power        = 7,
+                                             .routing_time = 1,
+                                             .freq         = 433.0,
+                                             .port_check   = 0};
+
+        lora_queue = xQueueCreate(1, 128);
+
+        start_lora_mesh(config, config_mesh, &lora_queue);
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized");
     ESP_LOGI(TAG, "Init Watchdog");
@@ -181,5 +204,10 @@ void app_main() {
     ESP_LOGI(TAG, "Start Modbus master task");
     xTaskCreatePinnedToCore(task_modbus_master, "task_modbus_master", 2048 * 2,
                             NULL, 10, NULL, 1);
+#endif
+#ifdef CONFIG_LORA
+    ESP_LOGI(TAG, "Start Modbus master task");
+    xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 2, NULL, 10, NULL,
+                            1);
 #endif
 }

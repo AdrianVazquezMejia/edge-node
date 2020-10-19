@@ -18,5 +18,11 @@ menu "Custom Configuration"
         default "n"
         help
             This functions provides a master Modbus RTU functionality through RS485
-          
+   
+    config LORA
+        bool "LoRa connected"
+        default "n"
+        help
+            This functions provides serial communication to a LoRa
+        
 endmenu
