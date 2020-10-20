@@ -282,7 +282,7 @@ int check_write_config_rf1276(struct trama_write_config *trama) {
         return 3;
     }
 
-    if (trama->trama_rx[3] != 0x0d) {
+    if (trama->trama_rx[3] != 0x0c) {
 #ifdef DEBUG_RF1276
         printf("Error en trama rx Write Config en byte 4, debe ser 0x0d\r\n");
 #endif
@@ -1444,7 +1444,7 @@ int check_read_routing_path_rf1276(struct trama_read_path *trama) {
 
 int receive_packet_rf1276(struct trama_receive *trama) {
 
-    uint8_t trama_test[3] = {0x05, 0x00, 0x82};
+    //  uint8_t trama_test[3] = {0x05, 0x00, 0x82};
     uint8_t check_sum;
 
     if (trama->trama_rx[0] != 0x05) {

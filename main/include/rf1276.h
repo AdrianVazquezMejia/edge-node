@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
+#define DEBUG_RF1276
 #ifdef DEBUG_RF1276
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@ typedef union {
     uint32_t valor;
 } freq_t;
 
-struct config_rf1276 {
+typedef struct config_rf1276 {
     uint32_t baud_rate;
     uint16_t network_id;
     uint16_t node_id;
@@ -33,7 +33,7 @@ struct config_rf1276 {
     uint8_t routing_time;
     float freq;
     uint8_t port_check;
-};
+} config_rf1276_t;
 
 struct send_data_struct {
     uint16_t node_id;
