@@ -84,7 +84,7 @@ static void uart_event_task(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
-esp_err_t setup_esp_uart(struct config_uart *config) {
+esp_err_t setup_esp_uart(uart_lora_t *config) {
 
     esp_err_t error;
 
@@ -205,13 +205,13 @@ void loRa_mesh_data_stack(void *param) {
     vTaskDelete(NULL);
 }
 
-esp_err_t start_lora_mesh(struct config_uart config_uart,
+esp_err_t start_lora_mesh(uart_lora_t uart_config,
                           struct config_rf1276 config_mesh,
                           QueueHandle_t *cola) {
 
     esp_err_t error;
 
-    error = setup_esp_uart(&config_uart);
+    error = setup_esp_uart(&uart_config);
 
     if (error != ESP_OK) {
         return ESP_FAIL;
@@ -222,9 +222,9 @@ esp_err_t start_lora_mesh(struct config_uart config_uart,
     cola_general   = xQueueCreate(1, 550);
     cola_tamano    = xQueueCreate(1, 2);
 
-    xTaskCreate(loRa_mesh_data_stack, "LoRa Mesh Stack", 1024 * 4, NULL, 9,
+    xTaskCreate(loRa_mesh_data_stack, "LoRa Mesh Stack", 1024 * 4, NULL, 12,
                 NULL);
-    baud_rate_aux = config_uart.baud_rate;
+    baud_rate_aux = uart_config.baud_rate;
     error         = write_config_esp_rf1276(&config_mesh);
 
     if (error != ESP_OK) {
@@ -316,6 +316,8 @@ int write_config_esp_rf1276(struct config_rf1276 *config) {
         uart_set_baudrate(UART_RF1276, config->baud_rate);
     }
 
+    for (int i = 0; i < 18; i++)
+        printf("received trama  %02x\n ", trama.trama_rx[i]);
     if (info != 0) {
         ESP_LOGI(RF1276, "Fallo la escritura de parametros");
         return info;
