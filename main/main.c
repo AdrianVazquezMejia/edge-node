@@ -164,22 +164,29 @@ void task_modbus_master(void *arg) {
 static void task_lora(void *arg) {
     ESP_LOGI(TAG, "Task LoRa initialized");
     QueueHandle_t lora_queue;
+    const struct config_uart config = {
+        .uart_tx = 25, .uart_rx = 14, .baud_rate = 9600};
+
+    const config_rf1276_t config_mesh = {.baud_rate    = 9600,
+                                         .network_id   = 1,
+                                         .node_id      = 2,
+                                         .power        = 7,
+                                         .routing_time = 1,
+                                         .freq         = 433.0,
+                                         .port_check   = 0};
+
+    lora_queue = xQueueCreate(1, 128);
+
+    start_lora_mesh(config, config_mesh, &lora_queue);
     while (1) {
-        ESP_LOGI(TAG, "Task LoRa initialized");
-        const struct config_uart config = {
-            .uart_tx = 25, .uart_rx = 14, .baud_rate = 9600};
+        ESP_LOGI(TAG, "Sending data...");
+        struct send_data_struct data = {.node_id      = 1,
+                                        .power        = 7,
+                                        .data         = {0x10, 0x20, 0x30},
+                                        .tamano       = 3,
+                                        .routing_type = 1};
 
-        const config_rf1276_t config_mesh = {.baud_rate    = 9600,
-                                             .network_id   = 1,
-                                             .node_id      = 2,
-                                             .power        = 7,
-                                             .routing_time = 1,
-                                             .freq         = 433.0,
-                                             .port_check   = 0};
-
-        lora_queue = xQueueCreate(1, 128);
-
-        start_lora_mesh(config, config_mesh, &lora_queue);
+        send_data_esp_rf1276(&data);
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
@@ -207,7 +214,7 @@ void app_main() {
 #endif
 #ifdef CONFIG_LORA
     ESP_LOGI(TAG, "Start Modbus master task");
-    xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 2, NULL, 10, NULL,
+    xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
                             1);
 #endif
 }

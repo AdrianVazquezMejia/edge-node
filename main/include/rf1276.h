@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
+#define DEBUG_RF1276
 #ifdef DEBUG_RF1276
 #include <stdio.h>
 #include <string.h>

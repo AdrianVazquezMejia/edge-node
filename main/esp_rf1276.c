@@ -222,7 +222,7 @@ esp_err_t start_lora_mesh(struct config_uart config_uart,
     cola_general   = xQueueCreate(1, 550);
     cola_tamano    = xQueueCreate(1, 2);
 
-    xTaskCreate(loRa_mesh_data_stack, "LoRa Mesh Stack", 1024 * 4, NULL, 12,
+    xTaskCreate(loRa_mesh_data_stack, "LoRa Mesh Stack", 1024 * 4, NULL, 9,
                 NULL);
     baud_rate_aux = config_uart.baud_rate;
     error         = write_config_esp_rf1276(&config_mesh);
