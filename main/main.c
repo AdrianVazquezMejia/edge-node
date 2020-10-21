@@ -12,11 +12,13 @@
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "modbus_lora.h"
 #include "modbus_master.h"
 #include "modbus_slave.h"
 #include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
+
 #define PULSES_KW 225
 
 #define RX_BUF_SIZE 1024
@@ -168,25 +170,38 @@ static void task_lora(void *arg) {
 
     config_rf1276_t config_mesh = {.baud_rate    = 9600,
                                    .network_id   = 1,
-                                   .node_id      = 1,
+                                   .node_id      = 2,
                                    .power        = 7,
                                    .routing_time = 1,
                                    .freq         = 433.0,
                                    .port_check   = 0};
 
     lora_queue = xQueueCreate(1, 128);
-
+    struct trama_receive trama;
     start_lora_mesh(config, config_mesh, &lora_queue);
-    while (1) {
-        ESP_LOGI(TAG, "Sending data...");
-        struct send_data_struct data = {.node_id      = 2,
-                                        .power        = 7,
-                                        .data         = {0x10, 0x20, 0x30},
-                                        .tamano       = 3,
-                                        .routing_type = 1};
+    uint16_t node_origen;
+    uint16_t *modbus_registers[4];
+    uint16_t inputRegister[512] = {0};
+    modbus_registers[1]         = &inputRegister[0];
+    inputRegister[0]            = 0x2324;
+    inputRegister[1]            = 0x2526;
+    mb_response_t modbus_response;
+    struct send_data_struct data = {
+        .node_id = 1, .power = 7, .data = {0}, .tamano = 1, .routing_type = 1};
 
-        send_data_esp_rf1276(&data);
-
+    while (xQueueReceive(lora_queue, &trama.trama_rx,
+                         (portTickType)portMAX_DELAY)) {
+        ESP_LOGI(TAG, "Receiving data...");
+        if (receive_packet_rf1276(&trama) == 0) {
+            node_origen = trama.respond.source_node.valor;
+            printf("nodo origen es: %u\n", node_origen);
+            modbus_response = modbus_lora_functions(trama.respond.data,
+                                                    trama.respond.data_length,
+                                                    modbus_registers);
+            memcpy(data.data, modbus_response.frame, modbus_response.len);
+            data.tamano = modbus_response.len;
+            send_data_esp_rf1276(&data);
+        }
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
