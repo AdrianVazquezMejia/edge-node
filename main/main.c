@@ -166,7 +166,7 @@ void task_modbus_master(void *arg) {
 static void task_lora(void *arg) {
     ESP_LOGI(TAG, "Task LoRa initialized");
     QueueHandle_t lora_queue;
-    uart_lora_t config = {.uart_tx = 25, .uart_rx = 14, .baud_rate = 9600};
+    uart_lora_t config = {.uart_tx = 14, .uart_rx = 15, .baud_rate = 9600};
 
     config_rf1276_t config_mesh = {.baud_rate    = 9600,
                                    .network_id   = 1,
