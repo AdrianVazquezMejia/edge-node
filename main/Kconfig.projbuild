@@ -24,5 +24,12 @@ menu "Custom Configuration"
         default "n"
         help
             This functions provides serial communication to a LoRa
-        
+    
+    config ID
+        int "node identifier"
+        range 1 255
+        default 255
+        help
+            unique network identifier
+
 endmenu

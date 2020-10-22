@@ -378,8 +378,8 @@ int send_data_esp_rf1276(struct send_data_struct *data) {
 
     uart_write_bytes(UART_RF1276, (const char *)trama.trama_tx,
                      trama.trama_tx[3] + 5);
-    // for (int i = 0; i < trama.trama_tx[3] + 5; i++)
-    //      printf("t[%d]: %02x\n", i, trama.trama_tx[i]);
+    for (int i = 0; i < trama.trama_tx[3] + 5; i++)
+        printf("t[%d]: %02x\n", i, trama.trama_tx[i]);
     xQueueReceive(cola_config, &(trama.trama_rx), portMAX_DELAY);
 
     info = check_send_data_rf1276(&trama);

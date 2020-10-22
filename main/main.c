@@ -24,8 +24,6 @@
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
 
-#define ID 255
-
 #define TIME_SCAN  2000
 #define MAX_SLAVES 255
 
@@ -39,7 +37,8 @@
         }                                                                      \
     })
 static char *TAG = "INFO";
-
+static uint16_t *modbus_registers[4];
+static uint16_t inputRegister[512] = {0};
 void task_pulse(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
@@ -54,6 +53,7 @@ void task_pulse(void *arg) {
         if (pinLevel == 1 && counted == false) {
             pulses++;
             flash_save(pulses);
+            register_save(pulses, inputRegister);
             counted = true;
             ESP_LOGI(TAG, "Pulse number %d", pulses);
         }
@@ -69,12 +69,10 @@ void task_modbus_slave(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
     uart_event_t event;
-    uint8_t *dtmp = (uint8_t *)malloc(RX_BUF_SIZE);
-    uint16_t *modbus_registers[4];
-    uint16_t inputRegister[512] = {0};
-    modbus_registers[1]         = &inputRegister[0];
-    inputRegister[0]            = 0x2324;
-    inputRegister[1]            = 0x2526;
+    uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
+    modbus_registers[1] = &inputRegister[0];
+    inputRegister[0]    = 0x2324;
+    inputRegister[1]    = 0x2526;
     uart_init(&uart_queue);
     while (xQueueReceive(uart_queue, (void *)&event,
                          (portTickType)portMAX_DELAY)) {
@@ -90,7 +88,7 @@ void task_modbus_slave(void *arg) {
             printf("\n");
             if (CRC16(dtmp, event.size) == 0) {
                 ESP_LOGI(TAG, "Modbus frame verified");
-                if (dtmp[0] == ID) {
+                if (dtmp[0] == CONFIG_ID) {
                     ESP_LOGI(TAG, "Frame to this slave");
                     modbus_slave_functions(dtmp, event.size, modbus_registers);
                 }
@@ -113,12 +111,10 @@ void task_modbus_master(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
     uart_event_t event;
-    uint8_t *dtmp = (uint8_t *)malloc(RX_BUF_SIZE);
-    uint16_t *modbus_registers[4];
-    uint16_t inputRegister[512] = {0};
-    modbus_registers[1]         = &inputRegister[0];
+    uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
+    modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
-    const uint16_t start_add    = 0x0000;
+    // const uint16_t start_add    = 0x0000;
     uint16_t quantity           = 2;
     bool slaves[MAX_SLAVES + 1] = {false};
     slaves[1]                   = true;
@@ -126,7 +122,7 @@ void task_modbus_master(void *arg) {
     uint8_t curr_slave          = 0;
     while (1) {
         if (slaves[curr_slave]) {
-            read_input_register(curr_slave, start_add, quantity);
+            read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
 
             if (xQueuePeek(uart_queue, (void *)&event, (portTickType)100)) {
                 ESP_LOGI(TAG, "Cleaned");
@@ -180,11 +176,9 @@ static void task_lora(void *arg) {
     struct trama_receive trama;
     start_lora_mesh(config, config_mesh, &lora_queue);
     uint16_t node_origen;
-    uint16_t *modbus_registers[4];
-    uint16_t inputRegister[512] = {0};
-    modbus_registers[1]         = &inputRegister[0];
-    inputRegister[0]            = 0x2324;
-    inputRegister[1]            = 0x2526;
+    modbus_registers[1] = &inputRegister[0];
+    // inputRegister[0]    = 0x2324;
+    // inputRegister[1]    = 0x2526;
     mb_response_t modbus_response;
     struct send_data_struct data = {
         .node_id = 1, .power = 7, .data = {0}, .tamano = 1, .routing_type = 1};

@@ -55,6 +55,8 @@ mb_response_t modbus_lora_functions(const uint8_t *frame, uint8_t length,
             response_frame[response_len++] = CRC.byte.HB;
             output.frame                   = response_frame;
             output.len                     = response_len;
+            ESP_LOGI(TAG,
+                     "Register read"); // BOGUS without this log crc is missing
             break;
         }
     }
