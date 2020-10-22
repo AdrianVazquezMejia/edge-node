@@ -18,7 +18,14 @@ static char *TAG = "UART";
 #define TX_BUF_SIZE 1024
 
 enum modbus_function_t { READ_HOLDING = 3, READ_INPUT };
+typedef union {
+    uint32_t doubleword;
+    struct {
+        uint16_t wordL;
+        uint16_t wordH;
+    } word;
 
+} WORD_VAL;
 void uart_init(QueueHandle_t *queue) {
     uart_driver_delete(UART_NUM_1);
     int uart_baudarate = 9600;
@@ -69,9 +76,17 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
             CRC.Val = CRC16(response_frame, response_len);
             response_frame[response_len++] = CRC.byte.LB;
             response_frame[response_len++] = CRC.byte.HB;
+            ESP_LOGI(TAG,
+                     "Register read"); // BOGUS without this log crc is missing
             uart_write_bytes(UART_NUM_1, (const char *)response_frame,
                              response_len);
             break;
         }
     }
+}
+void register_save(uint32_t value, uint16_t *modbus_register) {
+    WORD_VAL aux_register;
+    aux_register.doubleword        = value;
+    modbus_register[CONFIG_ID]     = aux_register.word.wordH;
+    modbus_register[CONFIG_ID + 1] = aux_register.word.wordL;
 }

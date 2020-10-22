@@ -20,5 +20,5 @@ typedef union {
 void uart_init(QueueHandle_t *queue);
 void modbus_slave_functions(const uint8_t *frame, uint8_t length,
                             uint16_t **modbus_registers);
-
+void register_save(uint32_t value, uint16_t *modbus_register);
 #endif /* MAIN_INCLUDE_MODBUS_SLAVE_H_ */
