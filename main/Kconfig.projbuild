@@ -32,4 +32,11 @@ menu "Custom Configuration"
         help
             unique network identifier
 
+    config SLAVES
+        int "Number of slaves"
+        range 0 255
+        default 0
+        help
+            number of slaves to poll
+
 endmenu

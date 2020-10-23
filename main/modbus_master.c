@@ -62,3 +62,10 @@ void save_register(uint8_t *data, uint8_t length, uint16_t **modbus_registers) {
         break;
     }
 }
+void init_slaves(bool *slaves) {
+    int i = 0;
+    for (i = 0; i < 256; i++)
+        slaves[i] = false;
+    for (i = 1; i <= CONFIG_SLAVES; i++)
+        slaves[i] = true;
+}

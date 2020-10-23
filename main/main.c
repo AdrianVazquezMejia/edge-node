@@ -115,11 +115,10 @@ void task_modbus_master(void *arg) {
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
     // const uint16_t start_add    = 0x0000;
-    uint16_t quantity           = 2;
-    bool slaves[MAX_SLAVES + 1] = {false};
-    slaves[1]                   = true;
-    slaves[255]                 = true;
-    uint8_t curr_slave          = 0;
+    uint16_t quantity = 2;
+    bool slaves[MAX_SLAVES + 1];
+    init_slaves(slaves);
+    uint8_t curr_slave = 0;
     while (1) {
         if (slaves[curr_slave]) {
             read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
