@@ -54,9 +54,9 @@ void save_register(uint8_t *data, uint8_t length, uint16_t **modbus_registers) {
         uint8_t byte_count = data[2];
         INT_VAL aux_registro;
         for (uint8_t i = 0; i < byte_count / 2; i++) {
-            aux_registro.byte.HB     = data[3 + 2 * i];
-            aux_registro.byte.LB     = data[4 + 2 * i];
-            inputRegister[SLAVE + i] = aux_registro.Val;
+            aux_registro.byte.HB             = data[3 + 2 * i];
+            aux_registro.byte.LB             = data[4 + 2 * i];
+            inputRegister[SLAVE * 2 + i - 1] = aux_registro.Val;
         }
         ESP_LOGI(TAG, "Received data saved...");
         break;
