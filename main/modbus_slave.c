@@ -80,6 +80,8 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
                      "Register read"); // BOGUS without this log crc is missing
             uart_write_bytes(UART_NUM_1, (const char *)response_frame,
                              response_len);
+            for (int i = 0; i < response_len; i++)
+                printf("tx[%d]: %x\n", i, response_frame[i]);
             break;
         }
     }

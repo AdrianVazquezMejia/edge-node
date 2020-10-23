@@ -65,8 +65,6 @@ void task_pulse(void *arg) {
     }
 }
 void task_modbus_slave(void *arg) {
-    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
-    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
     uart_event_t event;
     uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
@@ -100,7 +98,6 @@ void task_modbus_slave(void *arg) {
         default:
             ESP_LOGI(TAG, "UART event");
         }
-        CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
     free(dtmp);
     dtmp = NULL;
@@ -118,47 +115,51 @@ void task_modbus_master(void *arg) {
     uint16_t quantity = 2;
     bool slaves[MAX_SLAVES + 1];
     init_slaves(slaves);
-    uint8_t curr_slave = 0;
+    uint8_t curr_slave = 1;
+    if (CONFIG_SLAVES == 0)
+        vTaskDelete(NULL);
     while (1) {
-        if (slaves[curr_slave]) {
-            read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
 
-            if (xQueuePeek(uart_queue, (void *)&event, (portTickType)100)) {
+        read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
+
+        if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
+
+            if (event.type == UART_BREAK) {
                 ESP_LOGI(TAG, "Cleaned");
-                if (event.type == UART_BREAK) {
-                    xQueueReset(uart_queue);
-                }
+                xQueueReset(uart_queue);
             }
-            if (xQueueReceive(uart_queue, (void *)&event, (portTickType)100)) {
-                switch (event.type) {
-                case UART_DATA:
-                    uart_read_bytes(UART_NUM_1, dtmp, event.size,
-                                    portMAX_DELAY);
-                    ESP_LOGI(TAG, "Received data is:");
-                    for (int i = 0; i < event.size; i++) {
-                        printf("%x ", dtmp[i]);
-                    }
-                    printf("\n");
-                    if (CRC16(dtmp, event.size) == 0) {
-                        ESP_LOGI(TAG, "Modbus frame verified");
-                        save_register(dtmp, event.size, modbus_registers);
-                    } else
-                        ESP_LOGI(TAG, "Frame not verified: %d",
-                                 CRC16(dtmp, event.size));
-                    break;
-                default:
-                    ESP_LOGI(TAG, "uart event type: %d", event.type);
-                    break;
+        }
+        if (xQueueReceive(uart_queue, (void *)&event, (portTickType)100)) {
+            switch (event.type) {
+            case UART_DATA:
+                uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
+                ESP_LOGI(TAG, "Received data is:");
+                for (int i = 0; i < event.size; i++) {
+                    printf("%x ", dtmp[i]);
                 }
-            } else
-                ESP_LOGI(TAG, "Timeout");
+                printf("\n");
+                if (CRC16(dtmp, event.size) == 0) {
+                    ESP_LOGI(TAG, "Modbus frame verified");
+                    save_register(dtmp, event.size, modbus_registers);
+                } else
+                    ESP_LOGI(TAG, "Frame not verified: %d",
+                             CRC16(dtmp, event.size));
+                break;
+            default:
+                ESP_LOGI(TAG, "uart event type: %d", event.type);
+                break;
+            }
+        } else {
+            ESP_LOGI(TAG, "Timeout");
             vTaskDelay(TIME_SCAN / portTICK_PERIOD_MS);
         }
         curr_slave++;
+        if (curr_slave > CONFIG_SLAVES)
+            curr_slave = 1;
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
 }
-static void task_lora(void *arg) {
+void task_lora(void *arg) {
     ESP_LOGI(TAG, "Task LoRa initialized");
     QueueHandle_t lora_queue;
     uart_lora_t config = {.uart_tx = 14, .uart_rx = 15, .baud_rate = 9600};
