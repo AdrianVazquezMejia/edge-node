@@ -10,8 +10,8 @@
 #include "esp_log.h"
 #include "stdint.h"
 static char *TAG = "UART";
-#define TXD_PIN     25
-#define RXD_PIN     14
+#define TXD_PIN     33
+#define RXD_PIN     26
 #define RTS_PIN     27
 #define CTS_PIN     19
 #define RX_BUF_SIZE 1024
@@ -80,6 +80,8 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
                      "Register read"); // BOGUS without this log crc is missing
             uart_write_bytes(UART_NUM_1, (const char *)response_frame,
                              response_len);
+            for (int i = 0; i < response_len; i++)
+                printf("tx[%d]: %x\n", i, response_frame[i]);
             break;
         }
     }
