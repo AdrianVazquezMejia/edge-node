@@ -166,7 +166,7 @@ void task_lora(void *arg) {
 
     config_rf1276_t config_mesh = {.baud_rate    = 9600,
                                    .network_id   = 1,
-                                   .node_id      = 2,
+                                   .node_id      = CONFIG_ID,
                                    .power        = 7,
                                    .routing_time = 1,
                                    .freq         = 433.0,
