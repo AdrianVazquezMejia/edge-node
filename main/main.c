@@ -69,8 +69,6 @@ void task_modbus_slave(void *arg) {
     uart_event_t event;
     uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
     modbus_registers[1] = &inputRegister[0];
-    inputRegister[0]    = 0x2324;
-    inputRegister[1]    = 0x2526;
     uart_init(&uart_queue);
     while (xQueueReceive(uart_queue, (void *)&event,
                          (portTickType)portMAX_DELAY)) {
@@ -193,7 +191,8 @@ void task_lora(void *arg) {
                                                     trama.respond.data_length,
                                                     modbus_registers);
             memcpy(data.data, modbus_response.frame, modbus_response.len);
-            data.tamano = modbus_response.len;
+            data.tamano  = modbus_response.len;
+            data.node_id = node_origen;
             send_data_esp_rf1276(&data);
         }
         vTaskDelay(1000 / portTICK_PERIOD_MS);
