@@ -175,8 +175,6 @@ void task_lora(void *arg) {
     start_lora_mesh(config, config_mesh, &lora_queue);
     uint16_t node_origen;
     modbus_registers[1] = &inputRegister[0];
-    // inputRegister[0]    = 0x2324;
-    // inputRegister[1]    = 0x2526;
     mb_response_t modbus_response;
     struct send_data_struct data = {
         .node_id = 1, .power = 7, .data = {0}, .tamano = 1, .routing_type = 1};
