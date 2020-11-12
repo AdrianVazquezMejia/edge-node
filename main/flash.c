@@ -15,6 +15,14 @@
 
 char *TAG_NVS = "NVS";
 //#define FLAH_LOG
+inline int get_name(char **output, char *prefix, int n) {
+    if (asprintf(output, "%s%d", prefix, n) < 0) {
+        ESP_LOGE(TAG_NVS, "Create %s name error", prefix);
+        return -1;
+    };
+    ESP_LOGI(TAG_NVS, "%s", *output);
+    return 0;
+}
 void flash_save(uint32_t value) {
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
@@ -88,70 +96,77 @@ void flash_get(uint32_t *value) {
         nvs_close(my_handle);
     }
 }
-
-esp_err_t search_init_partition(uint8_t *pnumber) {
-
-    char *pname;
+/*Reset partition if corrupted*/
+void check_partition(char *name) {
+    esp_err_t err;
+    err = nvs_flash_init_partition(name);
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
+        err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase_partition(name));
+        ESP_ERROR_CHECK(nvs_flash_init_partition(name));
+    }
+    nvs_flash_deinit_partition(name);
+}
+/*Print partition info*/
+void put_partition_info(char *name) {
     nvs_stats_t info;
+    esp_err_t err;
+    ESP_ERROR_CHECK(nvs_flash_init_partition(name));
+    err = nvs_get_stats(name, &info);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG_NVS, "Error (%s)", esp_err_to_name(err));
+        return;
+    }
+    ESP_LOGI(TAG_NVS,
+             "\n Total entries: %d\n - Used entries:%d\n - Free"
+             "entries: %d\n - "
+             "Namespace count: %d",
+             info.total_entries, info.used_entries, info.free_entries,
+             info.namespace_count);
+    nvs_flash_deinit_partition(name);
+}
+esp_err_t search_init_partition(uint8_t *pnumber) {
+    // xxx on hardware reset
+    char *pname;
     nvs_handle_t my_handle;
     uint8_t isFull;
     esp_err_t err;
 
     for (uint8_t i = 1; i <= 3; i++) {
-        if (asprintf(&pname, "app%d", i) < 0) {
-            free(pname);
-            ESP_LOGI(TAG_NVS, "Partition name not created");
+        if (get_name(&pname, "app", i)) {
             return ESP_FAIL;
         }
-        ESP_LOGE(TAG_NVS, "%s", pname);
-        err = nvs_flash_init_partition(pname);
+        check_partition(pname);
+        put_partition_info(pname);
 
-        //  Reset if corrupted
-        if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
-            err == ESP_ERR_NVS_NEW_VERSION_FOUND ||
-            gpio_get_level(GPIO_NUM_0) == 0) {
-            ESP_ERROR_CHECK(nvs_flash_erase_partition("app1"));
-            ESP_ERROR_CHECK(nvs_flash_erase_partition("app2"));
-            ESP_ERROR_CHECK(nvs_flash_erase_partition("app3"));
-            ESP_ERROR_CHECK(nvs_flash_init_partition(pname));
-        }
-        // info
-        err = nvs_get_stats(pname, &info);
-        if (err == ESP_OK)
-            ESP_LOGI(TAG_NVS,
-                     "\n Total entries: %d\n - Used entries:%d\n - Free"
-                     "entries: %d\n - "
-                     "Namespace count: %d",
-                     info.total_entries, info.used_entries, info.free_entries,
-                     info.namespace_count);
-        // Check partition status
-        err = nvs_open_from_partition(pname, "storage", NVS_READWRITE,
-                                      &my_handle);
+        ESP_ERROR_CHECK(nvs_flash_init_partition(pname));
+        nvs_open_from_partition(pname, "storage", NVS_READWRITE, &my_handle);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG_NVS, "ERROR IN nvs_open_from_partition");
+            ESP_LOGE(TAG_NVS, "nvs_open_from_partition error, Error (%s)",
+                     esp_err_to_name(err));
             return ESP_FAIL;
         }
         err = nvs_get_u8(my_handle, "isFull", &isFull);
-        if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
-            ESP_LOGE(TAG_NVS, "ERROR (%s) IN GET", esp_err_to_name(err));
-        else if (err == ESP_ERR_NVS_NOT_FOUND) {
+        if (err == ESP_ERR_NVS_NOT_FOUND) {
             // create if not exists
             isFull = false;
-            err    = nvs_set_u8(my_handle, "finished", isFull);
+            err    = nvs_set_u8(my_handle, "isFull", isFull);
             err    = nvs_commit(my_handle);
             if (err != ESP_OK)
-                ESP_LOGE(TAG_NVS, "ERROR IN COMMIT");
-        }
+                ESP_LOGE(TAG_NVS, "Commit error");
+        } else if (err != ESP_OK)
+            ESP_LOGE(TAG_NVS, "Get error (%s)", esp_err_to_name(err));
+
         // Save partition number
         err = nvs_get_u8(my_handle, "pnumber", pnumber);
         if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
-            ESP_LOGE(TAG_NVS, "ERROR IN GET");
+            ESP_LOGE(TAG_NVS, "Get pnumber error");
         else if (err == ESP_ERR_NVS_NOT_FOUND) {
             err = nvs_set_u8(my_handle, "pnumber", i);
             ESP_LOGW(TAG_NVS, "Partition number set first time: %d", i);
             err = nvs_commit(my_handle);
             if (err != ESP_OK)
-                ESP_LOGE(TAG_NVS, "ERROR IN COMMIT");
+                ESP_LOGE(TAG_NVS, "Commit error");
         }
         ESP_LOGI(TAG_NVS, "Partition number set: %u", *pnumber);
         // Close partition
