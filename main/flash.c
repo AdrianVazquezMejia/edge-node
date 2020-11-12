@@ -13,6 +13,7 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 
+#define MAX_PARTITIONS 3
 char *TAG_NVS = "NVS";
 //#define FLAH_LOG
 inline int get_name(char **output, char *prefix, int n) {
@@ -140,48 +141,53 @@ esp_err_t search_init_partition(uint8_t *pnumber) {
         put_partition_info(pname);
 
         ESP_ERROR_CHECK(nvs_flash_init_partition(pname));
-        nvs_open_from_partition(pname, "storage", NVS_READWRITE, &my_handle);
+        err = nvs_open_from_partition(pname, "storage", NVS_READWRITE,
+                                      &my_handle);
         if (err != ESP_OK) {
             ESP_LOGE(TAG_NVS, "nvs_open_from_partition error, Error (%s)",
                      esp_err_to_name(err));
             return ESP_FAIL;
         }
+        // Get status
         err = nvs_get_u8(my_handle, "isFull", &isFull);
         if (err == ESP_ERR_NVS_NOT_FOUND) {
             // create if not exists
             isFull = false;
             err    = nvs_set_u8(my_handle, "isFull", isFull);
-            err    = nvs_commit(my_handle);
+            if (err != ESP_OK)
+                ESP_LOGE(TAG_NVS, "Set error");
+            err = nvs_commit(my_handle);
             if (err != ESP_OK)
                 ESP_LOGE(TAG_NVS, "Commit error");
         } else if (err != ESP_OK)
             ESP_LOGE(TAG_NVS, "Get error (%s)", esp_err_to_name(err));
 
-        // Save partition number
+        // Get partition number
         err = nvs_get_u8(my_handle, "pnumber", pnumber);
-        if (err != ESP_OK && err != ESP_ERR_NVS_NOT_FOUND)
-            ESP_LOGE(TAG_NVS, "Get pnumber error");
-        else if (err == ESP_ERR_NVS_NOT_FOUND) {
+        if (err == ESP_ERR_NVS_NOT_FOUND) {
             err = nvs_set_u8(my_handle, "pnumber", i);
-            ESP_LOGW(TAG_NVS, "Partition number set first time: %d", i);
+            if (err != ESP_OK)
+                ESP_LOGE(TAG_NVS, "Set error");
             err = nvs_commit(my_handle);
             if (err != ESP_OK)
                 ESP_LOGE(TAG_NVS, "Commit error");
-        }
+            ESP_LOGI(TAG_NVS, "Partition number set first time: %d", i);
+        } else if (err != ESP_OK)
+            ESP_LOGE(TAG_NVS, "Get error (%s)", esp_err_to_name(err));
         ESP_LOGI(TAG_NVS, "Partition number set: %u", *pnumber);
-        // Close partition
+
         nvs_close(my_handle);
         nvs_flash_deinit_partition(pname);
 
         if (isFull) {
             ESP_LOGW(TAG_NVS, "Partition number %d is full, trying next", i);
-            if (i == 3) {
+            if (i == MAX_PARTITIONS) {
                 ESP_LOGE(TAG_NVS, "All partitions are full");
                 return ESP_FAIL;
             }
             continue;
         }
-        ESP_LOGI(TAG_NVS, "NVS init can be done in partition %s", pname);
+        ESP_LOGI(TAG_NVS, "NVS init success in  %s", pname);
         *pnumber = i;
         break;
     }
