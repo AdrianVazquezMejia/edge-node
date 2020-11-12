@@ -15,6 +15,8 @@
 #include "modbus_lora.h"
 #include "modbus_master.h"
 #include "modbus_slave.h"
+#include "nvs.h"
+#include "nvs_flash.h"
 #include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
@@ -39,6 +41,7 @@
 static char *TAG = "INFO";
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
+
 void task_pulse(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
@@ -48,6 +51,10 @@ void task_pulse(void *arg) {
     uint32_t pulses = 0;
     bool counted    = false;
     flash_get(&pulses);
+
+    uint8_t partition_number = 0;
+    search_init_partition(&partition_number);
+
     while (1) {
         pinLevel = gpio_get_level(GPIO_NUM_0);
         if (pinLevel == 1 && counted == false) {
