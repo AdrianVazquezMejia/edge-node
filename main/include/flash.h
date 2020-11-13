@@ -9,9 +9,13 @@
 
 #ifndef MAIN_INCLUDE_FLASH_H_
 #define MAIN_INCLUDE_FLASH_H_
-
+typedef struct {
+    uint8_t partition;
+    uint8_t page;
+    uint8_t entry_index;
+} nvs_address_t;
 void flash_save(uint32_t value);
 void flash_get(uint32_t *value);
 esp_err_t search_init_partition(uint8_t *pnumber);
-esp_err_t get_initial_pulse(uint32_t *test_pulses, uint8_t partition_number);
+esp_err_t get_initial_pulse(uint32_t *test_pulses, nvs_address_t *address);
 #endif /* MAIN_INCLUDE_FLASH_H_ */

@@ -184,12 +184,14 @@ esp_err_t search_init_partition(uint8_t *pnumber) {
             ESP_LOGW(TAG_NVS, "Partition number %d is full, trying next", i);
             if (i == MAX_PARTITIONS) {
                 ESP_LOGE(TAG_NVS, "All partitions are full");
+                free(pname);
                 return ESP_FAIL;
             }
             continue;
         }
         ESP_LOGI(TAG_NVS, "NVS init success in  %s", pname);
         *pnumber = i;
+        free(pname);
         break;
     }
     return ESP_OK;
@@ -222,7 +224,7 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
     if (err != ESP_OK)
         return err;
 
-    err = nvs_get_u32(my_handle, page_name, counter_value);
+    err = nvs_get_u32(my_handle, entry_key, counter_value);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
         err = nvs_set_u32(my_handle, entry_key, *counter_value);
         if (err != ESP_OK)
@@ -234,7 +236,7 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
         return err;
 
     nvs_close(my_handle);
-
+    free(entry_key);
     ESP_LOGI(TAG_NVS_2, "Last counter value: %d ", *counter_value);
     return ESP_OK;
 }
@@ -264,14 +266,15 @@ static esp_err_t read_pvcounter_from_storage(char *partition_name,
     return ESP_OK;
 }
 
-esp_err_t get_initial_pulse(uint32_t *pulse_counter, uint8_t partition_number) {
+esp_err_t get_initial_pulse(uint32_t *pulse_counter, nvs_address_t *address) {
     esp_err_t err;
     char *partition_name;
     char *page_name;
     uint8_t page_index;
     uint32_t counter_value;
     uint8_t entry_index;
-
+    uint8_t partition_number;
+    err = search_init_partition(&partition_number);
     if (get_name(&partition_name, "app", partition_number)) {
         return ESP_FAIL;
     }
@@ -289,6 +292,7 @@ esp_err_t get_initial_pulse(uint32_t *pulse_counter, uint8_t partition_number) {
 
     err = get_pulse_counter_info(partition_name, page_name, &entry_index,
                                  &counter_value);
+    free(page_name);
     if (err != ESP_OK)
         return err;
 
