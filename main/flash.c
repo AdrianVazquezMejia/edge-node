@@ -134,7 +134,7 @@ esp_err_t search_init_partition(uint8_t *pnumber) {
     uint8_t isFull;
     esp_err_t err;
 
-    for (uint8_t i = 1; i <= 3; i++) {
+    for (uint8_t i = 1; i <= MAX_PARTITIONS; i++) {
         if (get_name(&pname, "app", i)) {
             return ESP_FAIL;
         }
@@ -194,7 +194,50 @@ esp_err_t search_init_partition(uint8_t *pnumber) {
     }
     return ESP_OK;
 }
+static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
+                                        uint8_t *entry_index,
+                                        uint32_t *counter_value) {
+    nvs_handle_t my_handle;
+    nvs_iterator_t entry;
+    nvs_entry_info_t info;
+    esp_err_t err;
+    char *entry_key;
 
+    entry = nvs_entry_find(partition_name, page_name, NVS_TYPE_ANY);
+    while (entry != NULL) {
+        entry_index++;
+        nvs_entry_info(entry, &info);
+        entry = nvs_entry_next(entry);
+        ESP_LOGI(TAG_NVS_2, "key '%s', type '%d' \n", info.key, info.type);
+    };
+    nvs_release_iterator(entry);
+
+    if (get_name(&entry_key, "entry", *entry_index)) {
+        free(entry_key);
+        return ESP_FAIL;
+    }
+
+    err = nvs_open_from_partition(partition_name, page_name, NVS_READWRITE,
+                                  &my_handle);
+    if (err != ESP_OK)
+        return err;
+
+    err = nvs_get_u32(my_handle, page_name, counter_value);
+    if (err == ESP_ERR_NVS_NOT_FOUND) {
+        err = nvs_set_u32(my_handle, entry_key, *counter_value);
+        if (err != ESP_OK)
+            ESP_LOGE(TAG_NVS, "Set %s error", entry_key);
+        err = nvs_commit(my_handle);
+        if (err != ESP_OK)
+            ESP_LOGE(TAG_NVS, "Commit %s error", entry_key);
+    } else if (err != ESP_OK)
+        return err;
+
+    nvs_close(my_handle);
+
+    ESP_LOGI(TAG_NVS_2, "Last counter value: %d ", *counter_value);
+    return ESP_OK;
+}
 static esp_err_t read_pvcounter_from_storage(char *partition_name,
                                              uint8_t *page_index) {
     nvs_handle_t my_handle;
@@ -223,14 +266,35 @@ static esp_err_t read_pvcounter_from_storage(char *partition_name,
 
 esp_err_t get_initial_pulse(uint32_t *pulse_counter, uint8_t partition_number) {
     esp_err_t err;
-    char *partition_name, *pvActual;
-    uint8_t indexPv;
+    char *partition_name;
+    char *page_name;
+    uint8_t page_index;
+    uint32_t counter_value;
+    uint8_t entry_index;
 
     if (get_name(&partition_name, "app", partition_number)) {
         return ESP_FAIL;
     }
     err = nvs_flash_init_partition(partition_name);
-    err = read_pvcounter_from_storage(partition_name, &indexPv);
+    if (err != ESP_OK)
+        return err;
+
+    err = read_pvcounter_from_storage(partition_name, &page_index);
+    if (err != ESP_OK)
+        return err;
+
+    if (get_name(&page_name, "page", page_index)) {
+        return ESP_FAIL;
+    }
+
+    err = get_pulse_counter_info(partition_name, page_name, &entry_index,
+                                 &counter_value);
+    if (err != ESP_OK)
+        return err;
+
     err = nvs_flash_deinit_partition(partition_name);
+    if (err != ESP_OK)
+        return err;
+
     return ESP_OK;
 }
