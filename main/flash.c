@@ -14,8 +14,9 @@
 #include "nvs_flash.h"
 
 #define MAX_PARTITIONS 3
-char *TAG_NVS = "NVS";
-//#define FLAH_LOG
+char *TAG_NVS   = "NVS";
+char *TAG_NVS_2 = "NVS_2";
+//#define FLASH_LOG
 inline int get_name(char **output, char *prefix, int n) {
     if (asprintf(output, "%s%d", prefix, n) < 0) {
         ESP_LOGE(TAG_NVS, "Create %s name error", prefix);
@@ -42,12 +43,12 @@ void flash_save(uint32_t value) {
 #endif
     } else {
         err = nvs_set_u32(my_handle, "value", value);
-#ifdef FLAH_LOG
+#ifdef FLASH_LOG
         printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
         printf("Committing updates in NVS ... ");
 #endif
         err = nvs_commit(my_handle);
-#ifdef FLAH_LOG
+#ifdef FLASH_LOG
         printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 #endif
         nvs_close(my_handle);
@@ -127,7 +128,7 @@ void put_partition_info(char *name) {
     nvs_flash_deinit_partition(name);
 }
 esp_err_t search_init_partition(uint8_t *pnumber) {
-    // xxx on hardware reset
+    // TODO on hardware reset with button
     char *pname;
     nvs_handle_t my_handle;
     uint8_t isFull;
@@ -191,5 +192,45 @@ esp_err_t search_init_partition(uint8_t *pnumber) {
         *pnumber = i;
         break;
     }
+    return ESP_OK;
+}
+
+static esp_err_t read_pvcounter_from_storage(char *partition_name,
+                                             uint8_t *page_index) {
+    nvs_handle_t my_handle;
+    esp_err_t err;
+
+    err = nvs_open_from_partition(partition_name, "storage", NVS_READWRITE,
+                                  &my_handle);
+    if (err != ESP_OK)
+        return err;
+
+    err = nvs_get_u8(my_handle, "page_index", page_index);
+    if (err == ESP_ERR_NVS_NOT_FOUND) {
+        *page_index = 1;
+        err         = nvs_set_u8(my_handle, "page_index", *page_index);
+        if (err != ESP_OK)
+            ESP_LOGE(TAG_NVS_2, "Set %d error", *page_index);
+        err = nvs_commit(my_handle);
+        if (err != ESP_OK)
+            ESP_LOGE(TAG_NVS_2, "Commit %d error", *page_index);
+    } else if (err != ESP_OK)
+        return err;
+
+    nvs_close(my_handle);
+    return ESP_OK;
+}
+
+esp_err_t get_initial_pulse(uint32_t *pulse_counter, uint8_t partition_number) {
+    esp_err_t err;
+    char *partition_name, *pvActual;
+    uint8_t indexPv;
+
+    if (get_name(&partition_name, "app", partition_number)) {
+        return ESP_FAIL;
+    }
+    err = nvs_flash_init_partition(partition_name);
+    err = read_pvcounter_from_storage(partition_name, &indexPv);
+    err = nvs_flash_deinit_partition(partition_name);
     return ESP_OK;
 }

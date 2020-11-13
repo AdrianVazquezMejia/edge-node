@@ -48,12 +48,16 @@ void task_pulse(void *arg) {
     ESP_LOGI(TAG, "Pulse counter task started");
     gpio_set_direction(GPIO_NUM_0, GPIO_MODE_INPUT);
     int pinLevel;
-    uint32_t pulses = 0;
-    bool counted    = false;
+    uint32_t pulses      = 0;
+    uint32_t test_pulses = 0; // Pulsos de prueba
+    bool counted         = false;
+    esp_err_t err;
+
     flash_get(&pulses);
 
     uint8_t partition_number = 0;
-    search_init_partition(&partition_number);
+    err                      = search_init_partition(&partition_number);
+    err = get_initial_pulse(&test_pulses, partition_number);
 
     while (1) {
         pinLevel = gpio_get_level(GPIO_NUM_0);
