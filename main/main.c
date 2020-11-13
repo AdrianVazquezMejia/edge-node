@@ -56,12 +56,12 @@ void task_pulse(void *arg) {
     flash_get(&pulses);
 
     nvs_address_t pulse_address;
-    // err = search_init_partition(&pulse_address.partition);
     err = get_initial_pulse(&test_pulses, &pulse_address);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "FLASH ERROR");
         vTaskDelete(NULL);
     }
+
     while (1) {
         pinLevel = gpio_get_level(GPIO_NUM_0);
         if (pinLevel == 1 && counted == false) {

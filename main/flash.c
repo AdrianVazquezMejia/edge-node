@@ -273,9 +273,9 @@ esp_err_t get_initial_pulse(uint32_t *pulse_counter, nvs_address_t *address) {
     uint8_t page_index;
     uint32_t counter_value;
     uint8_t entry_index;
-    uint8_t partition_number;
-    err = search_init_partition(&partition_number);
-    if (get_name(&partition_name, "app", partition_number)) {
+
+    err = search_init_partition(&address->partition);
+    if (get_name(&partition_name, "app", address->partition)) {
         return ESP_FAIL;
     }
     err = nvs_flash_init_partition(partition_name);
@@ -299,6 +299,10 @@ esp_err_t get_initial_pulse(uint32_t *pulse_counter, nvs_address_t *address) {
     err = nvs_flash_deinit_partition(partition_name);
     if (err != ESP_OK)
         return err;
-
+    address->page        = page_index;
+    address->entry_index = entry_index;
+    ESP_LOGI(TAG_NVS, "ADDRESS:");
+    ESP_LOGI(TAG_NVS, "\n-Partition: %d \n - Page: %d\n - Entry %d",
+             address->partition, address->page, address->entry_index);
     return ESP_OK;
 }
