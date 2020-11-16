@@ -53,10 +53,10 @@ void task_pulse(void *arg) {
     bool counted         = false;
     esp_err_t err;
 
-    flash_get(&pulses);
+    // flash_get(&pulses);
 
     nvs_address_t pulse_address;
-    err = get_initial_pulse(&test_pulses, &pulse_address);
+    err = get_initial_pulse(&pulses, &pulse_address);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "FLASH ERROR");
         vTaskDelete(NULL);
@@ -67,6 +67,7 @@ void task_pulse(void *arg) {
         if (pinLevel == 1 && counted == false) {
             pulses++;
             flash_save(pulses);
+            err = put_nvs(pulses, &pulse_address);
             register_save(pulses, inputRegister);
             counted = true;
             ESP_LOGI(TAG, "Pulse number %d", pulses);
