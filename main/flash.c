@@ -14,9 +14,9 @@
 #include "nvs_flash.h"
 
 #define MAX_PARTITIONS 3
-#define MAX_ENTRIES    125
+#define MAX_ENTRIES    127
 #define MAX_PAGES      15
-#define MAX_WRITES     1000
+#define MAX_WRITES     80000
 char *TAG_NVS   = "NVS";
 char *TAG_NVS_2 = "NVS_2";
 //#define FLASH_LOG
@@ -343,7 +343,7 @@ esp_err_t save2address(uint32_t data, nvs_address_t address) {
 
     nvs_close(my_handle);
     nvs_flash_init_partition(partition_name);
-    ESP_LOGE(TAG_NVS, "Data successfully saved %d", data);
+    ESP_LOGI(TAG_NVS, "Data successfully saved %d", data);
     free(entry_key);
     free(partition_name);
     free(page_name);
@@ -352,11 +352,14 @@ esp_err_t save2address(uint32_t data, nvs_address_t address) {
 esp_err_t put_nvs(uint32_t data, nvs_address_t *address) {
 
     bool writeNext = false;
-    writeNext      = (bool)data / ((address->entry_index + 1) * address->page *
-                              address->partition * MAX_WRITES);
+    uint32_t total_entries;
+    total_entries = (address->entry_index + 1) +
+                    (address->page - 1) * MAX_ENTRIES +
+                    (address->partition - 1) * MAX_PAGES * MAX_ENTRIES;
+    writeNext = data / (total_entries * MAX_WRITES);
     if (writeNext) {
         ESP_LOGI(TAG_NVS, "Next entry");
-        if (address->entry_index >= MAX_ENTRIES) {
+        if (address->entry_index >= MAX_ENTRIES - 1) {
             ESP_LOGI(TAG_NVS, "Next page");
             if (address->page >= MAX_PAGES) {
                 ESP_LOGI(TAG_NVS, "Next partition");
@@ -375,7 +378,6 @@ esp_err_t put_nvs(uint32_t data, nvs_address_t *address) {
         } else
             address->entry_index++;
     }
-
     save2address(data, *address);
     return ESP_OK;
 }

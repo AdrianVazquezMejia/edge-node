@@ -48,12 +48,9 @@ void task_pulse(void *arg) {
     ESP_LOGI(TAG, "Pulse counter task started");
     gpio_set_direction(GPIO_NUM_0, GPIO_MODE_INPUT);
     int pinLevel;
-    uint32_t pulses      = 0;
-    uint32_t test_pulses = 0; // Pulsos de prueba
-    bool counted         = false;
+    uint32_t pulses = 0;
+    bool counted    = false;
     esp_err_t err;
-
-    // flash_get(&pulses);
 
     nvs_address_t pulse_address;
     err = get_initial_pulse(&pulses, &pulse_address);
@@ -67,7 +64,7 @@ void task_pulse(void *arg) {
         if (pinLevel == 1 && counted == false) {
             pulses++;
             flash_save(pulses);
-            err = put_nvs(pulses, &pulse_address);
+            err = put_nvs(pulses, &pulse_address); // TODO handle this
             register_save(pulses, inputRegister);
             counted = true;
             ESP_LOGI(TAG, "Pulse number %d", pulses);
