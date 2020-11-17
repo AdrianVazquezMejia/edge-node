@@ -33,7 +33,7 @@ void uart_init(QueueHandle_t *queue) {
     const uart_config_t uart_config = {
         .baud_rate = uart_baudarate,
         .data_bits = UART_DATA_8_BITS,
-        .parity    = UART_PARITY_DISABLE,
+        .parity    = UART_PARITY_EVEN,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     };

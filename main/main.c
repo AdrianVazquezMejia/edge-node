@@ -219,9 +219,11 @@ void app_main() {
 #endif
 
 #ifdef CONFIG_SLAVE_MODBUS
+#ifndef CONFIG_MASTER_MODBUS
     ESP_LOGI(TAG, "Start Modbus slave task");
     xTaskCreatePinnedToCore(task_modbus_slave, "task_modbus_slave", 2048 * 2,
                             NULL, 10, NULL, 1);
+#endif
 #endif
 
 #ifdef CONFIG_MASTER_MODBUS
