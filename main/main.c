@@ -38,7 +38,8 @@
             abort();                                                           \
         }                                                                      \
     })
-static char *TAG = "INFO";
+static char *TAG      = "INFO";
+static char *TAG_UART = "MODBUS";
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
@@ -85,28 +86,31 @@ void task_modbus_slave(void *arg) {
     while (xQueueReceive(uart_queue, (void *)&event,
                          (portTickType)portMAX_DELAY)) {
         bzero(dtmp, RX_BUF_SIZE);
-
         switch (event.type) {
         case UART_DATA:
-            uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
-            ESP_LOGI(TAG, "Received data is:");
+            if (uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY) ==
+                ESP_FAIL) {
+                ESP_LOGE(TAG_UART, "Error while reading UART data");
+                break;
+            }
+            ESP_LOGI(TAG_UART, "Received data is:");
             for (int i = 0; i < event.size; i++) {
                 printf("%x ", dtmp[i]);
             }
             printf("\n");
             if (CRC16(dtmp, event.size) == 0) {
-                ESP_LOGI(TAG, "Modbus frame verified");
+                ESP_LOGI(TAG_UART, "Modbus frame verified");
                 if (dtmp[0] == CONFIG_ID) {
                     ESP_LOGI(TAG, "Frame to this slave");
                     modbus_slave_functions(dtmp, event.size, modbus_registers);
                 }
-            } else
-                ESP_LOGI(TAG, "Frame not verified: %d",
-                         CRC16(dtmp, event.size));
-
+            } else {
+                ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(dtmp, event.size));
+                crc_error_response(dtmp);
+            }
             break;
         default:
-            ESP_LOGI(TAG, "UART event");
+            ESP_LOGE(TAG_UART, "UART event %d", event.type);
         }
     }
     free(dtmp);
@@ -121,7 +125,6 @@ void task_modbus_master(void *arg) {
     uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
-    // const uint16_t start_add    = 0x0000;
     uint16_t quantity = 2;
     bool slaves[MAX_SLAVES + 1];
     init_slaves(slaves);

@@ -34,7 +34,7 @@ menu "Custom Configuration"
 
     config SLAVES
         int "Number of slaves"
-        range 1 255
+        range 0 255
         default 0
         help
             number of slaves to poll

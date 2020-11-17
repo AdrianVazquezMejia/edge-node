@@ -17,6 +17,7 @@ static char *TAG = "UART";
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
 
+#define EXCEPTION_LEN 3
 enum modbus_function_t { READ_HOLDING = 3, READ_INPUT };
 typedef union {
     uint32_t doubleword;
@@ -82,13 +83,46 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
                              response_len);
             for (int i = 0; i < response_len; i++)
                 printf("tx[%d]: %x\n", i, response_frame[i]);
+            free(response_frame);
+            break;
+
+        default:
+            response_frame[0] = frame[0];
+            response_frame[1] = frame[0] + 0x80;
+            response_frame[0] = 0x01;
+            response_len      = EXCEPTION_LEN;
+            CRC.Val           = CRC16(response_frame, response_len);
+            response_frame[response_len++] = CRC.byte.LB;
+            response_frame[response_len++] = CRC.byte.HB;
+            uart_write_bytes(UART_NUM_1, (const char *)response_frame,
+                             response_len);
+            ESP_LOGE(TAG, "Invalid function response");
+            free(response_frame);
             break;
         }
-    }
+
+    } else
+        crc_error_response(frame);
 }
 void register_save(uint32_t value, uint16_t *modbus_register) {
     WORD_VAL aux_register;
     aux_register.doubleword        = value;
     modbus_register[CONFIG_ID]     = aux_register.word.wordH;
     modbus_register[CONFIG_ID + 1] = aux_register.word.wordL;
+}
+void crc_error_response(const uint8_t *frame) {
+    uint8_t *response_frame = (uint8_t *)malloc(255);
+    uint8_t response_len    = 0;
+    INT_VAL CRC;
+
+    response_frame[0]              = frame[0];
+    response_frame[1]              = frame[0] + 0x80;
+    response_frame[0]              = 0x08;
+    response_len                   = EXCEPTION_LEN;
+    CRC.Val                        = CRC16(response_frame, response_len);
+    response_frame[response_len++] = CRC.byte.LB;
+    response_frame[response_len++] = CRC.byte.HB;
+    uart_write_bytes(UART_NUM_1, (const char *)response_frame, response_len);
+    ESP_LOGI(TAG, "CRC error response");
+    free(response_frame);
 }
