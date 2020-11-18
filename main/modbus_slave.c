@@ -7,6 +7,7 @@
 #include "modbus_slave.h"
 #include "CRC.h"
 #include "driver/uart.h"
+#include "esp_err.h"
 #include "esp_log.h"
 #include "stdint.h"
 static char *TAG = "UART";
@@ -79,8 +80,12 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
             response_frame[response_len++] = CRC.byte.HB;
             ESP_LOGI(TAG,
                      "Register read"); // BOGUS without this log crc is missing
-            uart_write_bytes(UART_NUM_1, (const char *)response_frame,
-                             response_len);
+            if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
+                                 response_len) == ESP_FAIL) {
+                ESP_LOGE(TAG, "Error writig UART data");
+                free(response_frame);
+                break;
+            }
             for (int i = 0; i < response_len; i++)
                 printf("tx[%d]: %x\n", i, response_frame[i]);
             free(response_frame);
@@ -94,8 +99,12 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
             CRC.Val           = CRC16(response_frame, response_len);
             response_frame[response_len++] = CRC.byte.LB;
             response_frame[response_len++] = CRC.byte.HB;
-            uart_write_bytes(UART_NUM_1, (const char *)response_frame,
-                             response_len);
+            if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
+                                 response_len) == ESP_FAIL) {
+                ESP_LOGE(TAG, "Error writig UART data");
+                free(response_frame);
+                break;
+            }
             ESP_LOGE(TAG, "Invalid function response");
             free(response_frame);
             break;
@@ -122,7 +131,12 @@ void crc_error_response(const uint8_t *frame) {
     CRC.Val                        = CRC16(response_frame, response_len);
     response_frame[response_len++] = CRC.byte.LB;
     response_frame[response_len++] = CRC.byte.HB;
-    uart_write_bytes(UART_NUM_1, (const char *)response_frame, response_len);
+    if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
+                         response_len) == ESP_FAIL) {
+        ESP_LOGE(TAG, "Error writig UART data");
+        free(response_frame);
+        return;
+    }
     ESP_LOGI(TAG, "CRC error response");
     free(response_frame);
 }

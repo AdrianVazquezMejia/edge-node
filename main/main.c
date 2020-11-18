@@ -30,6 +30,7 @@
 #define MAX_SLAVES 255
 
 #define TWDT_TIMEOUT_S 10
+#define MODBUS_TIMEOUT 100 // in ticks == 1 s
 
 #define CHECK_ERROR_CODE(returned, expected)                                   \
     ({                                                                         \
@@ -129,23 +130,29 @@ void task_modbus_master(void *arg) {
     bool slaves[MAX_SLAVES + 1];
     init_slaves(slaves);
     uint8_t curr_slave = 1;
-    if (CONFIG_SLAVES == 0)
+    if (CONFIG_SLAVES == 0) {
+        CHECK_ERROR_CODE(esp_task_wdt_delete(NULL), ESP_OK);
         vTaskDelete(NULL);
+    }
     while (1) {
-
         read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
 
         if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
-
             if (event.type == UART_BREAK) {
                 ESP_LOGI(TAG, "Cleaned");
                 xQueueReset(uart_queue);
             }
         }
-        if (xQueueReceive(uart_queue, (void *)&event, (portTickType)100)) {
+
+        if (xQueueReceive(uart_queue, (void *)&event,
+                          (portTickType)MODBUS_TIMEOUT)) {
             switch (event.type) {
             case UART_DATA:
-                uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY);
+                if (uart_read_bytes(UART_NUM_1, dtmp, event.size,
+                                    (portTickType)MODBUS_TIMEOUT) == ESP_FAIL) {
+                    ESP_LOGE(TAG_UART, "Error while reading UART data");
+                    break;
+                }
                 ESP_LOGI(TAG, "Received data is:");
                 for (int i = 0; i < event.size; i++) {
                     printf("%x ", dtmp[i]);
@@ -153,13 +160,16 @@ void task_modbus_master(void *arg) {
                 printf("\n");
                 if (CRC16(dtmp, event.size) == 0) {
                     ESP_LOGI(TAG, "Modbus frame verified");
+                    check_exceptions(dtmp);
                     save_register(dtmp, event.size, modbus_registers);
-                } else
+                } else {
                     ESP_LOGI(TAG, "Frame not verified: %d",
                              CRC16(dtmp, event.size));
+                    crc_error_response(dtmp);
+                }
                 break;
             default:
-                ESP_LOGI(TAG, "uart event type: %d", event.type);
+                ESP_LOGE(TAG, "uart event type: %d", event.type);
                 break;
             }
         } else {
