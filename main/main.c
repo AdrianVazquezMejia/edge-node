@@ -66,7 +66,9 @@ void task_pulse(void *arg) {
         if (pinLevel == 1 && counted == false) {
             pulses++;
             flash_save(pulses);
-            err = put_nvs(pulses, &pulse_address); // TODO handle this
+            err = put_nvs(pulses, &pulse_address);
+            if (err != ESP_OK)
+                ESP_LOGE(TAG, "FLASH ERROR");
             register_save(pulses, inputRegister);
             counted = true;
             ESP_LOGI(TAG, "Pulse number %d", pulses);
