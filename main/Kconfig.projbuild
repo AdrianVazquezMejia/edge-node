@@ -38,5 +38,11 @@ menu "Custom Configuration"
         default 0
         help
             number of slaves to poll
-
+	menu "OTA config"
+	config OTA
+		bool "OTA available"
+		default "n"
+		help
+			Activate OTA updates
+	endmenu
 endmenu

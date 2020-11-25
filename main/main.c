@@ -17,6 +17,7 @@
 #include "modbus_slave.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+#include "ota_update.h"
 #include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
@@ -250,5 +251,10 @@ void app_main() {
     ESP_LOGI(TAG, "Start LoRa task");
     xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
                             1);
+#endif
+
+#ifdef CONFIG_OTA
+    ESP_LOGI(TAG, "Start OTA task");
+    xTaskCreatePinnedToCore(task_ota, "task_ota", 2048 * 2, NULL, 10, NULL, 1);
 #endif
 }
