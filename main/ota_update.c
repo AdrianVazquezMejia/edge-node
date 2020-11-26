@@ -6,11 +6,19 @@
  */
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
+#include "esp_err.h"
+#include "esp_event.h"
+#include "esp_event_loop.h"
+#include "esp_http_client.h"
+#include "esp_https_ota.h"
 #include "esp_log.h"
+#include "esp_ota_ops.h"
 #include "esp_types.h"
-#include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "nvs.h"
+#include "nvs_flash.h"
+#include "protocol_common.h"
 #include <stdio.h>
 
 #define TIMER_DIVIDER       16
@@ -53,9 +61,22 @@ static void ota_timer_init(int timer_idx, bool auto_reload,
 void task_ota(void *p) {
     ESP_LOGI(TAG_OTA, "Started OTA Task");
     ota_timer_init(TIMER_0, WITH_RELOAD, TIMER_INTERVAL0_SEC);
-    xSemaphore = xSemaphoreCreateBinary();
+    xSemaphore    = xSemaphoreCreateBinary();
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
+        err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
+    tcpip_adapter_init();
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+#if CONFIG_OTA
+    ESP_ERROR_CHECK(connect());
+#endif
     while (xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE) {
         ESP_LOGI(TAG_OTA, "Update Firmware");
+
         vTaskDelay(100);
     }
 }

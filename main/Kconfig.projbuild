@@ -39,10 +39,48 @@ menu "Custom Configuration"
         help
             number of slaves to poll
 	menu "OTA config"
-	config OTA
-		bool "OTA available"
-		default "n"
-		help
-			Activate OTA updates
+		config OTA
+			bool "OTA available"
+			default "n"
+			help
+				Activate OTA updates
+		if OTA		
+			config FIRMWARE_UPGRADE_URL
+		        string "firmware upgrade url endpoint"
+		        default "https://192.168.0.3:8070/hello-world.bin"
+		        help
+		            URL of server which hosts the firmware
+		            image.
+	            
+			config SKIP_COMMON_NAME_CHECK
+		        bool "Skip server certificate CN fieldcheck"
+		        default n
+		        help
+           			 This allows you to skip the validation of OTA server certificate CN field.
+		    config FIRMWARE_UPGRADE_URL_FROM_STDIN
+		        bool
+		        default y if FIRMWARE_UPGRADE_URL = "FROM_STDIN"  
+		        help 
+		        	None
+		    config WIFI_SSID
+	            string "WiFi SSID"
+	            default "myssid"
+	            help
+	                SSID (network name) for the example to connect to.
+
+	        config WIFI_PASSWORD
+	            string "WiFi Password"
+	            default "mypassword"
+	            help
+	                WiFi password (WPA or WPA2) for the example to use.
+	                Can be left blank if the network has no security set.
+	                
+		    config CONNECT_IPV6
+		        bool "Obtain IPv6 link-local address"
+		        default y
+		        help
+		            By default, examples will wait until IPv4 and IPv6 addresses are obtained.
+		            Disable this option if the network does not support IPv6.   
+		endif
 	endmenu
 endmenu
