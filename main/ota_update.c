@@ -33,13 +33,12 @@ void IRAM_ATTR timer_group0_isr(void *para) {
 static void ota_timer_init(int timer_idx, bool auto_reload,
                            double timer_interval_sec) {
     /* Select and initialize basic parameters of the timer */
-    timer_config_t config;
-    config.divider     = TIMER_DIVIDER;
-    config.counter_dir = TIMER_COUNT_UP;
-    config.counter_en  = TIMER_PAUSE;
-    config.alarm_en    = TIMER_ALARM_EN;
-    config.intr_type   = TIMER_INTR_LEVEL;
-    config.auto_reload = auto_reload;
+    timer_config_t config = {.divider     = TIMER_DIVIDER,
+                             .counter_dir = TIMER_COUNT_UP,
+                             .counter_en  = TIMER_PAUSE,
+                             .alarm_en    = TIMER_ALARM_EN,
+                             .intr_type   = TIMER_INTR_LEVEL,
+                             .auto_reload = auto_reload};
     timer_init(TIMER_GROUP_0, timer_idx, &config);
     timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x00000000ULL);
     timer_set_alarm_value(TIMER_GROUP_0, timer_idx,
