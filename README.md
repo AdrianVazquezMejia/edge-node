@@ -6,6 +6,9 @@ This node has also the capability of Modbus comunication as a Slave and Master R
 
 
 In additon, comunication with a LoRa device is also available.
+# INDEX
+
+* [OTA system](docs/ota.md) 
 
 # System description
 
