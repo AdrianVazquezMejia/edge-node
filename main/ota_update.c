@@ -29,7 +29,6 @@
 char *TAG_OTA                       = "OTA_UPDATE";
 static SemaphoreHandle_t xSemaphore = NULL;
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 void IRAM_ATTR timer_group0_isr(void *para) {
     int timer_idx = (int)para;
     static BaseType_t xHigherPriorityTaskWoken;
