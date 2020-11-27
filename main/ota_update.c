@@ -98,11 +98,13 @@ void task_ota(void *p) {
     ESP_ERROR_CHECK(err);
     tcpip_adapter_init();
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-#if CONFIG_OTA
+
     ESP_ERROR_CHECK(connect());
-#endif
+
     esp_http_client_config_t config = {
-        .url           = CONFIG_FIRMWARE_UPGRADE_URL,
+#if CONFIG_OTA
+        .url = CONFIG_FIRMWARE_UPGRADE_URL,
+#endif
         .cert_pem      = (char *)server_cert_pem_start,
         .event_handler = _http_event_handler,
     };
