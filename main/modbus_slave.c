@@ -10,6 +10,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "stdint.h"
+#include "math.h"
 static char *TAG = "UART";
 #define TXD_PIN     33
 #define RXD_PIN     26
@@ -139,4 +140,9 @@ void crc_error_response(const uint8_t *frame) {
     }
     ESP_LOGI(TAG, "CRC error response");
     free(response_frame);
+}
+
+void normalize_pulses (uint32_t value, uint32_t* normalized_value) {
+	double value_kWh = (double) value / (double) CONFIG_IMPULSE_CONVERSION;
+	*normalized_value = round(value_kWh / 0.01);
 }

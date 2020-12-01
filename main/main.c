@@ -228,6 +228,13 @@ void app_main() {
     ESP_LOGI(TAG, "MCU initialized");
     ESP_LOGI(TAG, "Init Watchdog");
     CHECK_ERROR_CODE(esp_task_wdt_init(TWDT_TIMEOUT_S, true), ESP_OK);
+#ifdef CONFIG_IMPULSE_CONVERSION
+    uint32_t test_pulses = 12600;
+    uint32_t test_ouput;
+    normalize_pulses(test_pulses, &test_ouput);
+    ESP_LOGI("IMPULSE_CONVERSION_TEST", "Before: %ul   After: %ul    Conv. factor: %d", test_pulses, test_ouput, CONFIG_IMPULSE_CONVERSION);
+#endif
+
 #ifdef CONFIG_PULSE_PERIPHERAL
     ESP_LOGI(TAG, "Start peripheral");
     xTaskCreatePinnedToCore(task_pulse, "task_pulse", 1024 * 2, NULL, 10, NULL,
