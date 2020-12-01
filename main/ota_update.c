@@ -113,6 +113,7 @@ void task_ota(void *p) {
     config.skip_cert_common_name_check = true;
 #endif
     while (xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE) {
+        esp_ota_mark_app_valid_cancel_rollback();
         ESP_LOGI(TAG_OTA, "Update Firmware");
 
         esp_err_t ret = esp_https_ota(&config);
