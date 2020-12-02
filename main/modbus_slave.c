@@ -116,7 +116,7 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
 }
 void register_save(uint32_t value, uint16_t *modbus_register) {
     WORD_VAL aux_register;
-    aux_register.doubleword        = normalize_pulses(value * 10);
+    aux_register.doubleword        = normalize_pulses(value);
     modbus_register[CONFIG_ID]     = aux_register.word.wordH;
     modbus_register[CONFIG_ID + 1] = aux_register.word.wordL;
 }
