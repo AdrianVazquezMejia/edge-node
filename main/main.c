@@ -228,6 +228,7 @@ void app_main() {
     ESP_LOGI(TAG, "MCU initialized");
     ESP_LOGI(TAG, "Init Watchdog");
     CHECK_ERROR_CODE(esp_task_wdt_init(TWDT_TIMEOUT_S, true), ESP_OK);
+
 #ifdef CONFIG_PULSE_PERIPHERAL
     ESP_LOGI(TAG, "Start peripheral");
     xTaskCreatePinnedToCore(task_pulse, "task_pulse", 1024 * 2, NULL, 10, NULL,

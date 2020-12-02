@@ -31,13 +31,18 @@ menu "Custom Configuration"
         default 255
         help
             unique network identifier
-
     config SLAVES
         int "Number of slaves"
         range 0 255
         default 0
         help
             number of slaves to poll
+    config IMPULSE_CONVERSION
+        int "Conversion factor imp/kWh"
+        range 1 100000
+        default 1600
+        help
+            Conversion ratio  between impulses and kWh
 	menu "OTA config"
 		config OTA
 			bool "OTA available"
