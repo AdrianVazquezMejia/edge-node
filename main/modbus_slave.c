@@ -9,8 +9,8 @@
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "stdint.h"
 #include "math.h"
+#include "stdint.h"
 static char *TAG = "UART";
 #define TXD_PIN     33
 #define RXD_PIN     26
@@ -116,7 +116,7 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
 }
 void register_save(uint32_t value, uint16_t *modbus_register) {
     WORD_VAL aux_register;
-    aux_register.doubleword        = value;
+    aux_register.doubleword        = normalize_pulses(value * 10);
     modbus_register[CONFIG_ID]     = aux_register.word.wordH;
     modbus_register[CONFIG_ID + 1] = aux_register.word.wordL;
 }
@@ -142,7 +142,9 @@ void crc_error_response(const uint8_t *frame) {
     free(response_frame);
 }
 
-void normalize_pulses (uint32_t value, uint32_t* normalized_value) {
-	double value_kWh = (double) value / (double) CONFIG_IMPULSE_CONVERSION;
-	*normalized_value = round(value_kWh / 0.01);
+uint32_t normalize_pulses(uint32_t value) {
+    uint32_t normalized_value;
+    double value_kWh = (double)value / (double)CONFIG_IMPULSE_CONVERSION;
+    normalized_value = round(value_kWh / 0.01);
+    return normalized_value;
 }
