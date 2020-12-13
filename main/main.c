@@ -33,6 +33,8 @@
 #define TWDT_TIMEOUT_S 10
 #define MODBUS_TIMEOUT 100 // in ticks == 1 s
 
+#define PULSE_GPIO 35
+
 #define CHECK_ERROR_CODE(returned, expected)                                   \
     ({                                                                         \
         if (returned != expected) {                                            \
@@ -49,7 +51,7 @@ void task_pulse(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     ESP_LOGI(TAG, "Pulse counter task started");
-    gpio_set_direction(GPIO_NUM_0, GPIO_MODE_INPUT);
+    gpio_set_direction(PULSE_GPIO, GPIO_MODE_INPUT);
     int pinLevel;
     uint32_t pulses = 0;
     bool counted    = false;
@@ -63,7 +65,7 @@ void task_pulse(void *arg) {
     }
 
     while (1) {
-        pinLevel = gpio_get_level(GPIO_NUM_0);
+        pinLevel = gpio_get_level(PULSE_GPIO);
         if (pinLevel == 1 && counted == false) {
             pulses++;
             flash_save(pulses);
