@@ -4,6 +4,7 @@
  */
 
 #include "CRC.h"
+#include "config_rtu.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
 #include "esp_log.h"
@@ -22,7 +23,6 @@
 #include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
-
 #define PULSES_KW 225
 
 #define RX_BUF_SIZE 1024
@@ -47,6 +47,9 @@ static char *TAG      = "INFO";
 static char *TAG_UART = "MODBUS";
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
+
+extern uint8_t NODE_ID;
+extern uint8_t SLAVES;
 
 void task_pulse(void *arg) {
 
@@ -111,7 +114,7 @@ void task_modbus_slave(void *arg) {
             if (CRC16(dtmp, event.size) == 0) {
                 led_blink();
                 ESP_LOGI(TAG_UART, "Modbus frame verified");
-                if (dtmp[0] == CONFIG_ID) {
+                if (dtmp[0] == NODE_ID) {
                     ESP_LOGI(TAG, "Frame to this slave");
                     modbus_slave_functions(dtmp, event.size, modbus_registers);
                 }
@@ -140,7 +143,7 @@ void task_modbus_master(void *arg) {
     bool slaves[MAX_SLAVES + 1];
     init_slaves(slaves);
     uint8_t curr_slave = 1;
-    if (CONFIG_SLAVES == 0) {
+    if (SLAVES == 0) {
         CHECK_ERROR_CODE(esp_task_wdt_delete(NULL), ESP_OK);
         vTaskDelete(NULL);
     }
@@ -188,7 +191,7 @@ void task_modbus_master(void *arg) {
             vTaskDelay(TIME_SCAN / portTICK_PERIOD_MS);
         }
         curr_slave++;
-        if (curr_slave > CONFIG_SLAVES)
+        if (curr_slave > SLAVES)
             curr_slave = 1;
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
@@ -200,7 +203,7 @@ void task_lora(void *arg) {
 
     config_rf1276_t config_mesh = {.baud_rate    = 9600,
                                    .network_id   = 1,
-                                   .node_id      = CONFIG_ID,
+                                   .node_id      = NODE_ID,
                                    .power        = 7,
                                    .routing_time = 1,
                                    .freq         = 433.0,
@@ -239,6 +242,8 @@ void app_main() {
     ESP_LOGI(TAG, "Init Watchdog");
     CHECK_ERROR_CODE(esp_task_wdt_init(TWDT_TIMEOUT_S, true), ESP_OK);
     led_startup();
+    check_rtu_config();
+
 #ifdef CONFIG_PULSE_PERIPHERAL
     ESP_LOGI(TAG, "Start peripheral");
     xTaskCreatePinnedToCore(task_pulse, "task_pulse", 1024 * 2, NULL, 10, NULL,

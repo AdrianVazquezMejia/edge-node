@@ -6,6 +6,7 @@
  */
 #include "modbus_slave.h"
 #include "CRC.h"
+#include "config_rtu.h"
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -29,6 +30,10 @@ typedef union {
     } word;
 
 } WORD_VAL;
+
+extern uint8_t NODE_ID;
+extern int IMPULSE_CONVERSION;
+
 void uart_init(QueueHandle_t *queue) {
     uart_driver_delete(UART_NUM_1);
     int uart_baudarate = 9600;
@@ -116,9 +121,9 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
 }
 void register_save(uint32_t value, uint16_t *modbus_register) {
     WORD_VAL aux_register;
-    aux_register.doubleword        = normalize_pulses(value);
-    modbus_register[CONFIG_ID]     = aux_register.word.wordH;
-    modbus_register[CONFIG_ID + 1] = aux_register.word.wordL;
+    aux_register.doubleword      = normalize_pulses(value);
+    modbus_register[NODE_ID]     = aux_register.word.wordH;
+    modbus_register[NODE_ID + 1] = aux_register.word.wordL;
 }
 void crc_error_response(const uint8_t *frame) {
     uint8_t *response_frame = (uint8_t *)malloc(255);
@@ -144,7 +149,7 @@ void crc_error_response(const uint8_t *frame) {
 
 uint32_t normalize_pulses(uint32_t value) {
     uint32_t normalized_value;
-    double value_kWh = (double)value / (double)CONFIG_IMPULSE_CONVERSION;
+    double value_kWh = (double)value / (double)IMPULSE_CONVERSION;
     normalized_value = round(value_kWh / 0.01);
     return normalized_value;
 }

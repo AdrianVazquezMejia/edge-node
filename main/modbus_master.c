@@ -6,11 +6,13 @@
  */
 #include "modbus_master.h"
 #include "CRC.h"
+#include "config_rtu.h"
 #include "driver/uart.h"
 #include "esp_log.h"
 #include "stdint.h"
 #define TX_BUF_SIZE 1024
 static char *TAG = "MASTER";
+extern uint8_t SLAVES;
 
 typedef union {
     uint16_t Val;
@@ -79,7 +81,7 @@ void init_slaves(bool *slaves) {
     int i = 0;
     for (i = 0; i < 256; i++)
         slaves[i] = false;
-    for (i = 1; i <= CONFIG_SLAVES; i++)
+    for (i = 1; i <= SLAVES; i++)
         slaves[i] = true;
 }
 

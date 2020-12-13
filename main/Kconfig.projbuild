@@ -1,11 +1,22 @@
 menu "Custom Configuration"
+	choice PRODUCTION_MODE
+        prompt "Code objetive"
+        default PRODUCTION_PATCH
+        help
+            Protocol examples can use Wi-Fi or Ethernet to connect to the network.
+            Choose which interface to use.
 
+        config CONFIG_MODE
+            bool "Config"
+
+        config PRODUCTION_PATCH
+            bool "General Patch"
+    endchoice
     config PULSE_PERIPHERAL
         bool "Pulse counter peripheral available"
         default "n"
         help
             When this is not enable the task that counts pulse will be unavailable
-   
    
     config SLAVE_MODBUS
         bool "Slave Modbus active"
