@@ -12,6 +12,7 @@
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "led.h"
 #include "modbus_lora.h"
 #include "modbus_master.h"
 #include "modbus_slave.h"
@@ -48,6 +49,7 @@ static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
 void task_pulse(void *arg) {
+
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     ESP_LOGI(TAG, "Pulse counter task started");
@@ -65,8 +67,10 @@ void task_pulse(void *arg) {
     }
 
     while (1) {
+
         pinLevel = gpio_get_level(PULSE_GPIO);
         if (pinLevel == 1 && counted == false) {
+            led_blink();
             pulses++;
             flash_save(pulses);
             err = put_nvs(pulses, &pulse_address);
@@ -227,10 +231,10 @@ void task_lora(void *arg) {
     }
 }
 void app_main() {
-    ESP_LOGI(TAG, "MCU initialized");
+    ESP_LOGI(TAG, "MCU initialized, fimware version 1.0.13122020a");
     ESP_LOGI(TAG, "Init Watchdog");
     CHECK_ERROR_CODE(esp_task_wdt_init(TWDT_TIMEOUT_S, true), ESP_OK);
-
+    led_startup();
 #ifdef CONFIG_PULSE_PERIPHERAL
     ESP_LOGI(TAG, "Start peripheral");
     xTaskCreatePinnedToCore(task_pulse, "task_pulse", 1024 * 2, NULL, 10, NULL,

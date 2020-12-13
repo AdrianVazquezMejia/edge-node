@@ -15,7 +15,7 @@ static char *TAG = "UART";
 #define TXD_PIN     33
 #define RXD_PIN     26
 #define RTS_PIN     27
-#define CTS_PIN     19
+#define CTS_PIN     2
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
 
