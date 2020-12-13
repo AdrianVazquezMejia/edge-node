@@ -109,6 +109,7 @@ void task_modbus_slave(void *arg) {
             }
             printf("\n");
             if (CRC16(dtmp, event.size) == 0) {
+                led_blink();
                 ESP_LOGI(TAG_UART, "Modbus frame verified");
                 if (dtmp[0] == CONFIG_ID) {
                     ESP_LOGI(TAG, "Frame to this slave");
@@ -168,6 +169,7 @@ void task_modbus_master(void *arg) {
                 }
                 printf("\n");
                 if (CRC16(dtmp, event.size) == 0) {
+                    led_blink();
                     ESP_LOGI(TAG, "Modbus frame verified");
                     check_exceptions(dtmp);
                     save_register(dtmp, event.size, modbus_registers);
@@ -217,6 +219,8 @@ void task_lora(void *arg) {
                          (portTickType)portMAX_DELAY)) {
         ESP_LOGI(TAG, "Receiving data...");
         if (receive_packet_rf1276(&trama) == 0) {
+            led_blink();
+            led_blink();
             node_origen = trama.respond.source_node.valor;
             printf("nodo origen es: %u\n", node_origen);
             modbus_response = modbus_lora_functions(trama.respond.data,
