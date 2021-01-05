@@ -121,6 +121,7 @@ void task_modbus_slave(void *arg) {
             } else {
                 ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(dtmp, event.size));
                 crc_error_response(dtmp);
+                uart_flush(UART1);
             }
             break;
         default:
@@ -180,6 +181,7 @@ void task_modbus_master(void *arg) {
                     ESP_LOGI(TAG, "Frame not verified: %d",
                              CRC16(dtmp, event.size));
                     crc_error_response(dtmp);
+                    uart_flush(UART1);
                 }
                 break;
             default:

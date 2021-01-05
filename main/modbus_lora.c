@@ -59,6 +59,8 @@ mb_response_t modbus_lora_functions(const uint8_t *frame, uint8_t length,
                      "Register read"); // BOGUS without this log crc is missing
             break;
         }
+    } else {
+        uart_flush(UART2);
     }
     return output;
 }
