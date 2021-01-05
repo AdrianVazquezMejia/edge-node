@@ -222,7 +222,7 @@ void task_lora(void *arg) {
                          (portTickType)portMAX_DELAY)) {
         ESP_LOGI(TAG, "Receiving data...");
         if (receive_packet_rf1276(&trama) == 0) {
-            led_blink();
+            led_blink(); // two blinks for loRa
             led_blink();
             node_origen = trama.respond.source_node.valor;
             printf("nodo origen es: %u\n", node_origen);
