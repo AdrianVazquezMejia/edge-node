@@ -60,7 +60,7 @@ mb_response_t modbus_lora_functions(const uint8_t *frame, uint8_t length,
             break;
         }
     } else {
-        uart_flush(UART2);
+        uart_flush(UART_NUM_2);
     }
     return output;
 }
