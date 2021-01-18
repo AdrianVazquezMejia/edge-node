@@ -99,4 +99,10 @@ menu "Custom Configuration"
 		            Disable this option if the network does not support IPv6.   
 		endif
 	endmenu
+	
+	config CIPHER
+		bool "Cipher LoRa data"
+		default n
+		help 
+			When enable only payload data will be cipher using AES
 endmenu

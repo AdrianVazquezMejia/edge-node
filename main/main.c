@@ -5,6 +5,7 @@
 
 #include "CRC.h"
 #include "config_rtu.h"
+#include "cypher.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
 #include "esp_log.h"
@@ -22,7 +23,6 @@
 #include "ota_update.h"
 #include "rf1276.h"
 #include "strings.h"
-#include "cypher.h"
 #include <stdio.h>
 #define PULSES_KW 225
 
@@ -56,9 +56,9 @@ extern uint8_t SLAVES;
 // and 192 bits encrypting mode
 
 unsigned char key[] = {0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-					   0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-					   0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-					   0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+                       0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                       0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                       0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 
 void task_pulse(void *arg) {
 
@@ -81,7 +81,9 @@ void task_pulse(void *arg) {
     while (1) {
 
         pinLevel = gpio_get_level(PULSE_GPIO);
-        if (pinLevel == 1 && counted == false) { //XXX Replace this wait by semaphore interruptions
+        if (pinLevel == 1 &&
+            counted ==
+                false) { // XXX Replace this wait by semaphore interruptions
             led_blink();
             pulses++;
             flash_save(pulses);
@@ -120,7 +122,7 @@ void task_modbus_slave(void *arg) {
                 break;
             }
             ESP_LOGI(TAG_UART, "Received data is:");
-            //XXX Decypher data here
+            // XXX Decypher data here
             unsigned char *decrypt_output = (unsigned char *)malloc(event.size);
             bzero(decrypt_output, event.size);
             cfb8decrypt(dtmp, event.size, decrypt_output);
@@ -134,10 +136,12 @@ void task_modbus_slave(void *arg) {
                 ESP_LOGI(TAG_UART, "Modbus frame verified");
                 if (dtmp[0] == NODE_ID) {
                     ESP_LOGI(TAG, "Frame to this slave");
-                    modbus_slave_functions(decrypt_output, event.size, modbus_registers);
+                    modbus_slave_functions(decrypt_output, event.size,
+                                           modbus_registers);
                 }
             } else {
-                ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(decrypt_output, event.size));
+                ESP_LOGE(TAG_UART, " CRC ERROR: %d",
+                         CRC16(decrypt_output, event.size));
                 crc_error_response(decrypt_output);
                 uart_flush(UART_NUM_1);
             }
@@ -237,6 +241,8 @@ void task_lora(void *arg) {
     uint16_t node_origen;
     modbus_registers[1] = &inputRegister[0];
     mb_response_t modbus_response;
+    uint8_t received_payload[117];
+    uint8_t sending_payload[117];
     struct send_data_struct data = {
         .node_id = 1, .power = 7, .data = {0}, .tamano = 1, .routing_type = 1};
 
@@ -247,11 +253,23 @@ void task_lora(void *arg) {
             led_blink(); // two blinks for loRa
             led_blink();
             node_origen = trama.respond.source_node.valor;
+            memcpy(received_payload, trama.respond.data,
+                   trama.respond.data_length);
+#ifdef CONFIG_CIPHER
+            bzero(received_payload, trama.respond.data_length);
+            cfb8decrypt(trama.respond.data, trama.respond.data_length,
+                        received_payload);
+#endif
             printf("nodo origen es: %u\n", node_origen);
-            modbus_response = modbus_lora_functions(trama.respond.data,
-                                                    trama.respond.data_length,
-                                                    modbus_registers);
-            memcpy(data.data, modbus_response.frame, modbus_response.len);
+            modbus_response = modbus_lora_functions(
+                received_payload, trama.respond.data_length, modbus_registers);
+            memcpy(sending_payload, modbus_response.frame, modbus_response.len);
+#ifdef CONFIG_CIPHER
+            bzero(sending_payload, modbus_response.len);
+            cfb8encrypt(trama.respond.data, modbus_response.len,
+                        sending_payload);
+#endif
+            memcpy(data.data, sending_payload, modbus_response.len);
             data.tamano  = modbus_response.len;
             data.node_id = node_origen;
             send_data_esp_rf1276(&data);
