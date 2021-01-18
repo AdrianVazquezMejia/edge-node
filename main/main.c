@@ -22,6 +22,7 @@
 #include "ota_update.h"
 #include "rf1276.h"
 #include "strings.h"
+#include "cypher.h"
 #include <stdio.h>
 #define PULSES_KW 225
 
@@ -72,7 +73,7 @@ void task_pulse(void *arg) {
     while (1) {
 
         pinLevel = gpio_get_level(PULSE_GPIO);
-        if (pinLevel == 1 && counted == false) {
+        if (pinLevel == 1 && counted == false) { //XXX Replace this wait by semaphore interruptions
             led_blink();
             pulses++;
             flash_save(pulses);
@@ -91,6 +92,10 @@ void task_pulse(void *arg) {
     }
 }
 void task_modbus_slave(void *arg) {
+
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_enc(&aes, key, 256);
+
     QueueHandle_t uart_queue;
     uart_event_t event;
     uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
@@ -107,6 +112,8 @@ void task_modbus_slave(void *arg) {
                 break;
             }
             ESP_LOGI(TAG_UART, "Received data is:");
+            //XXX Decypher data here
+
             for (int i = 0; i < event.size; i++) {
                 printf("%x ", dtmp[i]);
             }
@@ -121,7 +128,7 @@ void task_modbus_slave(void *arg) {
             } else {
                 ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(dtmp, event.size));
                 crc_error_response(dtmp);
-                uart_flush(UART1);
+                uart_flush(UART_NUM_1);
             }
             break;
         default:
@@ -129,6 +136,7 @@ void task_modbus_slave(void *arg) {
         }
     }
     free(dtmp);
+    mbedtls_aes_free(&aes);
     dtmp = NULL;
 }
 
@@ -181,7 +189,7 @@ void task_modbus_master(void *arg) {
                     ESP_LOGI(TAG, "Frame not verified: %d",
                              CRC16(dtmp, event.size));
                     crc_error_response(dtmp);
-                    uart_flush(UART1);
+                    uart_flush(UART_NUM_1);
                 }
                 break;
             default:
