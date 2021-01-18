@@ -52,6 +52,14 @@ static uint16_t inputRegister[512] = {0};
 extern uint8_t NODE_ID;
 extern uint8_t SLAVES;
 
+// key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
+// and 192 bits encrypting mode
+
+unsigned char key[] = {0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+					   0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+					   0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+					   0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+
 void task_pulse(void *arg) {
 
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
@@ -113,23 +121,27 @@ void task_modbus_slave(void *arg) {
             }
             ESP_LOGI(TAG_UART, "Received data is:");
             //XXX Decypher data here
+            unsigned char *decrypt_output = (unsigned char *)malloc(event.size);
+            bzero(decrypt_output, event.size);
+            cfb8decrypt(dtmp, event.size, decrypt_output);
 
             for (int i = 0; i < event.size; i++) {
-                printf("%x ", dtmp[i]);
+                printf("%x ", decrypt_output[i]);
             }
             printf("\n");
-            if (CRC16(dtmp, event.size) == 0) {
+            if (CRC16(decrypt_output, event.size) == 0) {
                 led_blink();
                 ESP_LOGI(TAG_UART, "Modbus frame verified");
                 if (dtmp[0] == NODE_ID) {
                     ESP_LOGI(TAG, "Frame to this slave");
-                    modbus_slave_functions(dtmp, event.size, modbus_registers);
+                    modbus_slave_functions(decrypt_output, event.size, modbus_registers);
                 }
             } else {
-                ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(dtmp, event.size));
-                crc_error_response(dtmp);
+                ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(decrypt_output, event.size));
+                crc_error_response(decrypt_output);
                 uart_flush(UART_NUM_1);
             }
+            free(decrypt_output);
             break;
         default:
             ESP_LOGE(TAG_UART, "UART event %d", event.type);
