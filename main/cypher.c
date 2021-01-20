@@ -1,3 +1,11 @@
+#include <stdio.h>
+#include "esp_log.h"
+#include "esp_spi_flash.h"
+#include "esp_system.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#include "esp_timer.h"
 #include "include/cypher.h"
 
 void cfb8encrypt(unsigned char * raw_data, size_t raw_data_len, unsigned char * encrypted_output) {

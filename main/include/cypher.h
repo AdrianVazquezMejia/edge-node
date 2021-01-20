@@ -1,13 +1,5 @@
-#include <stdio.h>
-#include "esp_log.h"
-#include "esp_spi_flash.h"
-#include "esp_system.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
-#include "esp_timer.h"
-#include "mbedtls/aes.h"
 // only CBC requires that input length shall be multiple of 16
+#include "mbedtls/aes.h"
 
 int64_t initTime, encryptTime, decryptTime;
 

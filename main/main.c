@@ -103,58 +103,48 @@ void task_pulse(void *arg) {
 }
 void task_modbus_slave(void *arg) {
 
-    mbedtls_aes_init(&aes);
-    mbedtls_aes_setkey_enc(&aes, key, 256);
-
     QueueHandle_t uart_queue;
     uart_event_t event;
     uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
-    while (xQueueReceive(uart_queue, (void *)&event,
-                         (portTickType)portMAX_DELAY)) {
-        bzero(dtmp, RX_BUF_SIZE);
-        switch (event.type) {
-        case UART_DATA:
-            if (uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY) ==
-                ESP_FAIL) {
-                ESP_LOGE(TAG_UART, "Error while reading UART data");
-                break;
-            }
-            ESP_LOGI(TAG_UART, "Received data is:");
-            // XXX Decypher data here
-            unsigned char *decrypt_output = (unsigned char *)malloc(event.size);
-            bzero(decrypt_output, event.size);
-            cfb8decrypt(dtmp, event.size, decrypt_output);
+	while (xQueueReceive(uart_queue, (void *)&event,
+						 (portTickType)portMAX_DELAY)) {
+		bzero(dtmp, RX_BUF_SIZE);
+		switch (event.type) {
+		case UART_DATA:
+			if (uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY) ==
+				ESP_FAIL) {
+				ESP_LOGE(TAG_UART, "Error while reading UART data");
+				break;
+			}
+			ESP_LOGI(TAG_UART, "Received data is:");
+			//XXX Decypher data here
 
-            for (int i = 0; i < event.size; i++) {
-                printf("%x ", decrypt_output[i]);
-            }
-            printf("\n");
-            if (CRC16(decrypt_output, event.size) == 0) {
-                led_blink();
-                ESP_LOGI(TAG_UART, "Modbus frame verified");
-                if (dtmp[0] == NODE_ID) {
-                    ESP_LOGI(TAG, "Frame to this slave");
-                    modbus_slave_functions(decrypt_output, event.size,
-                                           modbus_registers);
-                }
-            } else {
-                ESP_LOGE(TAG_UART, " CRC ERROR: %d",
-                         CRC16(decrypt_output, event.size));
-                crc_error_response(decrypt_output);
-                uart_flush(UART_NUM_1);
-            }
-            free(decrypt_output);
-            break;
-        default:
-            ESP_LOGE(TAG_UART, "UART event %d", event.type);
-        }
-    }
-    free(dtmp);
-    mbedtls_aes_free(&aes);
-    dtmp = NULL;
-}
+			for (int i = 0; i < event.size; i++) {
+				printf("%x ", dtmp[i]);
+			}
+			printf("\n");
+			if (CRC16(dtmp, event.size) == 0) {
+				led_blink();
+				ESP_LOGI(TAG_UART, "Modbus frame verified");
+				if (dtmp[0] == NODE_ID) {
+					ESP_LOGI(TAG, "Frame to this slave");
+					modbus_slave_functions(dtmp, event.size, modbus_registers);
+				}
+			} else {
+				ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(dtmp, event.size));
+				crc_error_response(dtmp);
+				uart_flush(UART_NUM_1);
+			}
+			break;
+		default:
+			ESP_LOGE(TAG_UART, "UART event %d", event.type);
+		}
+	}
+	free(dtmp);
+	dtmp = NULL;
+	}
 
 void task_modbus_master(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
@@ -224,6 +214,10 @@ void task_modbus_master(void *arg) {
 }
 void task_lora(void *arg) {
     ESP_LOGI(TAG, "Task LoRa initialized");
+#ifdef CONFIG_CIPHER
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_enc(&aes, key, 256);
+#endif
     QueueHandle_t lora_queue;
     uart_lora_t config = {.uart_tx = 14, .uart_rx = 15, .baud_rate = 9600};
 
@@ -276,6 +270,9 @@ void task_lora(void *arg) {
         }
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+#ifdef CONFIG_CIPHER
+    mbedtls_aes_free(&aes);
+#endif
 }
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized, fimware version 1.0.13122020a");
