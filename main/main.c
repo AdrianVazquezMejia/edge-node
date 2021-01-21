@@ -5,6 +5,7 @@
 
 #include "CRC.h"
 #include "config_rtu.h"
+#include "cypher.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
 #include "esp_log.h"
@@ -51,6 +52,14 @@ static uint16_t inputRegister[512] = {0};
 extern uint8_t NODE_ID;
 extern uint8_t SLAVES;
 
+// key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
+// and 192 bits encrypting mode
+
+unsigned char key[] = {0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                       0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                       0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                       0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+
 void task_pulse(void *arg) {
 
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
@@ -72,7 +81,9 @@ void task_pulse(void *arg) {
     while (1) {
 
         pinLevel = gpio_get_level(PULSE_GPIO);
-        if (pinLevel == 1 && counted == false) {
+        if (pinLevel == 1 &&
+            counted ==
+                false) { // XXX Replace this wait by semaphore interruptions
             led_blink();
             pulses++;
             flash_save(pulses);
@@ -91,6 +102,7 @@ void task_pulse(void *arg) {
     }
 }
 void task_modbus_slave(void *arg) {
+
     QueueHandle_t uart_queue;
     uart_event_t event;
     uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
@@ -200,6 +212,10 @@ void task_modbus_master(void *arg) {
 }
 void task_lora(void *arg) {
     ESP_LOGI(TAG, "Task LoRa initialized");
+#ifdef CONFIG_CIPHER
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_enc(&aes, key, 256);
+#endif
     QueueHandle_t lora_queue;
     uart_lora_t config = {.uart_tx = 14, .uart_rx = 15, .baud_rate = 9600};
 
@@ -217,6 +233,8 @@ void task_lora(void *arg) {
     uint16_t node_origen;
     modbus_registers[1] = &inputRegister[0];
     mb_response_t modbus_response;
+    uint8_t received_payload[117];
+    uint8_t sending_payload[117];
     struct send_data_struct data = {
         .node_id = 1, .power = 7, .data = {0}, .tamano = 1, .routing_type = 1};
 
@@ -227,17 +245,43 @@ void task_lora(void *arg) {
             led_blink(); // two blinks for loRa
             led_blink();
             node_origen = trama.respond.source_node.valor;
+            memcpy(received_payload, trama.respond.data,
+                   trama.respond.data_length);
+#ifdef CONFIG_CIPHER
+            bzero(received_payload, trama.respond.data_length);
+            cfb8decrypt(trama.respond.data, trama.respond.data_length,
+                        received_payload);
+            ESP_LOGI(TAG_UART, "Unencrypted R data is:");
+            for (int i = 0; i < trama.respond.data_length; i++) {
+                printf("%x ", received_payload[i]);
+            }
+            printf("\n");
+#endif
+
             printf("nodo origen es: %u\n", node_origen);
-            modbus_response = modbus_lora_functions(trama.respond.data,
-                                                    trama.respond.data_length,
-                                                    modbus_registers);
-            memcpy(data.data, modbus_response.frame, modbus_response.len);
+            modbus_response = modbus_lora_functions(
+                received_payload, trama.respond.data_length, modbus_registers);
+            memcpy(sending_payload, modbus_response.frame, modbus_response.len);
+#ifdef CONFIG_CIPHER
+            ESP_LOGI(TAG_UART, "Unencrypted  data is:");
+            for (int i = 0; i < modbus_response.len; i++) {
+                printf("%x ", modbus_response.frame[i]);
+            }
+            printf("\n");
+            bzero(sending_payload, modbus_response.len);
+            cfb8encrypt(modbus_response.frame, modbus_response.len,
+                        sending_payload);
+#endif
+            memcpy(data.data, sending_payload, modbus_response.len);
             data.tamano  = modbus_response.len;
             data.node_id = node_origen;
             send_data_esp_rf1276(&data);
         }
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+#ifdef CONFIG_CIPHER
+    mbedtls_aes_free(&aes);
+#endif
 }
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized, fimware version 1.0.13122020a");
