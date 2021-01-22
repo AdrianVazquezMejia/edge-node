@@ -14,6 +14,7 @@
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "led.h"
 #include "modbus_lora.h"
 #include "modbus_master.h"
@@ -24,6 +25,7 @@
 #include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
+#include "esp_intr_alloc.h"
 #define PULSES_KW 225
 
 #define RX_BUF_SIZE 1024
@@ -51,6 +53,7 @@ static uint16_t inputRegister[512] = {0};
 
 extern uint8_t NODE_ID;
 extern uint8_t SLAVES;
+extern SemaphoreHandle_t smph_pulse_handler;
 
 // key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
 // and 192 bits encrypting mode
@@ -65,13 +68,14 @@ void task_pulse(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     ESP_LOGI(TAG, "Pulse counter task started");
-    gpio_set_direction(PULSE_GPIO, GPIO_MODE_INPUT);
+
     int pinLevel;
     uint32_t pulses = 0;
     bool counted    = false;
     esp_err_t err;
-
     nvs_address_t pulse_address;
+    pulse_isr_init(PULSE_GPIO);
+    smph_pulse_handler = xSemaphoreCreateBinary();
     err = get_initial_pulse(&pulses, &pulse_address);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "FLASH ERROR");
@@ -83,7 +87,7 @@ void task_pulse(void *arg) {
         pinLevel = gpio_get_level(PULSE_GPIO);
         if (pinLevel == 1 &&
             counted ==
-                false) { // XXX Replace this wait by semaphore interruptions
+                false) { // XXX Replace this wait by semaphore driven interruptions
             led_blink();
             pulses++;
             flash_save(pulses);

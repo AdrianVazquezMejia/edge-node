@@ -4,6 +4,7 @@
  *  Created on: Oct 13, 2020
  *      Author: adrian-estelio
  */
+#include "driver/gpio.h"
 #include "esp_err.h"
 #include <stdint.h>
 
@@ -14,6 +15,7 @@ typedef struct {
     uint8_t page;
     uint8_t entry_index;
 } nvs_address_t;
+void pulse_isr_init(gpio_num_t gpio_num);
 void flash_save(uint32_t value);
 void flash_get(uint32_t *value);
 esp_err_t search_init_partition(uint8_t *pnumber);

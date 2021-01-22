@@ -12,6 +12,7 @@
 #include "freertos/task.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+#include "freertos/semphr.h"
 
 #define MAX_PARTITIONS 3
 #define MAX_ENTRIES    127
@@ -20,6 +21,22 @@
 char *TAG_NVS   = "NVS";
 char *TAG_NVS_2 = "NVS_2";
 //#define FLASH_LOG
+
+#define ESP_INTR_FLAG_DEFAULT 0
+SemaphoreHandle_t smph_pulse_handler = NULL;
+
+void IRAM_ATTR pulse_isr(void *arg) {
+  xSemaphoreGiveFromISR(smph_pulse_handler, NULL);
+}
+
+void pulse_isr_init(gpio_num_t gpio_num){
+    gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+    gpio_pad_select_gpio(gpio_num);
+    gpio_set_direction(gpio_num, GPIO_MODE_INPUT);
+    gpio_isr_handler_add(gpio_num, pulse_isr, NULL);
+    gpio_set_intr_type(gpio_num, GPIO_INTR_NEGEDGE);
+
+}
 inline int get_name(char **output, char *prefix, int n) {
     if (asprintf(output, "%s%d", prefix, n) < 0) {
         ESP_LOGE(TAG_NVS, "Create %s name error", prefix);
