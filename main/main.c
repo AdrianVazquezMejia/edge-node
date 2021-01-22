@@ -69,9 +69,7 @@ void task_pulse(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     ESP_LOGI(TAG, "Pulse counter task started");
 
-    int pinLevel;
     uint32_t pulses = 0;
-    bool counted    = false;
     esp_err_t err;
     nvs_address_t pulse_address;
     pulse_isr_init(PULSE_GPIO);
@@ -83,11 +81,7 @@ void task_pulse(void *arg) {
     }
 
     while (1) {
-
-        pinLevel = gpio_get_level(PULSE_GPIO);
-        if (pinLevel == 1 &&
-            counted ==
-                false) { // XXX Replace this wait by semaphore driven interruptions
+        if (xSemaphoreTake(smph_pulse_handler, pdMS_TO_TICKS(1000)) == pdTRUE) {
             led_blink();
             pulses++;
             flash_save(pulses);
@@ -95,13 +89,8 @@ void task_pulse(void *arg) {
             if (err != ESP_OK)
                 ESP_LOGE(TAG, "FLASH ERROR");
             register_save(pulses, inputRegister);
-            counted = true;
             ESP_LOGI(TAG, "Pulse number %d", pulses);
         }
-        if (pinLevel == 0 && counted == true) {
-            counted = false;
-        }
-        vTaskDelay(10 / portTICK_PERIOD_MS);
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
 }
