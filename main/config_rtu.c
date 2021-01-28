@@ -13,7 +13,7 @@ static char *TAG = "CONFIG";
 void check_rtu_config(void) {
     nvs_handle_t my_handle;
     extern uint8_t NODE_ID;
-    extern uint8_t SLAVES;
+
     extern int IMPULSE_CONVERSION;
 
     nvs_flash_init();
@@ -22,6 +22,7 @@ void check_rtu_config(void) {
     NODE_ID = CONFIG_ID;
     nvs_set_u8(my_handle, "NODE_ID", NODE_ID);
 #ifdef CONFIG_MASTER_MODBUS
+    extern uint8_t SLAVES;
     SLAVES = CONFIG_SLAVES;
     nvs_set_u8(my_handle, "SLAVES", SLAVES);
 #endif

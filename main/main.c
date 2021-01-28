@@ -8,13 +8,14 @@
 #include "cypher.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
+#include "esp_intr_alloc.h"
 #include "esp_log.h"
 #include "esp_rf1276.h"
 #include "esp_task_wdt.h"
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "freertos/task.h"
 #include "led.h"
 #include "modbus_lora.h"
 #include "modbus_master.h"
@@ -25,7 +26,6 @@
 #include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
-#include "esp_intr_alloc.h"
 #define PULSES_KW 225
 
 #define RX_BUF_SIZE 1024
@@ -37,7 +37,7 @@
 #define TWDT_TIMEOUT_S 10
 #define MODBUS_TIMEOUT 100 // in ticks == 1 s
 
-#define PULSE_GPIO 35
+#define PULSE_GPIO 0
 
 #define CHECK_ERROR_CODE(returned, expected)                                   \
     ({                                                                         \
@@ -65,8 +65,6 @@ unsigned char key[] = {0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 
 void task_pulse(void *arg) {
 
-    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
-    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     ESP_LOGI(TAG, "Pulse counter task started");
 
     uint32_t pulses = 0;
@@ -74,14 +72,14 @@ void task_pulse(void *arg) {
     nvs_address_t pulse_address;
     pulse_isr_init(PULSE_GPIO);
     smph_pulse_handler = xSemaphoreCreateBinary();
-    err = get_initial_pulse(&pulses, &pulse_address);
+    err                = get_initial_pulse(&pulses, &pulse_address);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "FLASH ERROR");
         vTaskDelete(NULL);
     }
 
     while (1) {
-        if (xSemaphoreTake(smph_pulse_handler, pdMS_TO_TICKS(1000)) == pdTRUE) {
+        if (xSemaphoreTake(smph_pulse_handler, portMAX_DELAY) == pdTRUE) {
             led_blink();
             pulses++;
             flash_save(pulses);
@@ -91,7 +89,6 @@ void task_pulse(void *arg) {
             register_save(pulses, inputRegister);
             ESP_LOGI(TAG, "Pulse number %d", pulses);
         }
-        CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
 }
 void task_modbus_slave(void *arg) {
