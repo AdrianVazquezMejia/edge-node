@@ -66,7 +66,8 @@ unsigned char key[] = {0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 void task_pulse(void *arg) {
 
     ESP_LOGI(TAG, "Pulse counter task started");
-
+    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
+    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     uint32_t pulses = 0;
     esp_err_t err;
     nvs_address_t pulse_address;
@@ -79,7 +80,7 @@ void task_pulse(void *arg) {
     }
 
     while (1) {
-        if (xSemaphoreTake(smph_pulse_handler, portMAX_DELAY) == pdTRUE) {
+        if (xSemaphoreTake(smph_pulse_handler, pdMS_TO_TICKS(5000)) == pdTRUE) {
             led_blink();
             pulses++;
             flash_save(pulses);
@@ -89,6 +90,7 @@ void task_pulse(void *arg) {
             register_save(pulses, inputRegister);
             ESP_LOGI(TAG, "Pulse number %d", pulses);
         }
+        CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
 }
 void task_modbus_slave(void *arg) {
