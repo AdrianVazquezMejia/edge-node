@@ -282,9 +282,10 @@ int check_write_config_rf1276(struct trama_write_config *trama) {
         return 3;
     }
 
-    if (trama->trama_rx[3] != 0x0c) {
+    if (!(trama->trama_rx[3] == 0x0d || trama->trama_rx[3] == 0x0c)) {
 #ifdef DEBUG_RF1276
-        printf("Error en trama rx Write Config en byte 4, debe ser 0x0d\r\n");
+        printf("Error en trama rx Write Config en byte 4, debe ser 0x0d para "
+               "4.0 y 0x0c para 4.2 \r\n");
 #endif
         return 4;
     }
