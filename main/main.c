@@ -185,9 +185,8 @@ void task_modbus_master(void *arg) {
                     check_exceptions(dtmp);
                     save_register(dtmp, event.size, modbus_registers);
                 } else {
-                    ESP_LOGI(TAG, "Frame not verified: %d",
+                    ESP_LOGI(TAG, "Frame not verified CRC : %d",
                              CRC16(dtmp, event.size));
-                    crc_error_response(dtmp);
                     uart_flush(UART_NUM_1);
                 }
                 break;
