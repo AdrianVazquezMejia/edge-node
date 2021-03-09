@@ -13,6 +13,7 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "freertos/semphr.h"
+#include "math.h"
 
 #define MAX_PARTITIONS 3
 #define MAX_ENTRIES    127
@@ -221,6 +222,7 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
     nvs_entry_info_t info;
     esp_err_t err;
     char *entry_key;
+    uint32_t initial_pulses = round(((float)CONFIG_INITIAL_ENERGY / 100 * (float)CONFIG_IMPULSE_CONVERSION ));
 
     entry = nvs_entry_find(partition_name, page_name, NVS_TYPE_ANY);
     while (entry != NULL) {
@@ -243,18 +245,19 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
 
     err = nvs_get_u32(my_handle, entry_key, counter_value);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
-        err = nvs_set_u32(my_handle, entry_key, *counter_value);
+        err = nvs_set_u32(my_handle, entry_key, initial_pulses);
+        *counter_value = initial_pulses;
         if (err != ESP_OK)
-            ESP_LOGE(TAG_NVS, "Set %s error", entry_key);
+            ESP_LOGE(TAG_NVS, "Set %s error %s", entry_key, esp_err_to_name(err));
         err = nvs_commit(my_handle);
         if (err != ESP_OK)
-            ESP_LOGE(TAG_NVS, "Commit %s error", entry_key);
+            ESP_LOGE(TAG_NVS, "Commit %s error %s", entry_key, esp_err_to_name(err));
     } else if (err != ESP_OK)
         return err;
 
     nvs_close(my_handle);
     free(entry_key);
-    ESP_LOGI(TAG_NVS_2, "Last counter value: %d ", *counter_value);
+    ESP_LOGI(TAG_NVS_2, "Last counter value: %d		Initial count: %d", *counter_value, initial_pulses);
     return ESP_OK;
 }
 static esp_err_t read_pvcounter_from_storage(char *partition_name,
