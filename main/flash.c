@@ -245,8 +245,13 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
 
     err = nvs_get_u32(my_handle, entry_key, counter_value);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
+#ifdef CONFIG_INITIAL_ENERGY
         err = nvs_set_u32(my_handle, entry_key, initial_pulses);
         *counter_value = initial_pulses;
+#endif
+#ifndef CONFIG_INITIAL_ENERGY
+        err = nvs_set_u32(my_handle, entry_key, *counter_value);
+#endif
         if (err != ESP_OK)
             ESP_LOGE(TAG_NVS, "Set %s error %s", entry_key, esp_err_to_name(err));
         err = nvs_commit(my_handle);
@@ -254,7 +259,6 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
             ESP_LOGE(TAG_NVS, "Commit %s error %s", entry_key, esp_err_to_name(err));
     } else if (err != ESP_OK)
         return err;
-
     nvs_close(my_handle);
     free(entry_key);
     ESP_LOGI(TAG_NVS_2, "Last counter value: %d		Initial count: %d", *counter_value, initial_pulses);
