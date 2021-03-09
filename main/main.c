@@ -119,9 +119,9 @@ void task_modbus_slave(void *arg) {
             }
             printf("\n");
             if (CRC16(dtmp, event.size) == 0) {
-                led_blink();
                 ESP_LOGI(TAG_UART, "Modbus frame verified");
                 if (dtmp[0] == NODE_ID) {
+                    led_blink();
                     ESP_LOGI(TAG, "Frame to this slave");
                     modbus_slave_functions(dtmp, event.size, modbus_registers);
                 }

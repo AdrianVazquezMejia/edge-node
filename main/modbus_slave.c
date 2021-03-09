@@ -102,8 +102,8 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
             break;
 
         default:
-            response_frame[0] = frame[0];
-            response_frame[1] = frame[0] + 0x80;
+            response_frame[0] = NODE_ID;
+            response_frame[1] = frame[1] + 0x80;
             response_frame[0] = 0x01;
             response_len      = EXCEPTION_LEN;
             CRC.Val           = CRC16(response_frame, response_len);
@@ -119,7 +119,6 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
             free(response_frame);
             break;
         }
-
     } else
         crc_error_response(frame);
 }
@@ -134,9 +133,9 @@ void crc_error_response(const uint8_t *frame) {
     uint8_t response_len    = 0;
     INT_VAL CRC;
 
-    response_frame[0]              = frame[0];
-    response_frame[1]              = frame[0] + 0x80;
-    response_frame[0]              = 0x08;
+    response_frame[0]              = NODE_ID;
+    response_frame[1]              = frame[1] + 0x80;
+    response_frame[2]              = 0x08;
     response_len                   = EXCEPTION_LEN;
     CRC.Val                        = CRC16(response_frame, response_len);
     response_frame[response_len++] = CRC.byte.LB;
