@@ -36,8 +36,11 @@
 
 #define TWDT_TIMEOUT_S 10
 #define MODBUS_TIMEOUT 100 // in ticks == 1 s
-
+#ifdef CONFIG_PRODUCTION
+#define PULSE_GPIO 35
+#else
 #define PULSE_GPIO 0
+#endif
 
 #define CHECK_ERROR_CODE(returned, expected)                                   \
     ({                                                                         \
@@ -209,8 +212,11 @@ void task_lora(void *arg) {
     mbedtls_aes_setkey_enc(&aes, key, 256);
 #endif
     QueueHandle_t lora_queue;
+#ifdef CONFIG_PRODUCTION
+    uart_lora_t config = {.uart_tx = 13, .uart_rx = 15, .baud_rate = 9600};
+#else
     uart_lora_t config = {.uart_tx = 14, .uart_rx = 15, .baud_rate = 9600};
-
+#endif
     config_rf1276_t config_mesh = {.baud_rate    = 9600,
                                    .network_id   = 1,
                                    .node_id      = NODE_ID,

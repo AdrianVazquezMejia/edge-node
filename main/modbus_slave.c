@@ -13,9 +13,13 @@
 #include "math.h"
 #include "stdint.h"
 static char *TAG = "UART";
+#ifdef CONFIG_PRODUCTION
+#define RTS_PIN 25
+#else
+#define RTS_PIN 27
+#endif
 #define TXD_PIN     33
 #define RXD_PIN     26
-#define RTS_PIN     27
 #define CTS_PIN     2
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024

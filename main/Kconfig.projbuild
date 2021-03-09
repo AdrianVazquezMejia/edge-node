@@ -1,16 +1,28 @@
 menu "Custom Configuration"
 	choice PRODUCTION_MODE
         prompt "Code objetive"
-        default PRODUCTION_PATCH
+        default CONFIG_MODE
         help
-            Protocol examples can use Wi-Fi or Ethernet to connect to the network.
-            Choose which interface to use.
+            Choose what is the objective of deployment of the compiled code 
 
         config CONFIG_MODE
-            bool "Config"
+            bool "Config RTU"
 
         config PRODUCTION_PATCH
-            bool "General Patch"
+            bool "General patch"
+    endchoice
+    
+	choice HARDWARE
+        prompt "Code objetive"
+        default TEST
+        help
+            Choose the target hardware
+
+        config TEST
+            bool "TEST on dev boards"
+
+        config PRODUCTION
+            bool "Deploy on spec PCB"
     endchoice
     config PULSE_PERIPHERAL
         bool "Pulse counter peripheral available"
