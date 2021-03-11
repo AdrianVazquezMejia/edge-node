@@ -16,9 +16,9 @@
 #include "math.h"
 
 #define MAX_PARTITIONS 3
-#define MAX_ENTRIES    127
+#define MAX_ENTRIES    126
 #define MAX_PAGES      15
-#define MAX_WRITES     80000
+#define MAX_WRITES     25
 char *TAG_NVS   = "NVS";
 char *TAG_NVS_2 = "NVS_2";
 //#define FLASH_LOG
@@ -245,13 +245,9 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
 
     err = nvs_get_u32(my_handle, entry_key, counter_value);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
-#ifdef CONFIG_INITIAL_ENERGY
+
         err = nvs_set_u32(my_handle, entry_key, initial_pulses);
         *counter_value = initial_pulses;
-#endif
-#ifndef CONFIG_INITIAL_ENERGY
-        err = nvs_set_u32(my_handle, entry_key, *counter_value);
-#endif
         if (err != ESP_OK)
             ESP_LOGE(TAG_NVS, "Set %s error %s", entry_key, esp_err_to_name(err));
         err = nvs_commit(my_handle);
@@ -373,12 +369,14 @@ esp_err_t save2address(uint32_t data, nvs_address_t address) {
 esp_err_t put_nvs(uint32_t data, nvs_address_t *address) {
 
     bool writeNext = false;
-    uint32_t total_entries;
-    total_entries = (address->entry_index + 1) +
-                    (address->page - 1) * MAX_ENTRIES +
-                    (address->partition - 1) * MAX_PAGES * MAX_ENTRIES;
-    writeNext = data / (total_entries * MAX_WRITES);
-    if (writeNext) {
+//    uint32_t total_entries;
+//    total_entries = (address->entry_index + 1) +
+//                    (address->page - 1) * MAX_ENTRIES +
+//                    (address->partition - 1) * MAX_PAGES * MAX_ENTRIES;
+    uint32_t writes_offset = round(((float)CONFIG_INITIAL_ENERGY / 100 * (float)CONFIG_IMPULSE_CONVERSION ));
+	uint32_t writes_count = data - writes_offset;
+    writeNext = writes_count % MAX_WRITES;
+    if (!writeNext && (writes_count > 0)) {
         ESP_LOGI(TAG_NVS, "Next entry");
         if (address->entry_index >= MAX_ENTRIES - 1) {
             ESP_LOGI(TAG_NVS, "Next page");

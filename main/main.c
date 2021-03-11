@@ -92,6 +92,7 @@ void task_pulse(void *arg) {
                 ESP_LOGE(TAG, "FLASH ERROR");
             register_save(pulses, inputRegister);
             ESP_LOGI(TAG, "Pulse number %d", pulses);
+            vTaskDelay(pdMS_TO_TICKS(5));
         }
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
