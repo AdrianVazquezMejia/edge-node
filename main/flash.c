@@ -226,12 +226,13 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
 
     entry = nvs_entry_find(partition_name, page_name, NVS_TYPE_ANY);
     while (entry != NULL) {
-        entry_index++;
+        (*entry_index)++;
         nvs_entry_info(entry, &info);
         entry = nvs_entry_next(entry);
         ESP_LOGI(TAG_NVS_2, "key '%s', type '%d' \n", info.key, info.type);
     };
     nvs_release_iterator(entry);
+    if(*entry_index > 0)(*entry_index)--;
 
     if (get_name(&entry_key, "entry", *entry_index)) {
         free(entry_key);
@@ -291,7 +292,7 @@ esp_err_t get_initial_pulse(uint32_t *pulse_counter, nvs_address_t *address) {
     char *partition_name;
     char *page_name;
     uint8_t page_index;
-    uint8_t entry_index;
+    uint8_t entry_index = 0;
 
     err = search_init_partition(&address->partition);
     if (get_name(&partition_name, "app", address->partition)) {
@@ -359,7 +360,7 @@ esp_err_t save2address(uint32_t data, nvs_address_t address) {
         return err;
 
     nvs_close(my_handle);
-    nvs_flash_init_partition(partition_name);
+    nvs_flash_deinit_partition(partition_name);
     ESP_LOGI(TAG_NVS, "Data successfully saved %d", data);
     free(entry_key);
     free(partition_name);
