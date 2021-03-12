@@ -99,48 +99,57 @@ void task_pulse(void *arg) {
 }
 void task_modbus_slave(void *arg) {
 
+    ESP_LOGI(TAG, "Slave task started");
+    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
+    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
     uart_event_t event;
     uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
-    while (xQueueReceive(uart_queue, (void *)&event,
-                         (portTickType)portMAX_DELAY)) {
-        bzero(dtmp, RX_BUF_SIZE);
-        switch (event.type) {
-        case UART_DATA:
-            if (uart_read_bytes(UART_NUM_1, dtmp, event.size, portMAX_DELAY) ==
-                ESP_FAIL) {
-                ESP_LOGE(TAG_UART, "Error while reading UART data");
-                break;
-            }
-            ESP_LOGI(TAG_UART, "Received data is:");
-            for (int i = 0; i < event.size; i++) {
-                printf("%x ", dtmp[i]);
-            }
-            printf("\n");
-            if (CRC16(dtmp, event.size) == 0) {
-                ESP_LOGI(TAG_UART, "Modbus frame verified");
-                if (dtmp[0] == NODE_ID) {
-                    led_blink();
-                    ESP_LOGI(TAG, "Frame to this slave");
-                    modbus_slave_functions(dtmp, event.size, modbus_registers);
+    while (1) {
+        if (xQueueReceive(uart_queue, (void *)&event, pdMS_TO_TICKS(5000)) ==
+            pdTRUE) {
+            bzero(dtmp, RX_BUF_SIZE);
+            switch (event.type) {
+            case UART_DATA:
+                if (uart_read_bytes(UART_NUM_1, dtmp, event.size,
+                                    portMAX_DELAY) == ESP_FAIL) {
+                    ESP_LOGE(TAG_UART, "Error while reading UART data");
+                    break;
                 }
-            } else {
-                ESP_LOGE(TAG_UART, " CRC ERROR: %d", CRC16(dtmp, event.size));
-                crc_error_response(dtmp);
-                uart_flush(UART_NUM_1);
+                ESP_LOGI(TAG_UART, "Received data is:");
+                for (int i = 0; i < event.size; i++) {
+                    printf("%x ", dtmp[i]);
+                }
+                printf("\n");
+                if (CRC16(dtmp, event.size) == 0) {
+                    ESP_LOGI(TAG_UART, "Modbus frame verified");
+                    if (dtmp[0] == NODE_ID) {
+                        led_blink();
+                        ESP_LOGI(TAG, "Frame to this slave");
+                        modbus_slave_functions(dtmp, event.size,
+                                               modbus_registers);
+                    }
+                } else {
+                    ESP_LOGE(TAG_UART, " CRC ERROR: %d",
+                             CRC16(dtmp, event.size));
+                    crc_error_response(dtmp);
+                    uart_flush(UART_NUM_1);
+                }
+                break;
+            default:
+                ESP_LOGE(TAG_UART, "UART event %d", event.type);
             }
-            break;
-        default:
-            ESP_LOGE(TAG_UART, "UART event %d", event.type);
         }
+        CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
     free(dtmp);
     dtmp = NULL;
 }
 
 void task_modbus_master(void *arg) {
+    ESP_LOGI(TAG, "Modbus Master Task initialized");
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
@@ -206,7 +215,9 @@ void task_modbus_master(void *arg) {
     }
 }
 void task_lora(void *arg) {
-    ESP_LOGI(TAG, "Task LoRa initialized");
+    ESP_LOGI(TAG, "LoRa Task initialized");
+    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
+    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
 #ifdef CONFIG_CIPHER
     mbedtls_aes_init(&aes);
     mbedtls_aes_setkey_enc(&aes, key, 256);
@@ -236,46 +247,51 @@ void task_lora(void *arg) {
     struct send_data_struct data = {
         .node_id = 1, .power = 7, .data = {0}, .tamano = 1, .routing_type = 1};
 
-    while (xQueueReceive(lora_queue, &trama.trama_rx,
-                         (portTickType)portMAX_DELAY)) {
-        ESP_LOGI(TAG, "Receiving data...");
-        if (receive_packet_rf1276(&trama) == 0) {
-            led_blink(); // two blinks for loRa
-            led_blink();
-            node_origen = trama.respond.source_node.valor;
-            memcpy(received_payload, trama.respond.data,
-                   trama.respond.data_length);
+    while (1) {
+        if (xQueueReceive(lora_queue, &trama.trama_rx, pdMS_TO_TICKS(5000)) ==
+            pdTRUE) {
+            ESP_LOGI(TAG, "Receiving data...");
+            if (receive_packet_rf1276(&trama) == 0) {
+                led_blink(); // two blinks for loRa
+                led_blink();
+                node_origen = trama.respond.source_node.valor;
+                memcpy(received_payload, trama.respond.data,
+                       trama.respond.data_length);
 #ifdef CONFIG_CIPHER
-            bzero(received_payload, trama.respond.data_length);
-            cfb8decrypt(trama.respond.data, trama.respond.data_length,
-                        received_payload);
-            ESP_LOGI(TAG_UART, "Unencrypted R data is:");
-            for (int i = 0; i < trama.respond.data_length; i++) {
-                printf("%x ", received_payload[i]);
-            }
-            printf("\n");
+                bzero(received_payload, trama.respond.data_length);
+                cfb8decrypt(trama.respond.data, trama.respond.data_length,
+                            received_payload);
+                ESP_LOGI(TAG_UART, "Unencrypted R data is:");
+                for (int i = 0; i < trama.respond.data_length; i++) {
+                    printf("%x ", received_payload[i]);
+                }
+                printf("\n");
 #endif
 
-            printf("nodo origen es: %u\n", node_origen);
-            modbus_response = modbus_lora_functions(
-                received_payload, trama.respond.data_length, modbus_registers);
-            memcpy(sending_payload, modbus_response.frame, modbus_response.len);
+                printf("nodo origen es: %u\n", node_origen);
+                modbus_response = modbus_lora_functions(
+                    received_payload, trama.respond.data_length,
+                    modbus_registers);
+                memcpy(sending_payload, modbus_response.frame,
+                       modbus_response.len);
 #ifdef CONFIG_CIPHER
-            ESP_LOGI(TAG_UART, "Unencrypted  data is:");
-            for (int i = 0; i < modbus_response.len; i++) {
-                printf("%x ", modbus_response.frame[i]);
-            }
-            printf("\n");
-            bzero(sending_payload, modbus_response.len);
-            cfb8encrypt(modbus_response.frame, modbus_response.len,
-                        sending_payload);
+                ESP_LOGI(TAG_UART, "Unencrypted  data is:");
+                for (int i = 0; i < modbus_response.len; i++) {
+                    printf("%x ", modbus_response.frame[i]);
+                }
+                printf("\n");
+                bzero(sending_payload, modbus_response.len);
+                cfb8encrypt(modbus_response.frame, modbus_response.len,
+                            sending_payload);
 #endif
-            memcpy(data.data, sending_payload, modbus_response.len);
-            data.tamano  = modbus_response.len;
-            data.node_id = node_origen;
-            send_data_esp_rf1276(&data);
+                memcpy(data.data, sending_payload, modbus_response.len);
+                data.tamano  = modbus_response.len;
+                data.node_id = node_origen;
+                send_data_esp_rf1276(&data);
+            }
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
 #ifdef CONFIG_CIPHER
     mbedtls_aes_free(&aes);
