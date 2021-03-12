@@ -35,6 +35,7 @@
 #define MAX_SLAVES 255
 
 #define TWDT_TIMEOUT_S 10
+#define TWDT_RESET     5000
 #define MODBUS_TIMEOUT 100 // in ticks == 1 s
 #ifdef CONFIG_PRODUCTION
 #define PULSE_GPIO 35
@@ -83,7 +84,8 @@ void task_pulse(void *arg) {
     }
     register_save(pulses, inputRegister);
     while (1) {
-        if (xSemaphoreTake(smph_pulse_handler, pdMS_TO_TICKS(5000)) == pdTRUE) {
+        if (xSemaphoreTake(smph_pulse_handler, pdMS_TO_TICKS(TWDT_RESET)) ==
+            pdTRUE) {
             led_blink();
             pulses++;
             flash_save(pulses);
@@ -108,8 +110,8 @@ void task_modbus_slave(void *arg) {
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
     while (1) {
-        if (xQueueReceive(uart_queue, (void *)&event, pdMS_TO_TICKS(5000)) ==
-            pdTRUE) {
+        if (xQueueReceive(uart_queue, (void *)&event,
+                          pdMS_TO_TICKS(TWDT_RESET)) == pdTRUE) {
             bzero(dtmp, RX_BUF_SIZE);
             switch (event.type) {
             case UART_DATA:
@@ -216,8 +218,7 @@ void task_modbus_master(void *arg) {
 }
 void task_lora(void *arg) {
     ESP_LOGI(TAG, "LoRa Task initialized");
-    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
-    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
+
 #ifdef CONFIG_CIPHER
     mbedtls_aes_init(&aes);
     mbedtls_aes_setkey_enc(&aes, key, 256);
@@ -246,10 +247,11 @@ void task_lora(void *arg) {
     uint8_t sending_payload[117];
     struct send_data_struct data = {
         .node_id = 1, .power = 7, .data = {0}, .tamano = 1, .routing_type = 1};
-
+    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
+    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     while (1) {
-        if (xQueueReceive(lora_queue, &trama.trama_rx, pdMS_TO_TICKS(5000)) ==
-            pdTRUE) {
+        if (xQueueReceive(lora_queue, &trama.trama_rx,
+                          pdMS_TO_TICKS(TWDT_RESET)) == pdTRUE) {
             ESP_LOGI(TAG, "Receiving data...");
             if (receive_packet_rf1276(&trama) == 0) {
                 led_blink(); // two blinks for loRa

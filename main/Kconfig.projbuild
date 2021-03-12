@@ -13,16 +13,16 @@ menu "Custom Configuration"
     endchoice
     
 	choice HARDWARE
-        prompt "Code objetive"
+        prompt "Deploy hardware"
         default TEST
         help
             Choose the target hardware
 
         config TEST
-            bool "TEST on dev boards"
+            bool "Dev boards"
 
         config PRODUCTION
-            bool "Deploy on spec PCB"
+            bool "Specific PCB"
     endchoice
     config PULSE_PERIPHERAL
         bool "Pulse counter peripheral available"

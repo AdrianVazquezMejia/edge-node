@@ -80,7 +80,15 @@ This software is the code for an ESP-32 MCU that will work as an edge node in a 
 
 * Go to __Custom Config__  to choose the mode and parameters of the RTU
 
-# Hardware specs
+* Go to __Serial Flasher Options __ and set the __Flash size__ to at least 4MB.
+
+* Finally, go to __Partition Table__ and select __Custom Partition Table __
+and set the file __partitions.csv__ 
+
+# Hardware specs to test in dev board
+
+Make sure you have selected *Deploy (dev board)* in the menuconfig.
+
 
 ## Uart IOs for RS-485
 
