@@ -81,7 +81,7 @@ void task_pulse(void *arg) {
         ESP_LOGE(TAG, "FLASH ERROR");
         vTaskDelete(NULL);
     }
-
+    register_save(pulses, inputRegister);
     while (1) {
         if (xSemaphoreTake(smph_pulse_handler, pdMS_TO_TICKS(5000)) == pdTRUE) {
             led_blink();
