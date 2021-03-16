@@ -86,15 +86,17 @@ void task_pulse(void *arg) {
     while (1) {
         if (xSemaphoreTake(smph_pulse_handler, pdMS_TO_TICKS(TWDT_RESET)) ==
             pdTRUE) {
-            led_blink();
-            pulses++;
-            flash_save(pulses);
-            err = put_nvs(pulses, &pulse_address);
-            if (err != ESP_OK)
-                ESP_LOGE(TAG, "FLASH ERROR");
-            register_save(pulses, inputRegister);
-            ESP_LOGI(TAG, "Pulse number %d", pulses);
-            vTaskDelay(pdMS_TO_TICKS(10));
+        	vTaskDelay(pdMS_TO_TICKS(10));
+        	if (gpio_get_level(PULSE_GPIO) == 1) {
+				led_blink();
+				pulses++;
+				flash_save(pulses);
+				err = put_nvs(pulses, &pulse_address);
+				if (err != ESP_OK)
+					ESP_LOGE(TAG, "FLASH ERROR");
+				register_save(pulses, inputRegister);
+				ESP_LOGI(TAG, "Pulse number %d", pulses);
+        	}
         }
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
