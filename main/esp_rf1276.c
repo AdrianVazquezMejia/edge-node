@@ -111,7 +111,7 @@ esp_err_t setup_esp_uart(uart_lora_t *config) {
                         &uart0_queue, 0);
 
     // Create a task to handler UART event from ISR
-    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 12, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 2, NULL);
 
     ESP_LOGI(RF1276,
              "Configuracion UART para RF1276 completa: UART Port : %d, Pin Tx "
@@ -222,7 +222,7 @@ esp_err_t start_lora_mesh(uart_lora_t uart_config,
     cola_general   = xQueueCreate(1, 550);
     cola_tamano    = xQueueCreate(1, 2);
 
-    xTaskCreate(loRa_mesh_data_stack, "LoRa Mesh Stack", 1024 * 4, NULL, 12,
+    xTaskCreate(loRa_mesh_data_stack, "LoRa Mesh Stack", 1024 * 4, NULL, 1,
                 NULL);
     baud_rate_aux = uart_config.baud_rate;
     error         = write_config_esp_rf1276(&config_mesh);
