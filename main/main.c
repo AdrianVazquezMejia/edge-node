@@ -34,7 +34,7 @@
 #define TIME_SCAN  2000
 #define MAX_SLAVES 255
 
-#define TWDT_TIMEOUT_S 10
+#define TWDT_TIMEOUT_S 20
 #define TWDT_RESET     5000
 #define MODBUS_TIMEOUT 100 // in ticks == 1 s
 #ifdef CONFIG_PRODUCTION
@@ -294,7 +294,6 @@ void task_lora(void *arg) {
                 data.node_id = node_origen;
                 send_data_esp_rf1276(&data);
             }
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }

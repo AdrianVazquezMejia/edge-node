@@ -111,7 +111,7 @@ esp_err_t setup_esp_uart(uart_lora_t *config) {
                         &uart0_queue, 0);
 
     // Create a task to handler UART event from ISR
-    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 2, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 12, NULL);
 
     ESP_LOGI(RF1276,
              "Configuracion UART para RF1276 completa: UART Port : %d, Pin Tx "
