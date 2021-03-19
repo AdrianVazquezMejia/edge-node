@@ -41,6 +41,22 @@ FILE:hello-world.bin
 ACCEPT
 ```
 
+# The container way
+
+After create the certificates, you can create a container using the Dockerfile located in the *server_certs* files, then:
+
+- To create the container you can use `sudo docker build -t ota-server . `
+
+- Then run it `docker run -p 8070:8070 --name ota-server -it ota-server`, if everything goes OK you shoud see a message like:
+
+	```Using default temp DH parameters
+	   ACCEPT
+	```
+- Finally you can go into the container terminal usign `sudo docker exec -it ota-server bash` and execute `source update.sh` to
+update the .bin files, by download them for a github repo for example.
+
+
+
 ## Output from the ESP32
 
 ![images/ota.png](images/ota.png)
