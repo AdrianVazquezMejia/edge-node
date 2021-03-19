@@ -13,9 +13,9 @@ static char *TAG = "CONFIG";
 void check_rtu_config(void) {
     nvs_handle_t my_handle;
     extern uint8_t NODE_ID;
-
+#ifdef CONFIG_PULSE_PERIPHERAL
     extern int IMPULSE_CONVERSION;
-
+#endif
     nvs_flash_init();
     nvs_open("storage", NVS_READWRITE, &my_handle);
 #ifdef CONFIG_CONFIG_MODE
