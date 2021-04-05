@@ -123,7 +123,7 @@ void task_modbus_slave(void *arg) {
                     ESP_LOGE(TAG_UART, "Error while reading UART data");
                     break;
                 }
-                ESP_LOGI(TAG_UART, "Received data is:");
+                ESP_LOGI(TAG_UART, "Rec31eived data is:");
                 for (int i = 0; i < event.size; i++) {
                     printf("%x ", dtmp[i]);
                 }
