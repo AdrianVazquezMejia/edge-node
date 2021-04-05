@@ -9,11 +9,11 @@
 #include "esp_log.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "math.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "freertos/semphr.h"
-#include "math.h"
 
 #define MAX_PARTITIONS 3
 #define MAX_ENTRIES    126
@@ -26,15 +26,14 @@ char *TAG_NVS_2 = "NVS_2";
 #define ESP_INTR_FLAG_DEFAULT 0
 SemaphoreHandle_t smph_pulse_handler = NULL;
 void IRAM_ATTR pulse_isr(void *arg) {
-  xSemaphoreGiveFromISR(smph_pulse_handler, NULL);
+    xSemaphoreGiveFromISR(smph_pulse_handler, NULL);
 }
-void pulse_isr_init(gpio_num_t gpio_num){
+void pulse_isr_init(gpio_num_t gpio_num) {
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
     gpio_pad_select_gpio(gpio_num);
     gpio_set_direction(gpio_num, GPIO_MODE_INPUT);
     gpio_isr_handler_add(gpio_num, pulse_isr, NULL);
     gpio_set_intr_type(gpio_num, GPIO_INTR_POSEDGE);
-
 }
 inline int get_name(char **output, char *prefix, int n) {
     if (asprintf(output, "%s%d", prefix, n) < 0) {
@@ -222,7 +221,8 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
     nvs_entry_info_t info;
     esp_err_t err;
     char *entry_key;
-    uint32_t initial_pulses = round(((float)CONFIG_INITIAL_ENERGY / 100 * (float)CONFIG_IMPULSE_CONVERSION ));
+    uint32_t initial_pulses = round(((float)CONFIG_INITIAL_ENERGY / 100 *
+                                     (float)CONFIG_IMPULSE_CONVERSION));
 
     entry = nvs_entry_find(partition_name, page_name, NVS_TYPE_ANY);
     while (entry != NULL) {
@@ -232,7 +232,8 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
         ESP_LOGI(TAG_NVS_2, "key '%s', type '%d' \n", info.key, info.type);
     };
     nvs_release_iterator(entry);
-    if(*entry_index > 0)(*entry_index)--;
+    if (*entry_index > 0)
+        (*entry_index)--;
 
     if (get_name(&entry_key, "entry", *entry_index)) {
         free(entry_key);
@@ -247,18 +248,21 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
     err = nvs_get_u32(my_handle, entry_key, counter_value);
     if (err == ESP_ERR_NVS_NOT_FOUND) {
 
-        err = nvs_set_u32(my_handle, entry_key, initial_pulses);
+        err            = nvs_set_u32(my_handle, entry_key, initial_pulses);
         *counter_value = initial_pulses;
         if (err != ESP_OK)
-            ESP_LOGE(TAG_NVS, "Set %s error %s", entry_key, esp_err_to_name(err));
+            ESP_LOGE(TAG_NVS, "Set %s error %s", entry_key,
+                     esp_err_to_name(err));
         err = nvs_commit(my_handle);
         if (err != ESP_OK)
-            ESP_LOGE(TAG_NVS, "Commit %s error %s", entry_key, esp_err_to_name(err));
+            ESP_LOGE(TAG_NVS, "Commit %s error %s", entry_key,
+                     esp_err_to_name(err));
     } else if (err != ESP_OK)
         return err;
     nvs_close(my_handle);
     free(entry_key);
-    ESP_LOGI(TAG_NVS_2, "Last counter value: %d		Initial count: %d", *counter_value, initial_pulses);
+    ESP_LOGI(TAG_NVS_2, "Last counter value: %d		Initial count: %d",
+             *counter_value, initial_pulses);
     return ESP_OK;
 }
 static esp_err_t read_pvcounter_from_storage(char *partition_name,
@@ -370,13 +374,14 @@ esp_err_t save2address(uint32_t data, nvs_address_t address) {
 esp_err_t put_nvs(uint32_t data, nvs_address_t *address) {
 
     bool writeNext = false;
-//    uint32_t total_entries;
-//    total_entries = (address->entry_index + 1) +
-//                    (address->page - 1) * MAX_ENTRIES +
-//                    (address->partition - 1) * MAX_PAGES * MAX_ENTRIES;
-    uint32_t writes_offset = round(((float)CONFIG_INITIAL_ENERGY / 100 * (float)CONFIG_IMPULSE_CONVERSION ));
-	uint32_t writes_count = data - writes_offset;
-    writeNext = writes_count % MAX_WRITES;
+    //    uint32_t total_entries;
+    //    total_entries = (address->entry_index + 1) +
+    //                    (address->page - 1) * MAX_ENTRIES +
+    //                    (address->partition - 1) * MAX_PAGES * MAX_ENTRIES;
+    uint32_t writes_offset = round(((float)CONFIG_INITIAL_ENERGY / 100 *
+                                    (float)CONFIG_IMPULSE_CONVERSION));
+    uint32_t writes_count  = data - writes_offset;
+    writeNext              = writes_count % MAX_WRITES;
     if (!writeNext && (writes_count > 0)) {
         ESP_LOGI(TAG_NVS, "Next entry");
         if (address->entry_index >= MAX_ENTRIES - 1) {

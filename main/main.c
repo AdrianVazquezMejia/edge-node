@@ -58,7 +58,7 @@ static uint16_t inputRegister[512] = {0};
 extern uint8_t NODE_ID;
 extern uint8_t SLAVES;
 extern SemaphoreHandle_t smph_pulse_handler;
-
+nvs_address_t pulse_address;
 // key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
 // and 192 bits encrypting mode
 
@@ -74,10 +74,11 @@ void task_pulse(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     uint32_t pulses = 0;
     esp_err_t err;
-    nvs_address_t pulse_address;
     pulse_isr_init(PULSE_GPIO);
-    smph_pulse_handler = xSemaphoreCreateBinary();
-    err                = get_initial_pulse(&pulses, &pulse_address);
+    pulse_address.partition = 0;
+    smph_pulse_handler      = xSemaphoreCreateBinary();
+    err                     = get_initial_pulse(&pulses, &pulse_address);
+
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "FLASH ERROR");
         vTaskDelete(NULL);
@@ -90,7 +91,6 @@ void task_pulse(void *arg) {
             if (gpio_get_level(PULSE_GPIO) == 1) {
                 led_blink();
                 pulses++;
-                flash_save(pulses);
                 err = put_nvs(pulses, &pulse_address);
                 if (err != ESP_OK)
                     ESP_LOGE(TAG, "FLASH ERROR");

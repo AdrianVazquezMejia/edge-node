@@ -7,36 +7,40 @@
 #include "config_rtu.h"
 #include "driver/uart.h"
 #include "esp_log.h"
+#include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "math.h"
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "stdint.h"
 #include <stdio.h>
 #include <string.h>
-
 static char *TAG = "CONFIG";
-#define EX_UART_NUM UART_NUM_0
-#define PATTERN_CHR_NUM                                                        \
-    (3) /*!< Set the number of consecutive and identical characters received   \
-           by receiver which defines a UART pattern*/
+#define EX_UART_NUM     UART_NUM_0
+#define PATTERN_CHR_NUM (3)
+#define DEFAULT_NODE_ID 255
 
 #define EX_UART_NUM UART_NUM_0
 
 #define BUF_SIZE    (1024)
 #define RD_BUF_SIZE (BUF_SIZE)
 static QueueHandle_t uart0_queue;
-
+uint32_t INITIAL_ENERGY;
 extern uint8_t NODE_ID;
+extern nvs_address_t pulse_address;
+
 static void config_save_flash(void) {
 
     nvs_handle_t my_handle;
+    esp_err_t err;
 
     nvs_flash_init();
     nvs_open("storage", NVS_READWRITE, &my_handle);
 
     nvs_set_u8(my_handle, "NODE_ID", NODE_ID);
+
 #ifdef CONFIG_MASTER_MODBUS
     extern uint8_t SLAVES;
     SLAVES = CONFIG_SLAVES;
@@ -50,6 +54,14 @@ static void config_save_flash(void) {
     nvs_commit(my_handle);
     nvs_close(my_handle);
     nvs_flash_deinit();
+
+    uint32_t initial_pulses =
+        round(((float)INITIAL_ENERGY / 100 * (float)IMPULSE_CONVERSION));
+    err = put_nvs(initial_pulses, &pulse_address);
+    if (err != ESP_OK)
+        ESP_LOGE(TAG, "FLASH ERROR");
+
+    esp_restart();
 }
 static void uart_event_task(void *pvParameters) {
     uart_event_t event;
@@ -96,6 +108,11 @@ static void uart_event_task(void *pvParameters) {
                         SLAVES = (uint8_t)atoi(ptr);
                         ESP_LOGI(TAG, "SLAVES >>> % d", SLAVES);
                     }
+                    if (strcmp(ptr, "-energy") == 0) {
+                        ptr            = strtok(NULL, delim);
+                        INITIAL_ENERGY = (uint32_t)atoi(ptr);
+                        ESP_LOGI(TAG, "INITIAL ENERGY % d", INITIAL_ENERGY);
+                    }
 #endif
                     ptr = strtok(NULL, delim);
                 }
@@ -117,41 +134,30 @@ void check_rtu_config(void) {
     nvs_handle_t my_handle;
     nvs_flash_init();
     nvs_open("storage", NVS_READWRITE, &my_handle);
-#ifdef CONFIG_CONFIG_MODE
-    NODE_ID = CONFIG_ID;
-    nvs_set_u8(my_handle, "NODE_ID", NODE_ID);
-#ifdef CONFIG_MASTER_MODBUS
-    extern uint8_t SLAVES;
-    SLAVES = CONFIG_SLAVES;
-    nvs_set_u8(my_handle, "SLAVES", SLAVES);
-#endif
-#ifdef CONFIG_PULSE_PERIPHERAL
-    extern int IMPULSE_CONVERSION;
-    IMPULSE_CONVERSION = CONFIG_IMPULSE_CONVERSION;
-    nvs_set_i32(my_handle, "IMPULSE_CONVERSION", IMPULSE_CONVERSION);
-#endif
 
-#endif
-
-#ifdef CONFIG_PRODUCTION_PATCH
-    nvs_get_u8(my_handle, "NODE_ID", &NODE_ID);
+    if (nvs_get_u8(my_handle, "NODE_ID", &NODE_ID) == ESP_ERR_NVS_NOT_FOUND) {
+        NODE_ID = DEFAULT_NODE_ID;
+        nvs_set_u8(my_handle, "NODE_ID", NODE_ID);
+    }
+    ESP_LOGI(TAG, "NODE ID >>> %d", NODE_ID);
 #ifdef CONFIG_MASTER_MODBUS
-    nvs_get_u8(my_handle, "SLAVES", &SLAVES);
+    if (nvs_get_u8(my_handle, "SLAVES", &SLAVES) == ESP_ERR_NVS_NOT_FOUND) {
+        nvs_set_u8(my_handle, "SLAVES", SLAVES);
+    }
     ESP_LOGI(TAG, "SLAVES >>> % d", SLAVES);
 #endif
 #ifdef CONFIG_PULSE_PERIPHERAL
     IMPULSE_CONVERSION = CONFIG_IMPULSE_CONVERSION;
-    nvs_get_i32(my_handle, "IMPULSE_CONVERSION", &IMPULSE_CONVERSION);
+    if (nvs_get_i32(my_handle, "IMPULSE_CONVERSION", &IMPULSE_CONVERSION) ==
+        ESP_ERR_NVS_NOT_FOUND) {
+        nvs_set_i32(my_handle, "IMPULSE_CONVERSION", IMPULSE_CONVERSION);
+    }
     ESP_LOGI(TAG, "IMPULSE CONVERSION >>> % d", IMPULSE_CONVERSION);
-#endif
-
 #endif
 
     nvs_commit(my_handle);
     nvs_close(my_handle);
     nvs_flash_deinit();
-
-    ESP_LOGI(TAG, "NODE ID >>> % d", NODE_ID);
 
     ESP_LOGI(TAG, "Start config task");
     uart_config_t uart_config = {.baud_rate = 115200,
