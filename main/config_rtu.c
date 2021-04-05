@@ -27,9 +27,14 @@ static char *TAG = "CONFIG";
 #define BUF_SIZE    (1024)
 #define RD_BUF_SIZE (BUF_SIZE)
 static QueueHandle_t uart0_queue;
+
+#ifdef CONFIG_PULSE_PERIPHERAL
 uint32_t INITIAL_ENERGY;
-extern uint8_t NODE_ID;
+int IMPULSE_CONVERSION;
+#endif
+
 extern nvs_address_t pulse_address;
+extern uint8_t NODE_ID;
 
 static void config_save_flash(void) {
 
@@ -47,9 +52,7 @@ static void config_save_flash(void) {
     nvs_set_u8(my_handle, "SLAVES", SLAVES);
 #endif
 #ifdef CONFIG_PULSE_PERIPHERAL
-    extern int IMPULSE_CONVERSION;
-    IMPULSE_CONVERSION = CONFIG_IMPULSE_CONVERSION;
-    nvs_set_i32(my_handle, "IMPULSE_CONVERSION", IMPULSE_CONVERSION);
+    nvs_set_i32(my_handle, "IMPULSE_K", IMPULSE_CONVERSION);
 #endif
     nvs_commit(my_handle);
     nvs_close(my_handle);
@@ -94,10 +97,9 @@ static void uart_event_task(void *pvParameters) {
 
 #ifdef CONFIG_PULSE_PERIPHERAL
                     if (strcmp(ptr, "-pulse") == 0) {
-                        extern int IMPULSE_CONVERSION;
                         ptr                = strtok(NULL, delim);
                         IMPULSE_CONVERSION = atoi(ptr);
-                        ESP_LOGI(TAG, "IMPULSE CONVERSION >>> % d",
+                        ESP_LOGI(TAG, "IMPULSE CONVERSION >>> %d",
                                  IMPULSE_CONVERSION);
                     }
 #endif
@@ -147,10 +149,11 @@ void check_rtu_config(void) {
     ESP_LOGI(TAG, "SLAVES >>> % d", SLAVES);
 #endif
 #ifdef CONFIG_PULSE_PERIPHERAL
-    IMPULSE_CONVERSION = CONFIG_IMPULSE_CONVERSION;
-    if (nvs_get_i32(my_handle, "IMPULSE_CONVERSION", &IMPULSE_CONVERSION) ==
+    if (nvs_get_i32(my_handle, "IMPULSE_K", &IMPULSE_CONVERSION) ==
         ESP_ERR_NVS_NOT_FOUND) {
-        nvs_set_i32(my_handle, "IMPULSE_CONVERSION", IMPULSE_CONVERSION);
+        IMPULSE_CONVERSION = 12;
+        nvs_set_i32(my_handle, "IMPULSE_K", IMPULSE_CONVERSION);
+        ESP_LOGE(TAG, "IMPULSE CONVERSION NOT FOUND");
     }
     ESP_LOGI(TAG, "IMPULSE CONVERSION >>> % d", IMPULSE_CONVERSION);
 #endif
