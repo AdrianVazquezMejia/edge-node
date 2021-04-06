@@ -27,6 +27,7 @@ char *TAG_NVS_2 = "NVS_2";
 SemaphoreHandle_t smph_pulse_handler = NULL;
 
 extern int IMPULSE_CONVERSION;
+extern uint32_t INITIAL_ENERGY;
 void IRAM_ATTR pulse_isr(void *arg) {
     xSemaphoreGiveFromISR(smph_pulse_handler, NULL);
 }
@@ -376,9 +377,10 @@ esp_err_t put_nvs(uint32_t data, nvs_address_t *address) {
     //                    (address->page - 1) * MAX_ENTRIES +
     //                    (address->partition - 1) * MAX_PAGES * MAX_ENTRIES;
     uint32_t writes_offset =
-        round(((float)CONFIG_INITIAL_ENERGY / 100 * (float)IMPULSE_CONVERSION));
+        round(((float)INITIAL_ENERGY / 100 * (float)IMPULSE_CONVERSION));
     uint32_t writes_count = data - writes_offset;
     writeNext             = writes_count % MAX_WRITES;
+
     if (!writeNext && (writes_count > 0)) {
         ESP_LOGI(TAG_NVS, "Next entry");
         if (address->entry_index >= MAX_ENTRIES - 1) {

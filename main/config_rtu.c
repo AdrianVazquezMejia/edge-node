@@ -31,6 +31,7 @@ static char *TAG = "CONFIG";
 #ifdef CONFIG_PULSE_PERIPHERAL
 uint32_t INITIAL_ENERGY;
 int IMPULSE_CONVERSION;
+uint32_t AUX;
 extern nvs_address_t pulse_address;
 #endif
 
@@ -54,18 +55,22 @@ static void config_save_flash(void) {
 
 #ifdef CONFIG_PULSE_PERIPHERAL
     nvs_set_i32(my_handle, "IMPULSE_K", IMPULSE_CONVERSION);
+    nvs_set_u32(my_handle, "INITIAL_E", INITIAL_ENERGY);
 #endif
 
     nvs_commit(my_handle);
     nvs_close(my_handle);
     nvs_flash_deinit();
-
-    uint32_t initial_pulses =
-        round(((float)INITIAL_ENERGY / 100 * (float)IMPULSE_CONVERSION));
-    err = put_nvs(initial_pulses, &pulse_address);
-    if (err != ESP_OK)
-        ESP_LOGE(TAG, "FLASH ERROR");
-
+#ifdef CONFIG_PULSE_PERIPHERAL
+    if (AUX != INITIAL_ENERGY) {
+        INITIAL_ENERGY = AUX;
+        uint32_t initial_pulses =
+            round(((float)INITIAL_ENERGY / 100 * (float)IMPULSE_CONVERSION));
+        err = put_nvs(initial_pulses, &pulse_address);
+        if (err != ESP_OK)
+            ESP_LOGE(TAG, "FLASH ERROR");
+    }
+#endif
     esp_restart();
 }
 static void uart_event_task(void *pvParameters) {
@@ -117,6 +122,11 @@ static void uart_event_task(void *pvParameters) {
                         ESP_LOGI(TAG, "IMPULSE CONVERSION >>> %d",
                                  IMPULSE_CONVERSION);
                     }
+                    if (strcmp(ptr, "-energy") == 0) {
+                        ptr = strtok(NULL, delim);
+                        AUX = (uint32_t)atoi(ptr);
+                        ESP_LOGI(TAG, "INITIAL ENERGY % d", AUX);
+                    }
 #endif
 #ifdef CONFIG_MASTER_MODBUS
 
@@ -126,13 +136,8 @@ static void uart_event_task(void *pvParameters) {
                         SLAVES = (uint8_t)atoi(ptr);
                         ESP_LOGI(TAG, "SLAVES >>> % d", SLAVES);
                     }
-
-                    if (strcmp(ptr, "-energy") == 0) {
-                        ptr            = strtok(NULL, delim);
-                        INITIAL_ENERGY = (uint32_t)atoi(ptr);
-                        ESP_LOGI(TAG, "INITIAL ENERGY % d", INITIAL_ENERGY);
-                    }
 #endif
+
                     if (strcmp(ptr, "-save") == 0) {
                         ESP_LOGI(TAG, "Saving config to flash");
                         config_save_flash();
@@ -173,11 +178,20 @@ void check_rtu_config(void) {
 #ifdef CONFIG_PULSE_PERIPHERAL
     if (nvs_get_i32(my_handle, "IMPULSE_K", &IMPULSE_CONVERSION) ==
         ESP_ERR_NVS_NOT_FOUND) {
-        IMPULSE_CONVERSION = 12;
+        IMPULSE_CONVERSION = 1;
         nvs_set_i32(my_handle, "IMPULSE_K", IMPULSE_CONVERSION);
         ESP_LOGE(TAG, "IMPULSE CONVERSION NOT FOUND");
     }
     ESP_LOGI(TAG, "IMPULSE CONVERSION >>> % d", IMPULSE_CONVERSION);
+
+    if (nvs_get_u32(my_handle, "INITIAL_E", &INITIAL_ENERGY) ==
+        ESP_ERR_NVS_NOT_FOUND) {
+        INITIAL_ENERGY = 0;
+        nvs_set_i32(my_handle, "INITIAL_E", INITIAL_ENERGY);
+        ESP_LOGE(TAG, "IMPULSE CONVERSION NOT FOUND");
+    }
+    ESP_LOGI(TAG, "INITIAL_E >>> % d", INITIAL_ENERGY);
+
 #endif
 
     nvs_commit(my_handle);
