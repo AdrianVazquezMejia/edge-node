@@ -1,16 +1,4 @@
-menu "Custom Configuration"
-	choice PRODUCTION_MODE
-        prompt "Code objetive"
-        default CONFIG_MODE
-        help
-            Choose what is the objective of deployment of the compiled code 
-
-        config CONFIG_MODE
-            bool "Config RTU"
-
-        config PRODUCTION_PATCH
-            bool "General patch"
-    endchoice
+menu "Custom Configuration" 
     
 	choice HARDWARE
         prompt "Deploy hardware"
