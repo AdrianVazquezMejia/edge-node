@@ -7,6 +7,7 @@
 #include "config_rtu.h"
 #include "driver/uart.h"
 #include "esp_log.h"
+#include "esp_task_wdt.h"
 #include "flash.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -17,23 +18,22 @@
 #include "stdint.h"
 #include <stdio.h>
 #include <string.h>
-static char *TAG = "CONFIG";
-#define EX_UART_NUM     UART_NUM_0
-#define PATTERN_CHR_NUM (3)
+
 #define DEFAULT_NODE_ID 255
+#define RESET_WDT       25000
+#define EX_UART_NUM     UART_NUM_0
+#define BUF_SIZE        (1024)
+#define RD_BUF_SIZE     (BUF_SIZE)
 
-#define EX_UART_NUM UART_NUM_0
-
-#define BUF_SIZE    (1024)
-#define RD_BUF_SIZE (BUF_SIZE)
 static QueueHandle_t uart0_queue;
+static char *TAG = "CONFIG";
 
 #ifdef CONFIG_PULSE_PERIPHERAL
 uint32_t INITIAL_ENERGY;
 int IMPULSE_CONVERSION;
+extern nvs_address_t pulse_address;
 #endif
 
-extern nvs_address_t pulse_address;
 extern uint8_t NODE_ID;
 
 static void config_save_flash(void) {
@@ -51,9 +51,11 @@ static void config_save_flash(void) {
     SLAVES = CONFIG_SLAVES;
     nvs_set_u8(my_handle, "SLAVES", SLAVES);
 #endif
+
 #ifdef CONFIG_PULSE_PERIPHERAL
     nvs_set_i32(my_handle, "IMPULSE_K", IMPULSE_CONVERSION);
 #endif
+
     nvs_commit(my_handle);
     nvs_close(my_handle);
     nvs_flash_deinit();
@@ -67,12 +69,28 @@ static void config_save_flash(void) {
     esp_restart();
 }
 static void uart_event_task(void *pvParameters) {
+
+    ESP_LOGI(TAG, "Start config task");
     uart_event_t event;
-    uint8_t *dtmp = (uint8_t *)malloc(RD_BUF_SIZE);
-    char delim[]  = " ";
+    uint8_t *dtmp             = (uint8_t *)malloc(RD_BUF_SIZE);
+    char delim[]              = " ";
+    uart_config_t uart_config = {.baud_rate = 115200,
+                                 .data_bits = UART_DATA_8_BITS,
+                                 .parity    = UART_PARITY_DISABLE,
+                                 .stop_bits = UART_STOP_BITS_1,
+                                 .flow_ctrl = UART_HW_FLOWCTRL_DISABLE};
+    uart_param_config(EX_UART_NUM, &uart_config);
+
+    esp_log_level_set(TAG, ESP_LOG_INFO);
+    uart_set_pin(EX_UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE,
+                 UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_driver_install(EX_UART_NUM, BUF_SIZE * 2, BUF_SIZE * 2, 20,
+                        &uart0_queue, 0);
+
     for (;;) {
+
         if (xQueueReceive(uart0_queue, (void *)&event,
-                          (portTickType)portMAX_DELAY)) {
+                          pdMS_TO_TICKS(RESET_WDT))) {
             bzero(dtmp, RD_BUF_SIZE);
             ESP_LOGI(TAG, "UART[%d] EVENT:", EX_UART_NUM);
             switch (event.type) {
@@ -84,18 +102,15 @@ static void uart_event_task(void *pvParameters) {
                 char *ptr = strtok((char *)dtmp, delim);
 
                 while (ptr != NULL) {
+
                     if (strcmp(ptr, "-id") == 0) {
                         ptr     = strtok(NULL, delim);
                         NODE_ID = (uint8_t)atoi(ptr);
                         ESP_LOGI(TAG, "NODE ID >>> %d", NODE_ID);
                     }
 
-                    if (strcmp(ptr, "-save") == 0) {
-                        ESP_LOGI(TAG, "Saving config to flash");
-                        config_save_flash();
-                    }
-
 #ifdef CONFIG_PULSE_PERIPHERAL
+
                     if (strcmp(ptr, "-pulse") == 0) {
                         ptr                = strtok(NULL, delim);
                         IMPULSE_CONVERSION = atoi(ptr);
@@ -104,18 +119,25 @@ static void uart_event_task(void *pvParameters) {
                     }
 #endif
 #ifdef CONFIG_MASTER_MODBUS
+
                     if (strcmp(ptr, "-slaves") == 0) {
                         extern uint8_t SLAVES;
                         ptr    = strtok(NULL, delim);
                         SLAVES = (uint8_t)atoi(ptr);
                         ESP_LOGI(TAG, "SLAVES >>> % d", SLAVES);
                     }
+
                     if (strcmp(ptr, "-energy") == 0) {
                         ptr            = strtok(NULL, delim);
                         INITIAL_ENERGY = (uint32_t)atoi(ptr);
                         ESP_LOGI(TAG, "INITIAL ENERGY % d", INITIAL_ENERGY);
                     }
 #endif
+                    if (strcmp(ptr, "-save") == 0) {
+                        ESP_LOGI(TAG, "Saving config to flash");
+                        config_save_flash();
+                    }
+
                     ptr = strtok(NULL, delim);
                 }
                 ESP_LOGI(TAG, "Finish config");
@@ -161,20 +183,6 @@ void check_rtu_config(void) {
     nvs_commit(my_handle);
     nvs_close(my_handle);
     nvs_flash_deinit();
-
-    ESP_LOGI(TAG, "Start config task");
-    uart_config_t uart_config = {.baud_rate = 115200,
-                                 .data_bits = UART_DATA_8_BITS,
-                                 .parity    = UART_PARITY_DISABLE,
-                                 .stop_bits = UART_STOP_BITS_1,
-                                 .flow_ctrl = UART_HW_FLOWCTRL_DISABLE};
-    uart_param_config(EX_UART_NUM, &uart_config);
-
-    esp_log_level_set(TAG, ESP_LOG_INFO);
-    uart_set_pin(EX_UART_NUM, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE,
-                 UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    uart_driver_install(EX_UART_NUM, BUF_SIZE * 2, BUF_SIZE * 2, 20,
-                        &uart0_queue, 0);
 
     xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 12, NULL);
 }
