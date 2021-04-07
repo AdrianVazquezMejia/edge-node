@@ -11,6 +11,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "global_variables.h"
 #include "math.h"
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -26,8 +27,6 @@ char *TAG_NVS_2 = "NVS_2";
 #define ESP_INTR_FLAG_DEFAULT 0
 SemaphoreHandle_t smph_pulse_handler = NULL;
 
-extern int IMPULSE_CONVERSION;
-extern uint32_t INITIAL_ENERGY;
 void IRAM_ATTR pulse_isr(void *arg) {
     xSemaphoreGiveFromISR(smph_pulse_handler, NULL);
 }

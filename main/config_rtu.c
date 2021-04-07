@@ -12,13 +12,13 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "global_variables.h"
 #include "math.h"
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "stdint.h"
 #include <stdio.h>
 #include <string.h>
-
 #define DEFAULT_NODE_ID 255
 #define RESET_WDT       25000
 #define EX_UART_NUM     UART_NUM_0
@@ -27,20 +27,21 @@
 
 static QueueHandle_t uart0_queue;
 static char *TAG = "CONFIG";
+uint8_t NODE_ID;
 
 #ifdef CONFIG_PULSE_PERIPHERAL
 uint32_t INITIAL_ENERGY;
 int IMPULSE_CONVERSION;
 uint32_t AUX;
-extern nvs_address_t pulse_address;
 #endif
 
-extern uint8_t NODE_ID;
+#ifdef CONFIG_MASTER_MODBUS
+uint8_t SLAVES;
+#endif
 
 static void config_save_flash(void) {
 
     nvs_handle_t my_handle;
-    esp_err_t err;
 
     nvs_flash_init();
     nvs_open("storage", NVS_READWRITE, &my_handle);
@@ -48,20 +49,21 @@ static void config_save_flash(void) {
     nvs_set_u8(my_handle, "NODE_ID", NODE_ID);
 
 #ifdef CONFIG_MASTER_MODBUS
-    extern uint8_t SLAVES;
     SLAVES = CONFIG_SLAVES;
     nvs_set_u8(my_handle, "SLAVES", SLAVES);
 #endif
 
 #ifdef CONFIG_PULSE_PERIPHERAL
     nvs_set_i32(my_handle, "IMPULSE_K", IMPULSE_CONVERSION);
-    nvs_set_u32(my_handle, "INITIAL_E", INITIAL_ENERGY);
+    if (AUX != INITIAL_ENERGY)
+        nvs_set_u32(my_handle, "INITIAL_E", AUX);
 #endif
 
     nvs_commit(my_handle);
     nvs_close(my_handle);
     nvs_flash_deinit();
 #ifdef CONFIG_PULSE_PERIPHERAL
+    esp_err_t err;
     if (AUX != INITIAL_ENERGY) {
         INITIAL_ENERGY = AUX;
         uint32_t initial_pulses =
@@ -131,7 +133,6 @@ static void uart_event_task(void *pvParameters) {
 #ifdef CONFIG_MASTER_MODBUS
 
                     if (strcmp(ptr, "-slaves") == 0) {
-                        extern uint8_t SLAVES;
                         ptr    = strtok(NULL, delim);
                         SLAVES = (uint8_t)atoi(ptr);
                         ESP_LOGI(TAG, "SLAVES >>> % d", SLAVES);

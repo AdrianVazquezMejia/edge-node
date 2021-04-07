@@ -16,6 +16,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "global_variables.h"
 #include "led.h"
 #include "modbus_lora.h"
 #include "modbus_master.h"
@@ -26,6 +27,7 @@
 #include "rf1276.h"
 #include "strings.h"
 #include <stdio.h>
+
 #define PULSES_KW 225
 
 #define RX_BUF_SIZE 1024
@@ -55,9 +57,6 @@ static char *TAG_UART = "MODBUS";
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
-extern uint8_t NODE_ID;
-extern uint8_t SLAVES;
-extern SemaphoreHandle_t smph_pulse_handler;
 nvs_address_t pulse_address;
 // key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
 // and 192 bits encrypting mode

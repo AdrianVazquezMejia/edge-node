@@ -9,10 +9,10 @@
 #include "config_rtu.h"
 #include "driver/uart.h"
 #include "esp_log.h"
+#include "global_variables.h"
 #include "stdint.h"
 #define TX_BUF_SIZE 1024
 static char *TAG = "MASTER";
-extern uint8_t SLAVES;
 
 typedef union {
     uint16_t Val;

@@ -10,6 +10,7 @@
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "global_variables.h"
 #include "math.h"
 #include "stdint.h"
 static char *TAG = "UART";
@@ -34,9 +35,6 @@ typedef union {
     } word;
 
 } WORD_VAL;
-
-extern uint8_t NODE_ID;
-extern int IMPULSE_CONVERSION;
 
 void uart_init(QueueHandle_t *queue) {
     uart_driver_delete(UART_NUM_1);
