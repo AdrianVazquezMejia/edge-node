@@ -99,9 +99,9 @@ static void uart_event_task(void *pvParameters) {
         if (xQueueReceive(uart0_queue, (void *)&event,
                           pdMS_TO_TICKS(RESET_WDT))) {
             bzero(dtmp, RD_BUF_SIZE);
-            ESP_LOGI(TAG, "UART[%d] EVENT:", EX_UART_NUM);
             switch (event.type) {
             case UART_DATA:
+                ESP_LOGI(TAG, "COMMAD LINE:");
                 uart_read_bytes(EX_UART_NUM, dtmp, event.size, portMAX_DELAY);
                 dtmp[event.size] = 0x0a;
                 uart_write_bytes(EX_UART_NUM, (const char *)dtmp,
@@ -146,11 +146,9 @@ static void uart_event_task(void *pvParameters) {
 
                     ptr = strtok(NULL, delim);
                 }
-                ESP_LOGI(TAG, "Finish config");
-
                 break;
             default:
-                ESP_LOGI(TAG, "uart event type: %d", event.type);
+                ESP_LOGI(TAG, "ERROR COMMAND LINE: %d", event.type);
                 break;
             }
         }
@@ -169,21 +167,20 @@ void check_rtu_config(void) {
         NODE_ID = DEFAULT_NODE_ID;
         nvs_set_u8(my_handle, "NODE_ID", NODE_ID);
     }
-    ESP_LOGI(TAG, "NODE ID >>> %d", NODE_ID);
+    ESP_LOGW(TAG, "NODE ID >>> %d", NODE_ID);
 #ifdef CONFIG_MASTER_MODBUS
     if (nvs_get_u8(my_handle, "SLAVES", &SLAVES) == ESP_ERR_NVS_NOT_FOUND) {
         nvs_set_u8(my_handle, "SLAVES", SLAVES);
     }
-    ESP_LOGI(TAG, "SLAVES >>> % d", SLAVES);
+    ESP_LOGW(TAG, "SLAVES >>> % d", SLAVES);
 #endif
 #ifdef CONFIG_PULSE_PERIPHERAL
     if (nvs_get_i32(my_handle, "IMPULSE_K", &IMPULSE_CONVERSION) ==
         ESP_ERR_NVS_NOT_FOUND) {
         IMPULSE_CONVERSION = 1;
         nvs_set_i32(my_handle, "IMPULSE_K", IMPULSE_CONVERSION);
-        ESP_LOGE(TAG, "IMPULSE CONVERSION NOT FOUND");
     }
-    ESP_LOGI(TAG, "IMPULSE CONVERSION >>> % d", IMPULSE_CONVERSION);
+    ESP_LOGW(TAG, "IMPULSE CONVERSION >>> % d", IMPULSE_CONVERSION);
 
     if (nvs_get_u32(my_handle, "INITIAL_E", &INITIAL_ENERGY) ==
         ESP_ERR_NVS_NOT_FOUND) {
@@ -191,7 +188,7 @@ void check_rtu_config(void) {
         nvs_set_i32(my_handle, "INITIAL_E", INITIAL_ENERGY);
         ESP_LOGE(TAG, "IMPULSE CONVERSION NOT FOUND");
     }
-    ESP_LOGI(TAG, "INITIAL_E >>> % d", INITIAL_ENERGY);
+    ESP_LOGW(TAG, "INITIAL_ENERGY >>> % d", INITIAL_ENERGY);
 
 #endif
 
