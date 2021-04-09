@@ -49,7 +49,6 @@ static void config_save_flash(void) {
     nvs_set_u8(my_handle, "NODE_ID", NODE_ID);
 
 #ifdef CONFIG_MASTER_MODBUS
-    SLAVES = CONFIG_SLAVES;
     nvs_set_u8(my_handle, "SLAVES", SLAVES);
 #endif
 

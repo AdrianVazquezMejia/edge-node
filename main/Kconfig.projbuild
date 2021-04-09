@@ -36,32 +36,6 @@ menu "Custom Configuration"
         help
             This functions provides serial communication to a LoRa
     
-    config ID
-        int "node identifier"
-        range 1 255
-        default 255
-        help
-            unique network identifier
-    config SLAVES
-        int "Number of slaves"
-        range 0 255
-        default 0
-        help
-            number of slaves to poll
-    config IMPULSE_CONVERSION
-        int "Conversion factor imp/kWh"
-        range 1 100000
-        default 1600
-        help
-            Conversion ratio  between impulses and kWh
-    config INITIAL_ENERGY
-        int "Initial energy kWh w/o dot 2 decimals"
-        range 0 100000000
-        default 0
-        help
-            Initial energy displayed in the meter. 
-            e.g.: 754.32 kWh displayed would be 75432 at the input
-            Firmware will convert it. It has 2 decimals maximum precision.
 	menu "OTA config"
 		config OTA
 			bool "OTA available"

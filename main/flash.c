@@ -19,7 +19,7 @@
 #define MAX_PARTITIONS 3
 #define MAX_ENTRIES    126
 #define MAX_PAGES      15
-#define MAX_WRITES     25
+#define MAX_WRITES     80000
 char *TAG_NVS   = "NVS";
 char *TAG_NVS_2 = "NVS_2";
 //#define FLASH_LOG
