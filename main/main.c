@@ -54,6 +54,7 @@
     })
 static char *TAG      = "INFO";
 static char *TAG_UART = "MODBUS";
+static char *TAG_LORA = "LORA";
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
@@ -300,6 +301,20 @@ void task_lora(void *arg) {
     mbedtls_aes_free(&aes);
 #endif
 }
+static esp_err_t init_lora(void) {
+    esp_err_t err;
+    uart_lora_t configUART = {.uart_tx   = 14,
+                              .uart_rx   = 15,
+                              .baud_rate = 9600,
+                              .uart_num  = UART_NUM_2};
+    err                    = init_lora_uart(&configUART);
+    if (err == ESP_FAIL) {
+        ESP_LOGE(TAG_LORA, "UART [%d] fail", configUART.uart_num);
+        return err;
+    }
+
+    return ESP_FAIL;
+}
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized, fimware version 1.0.13122020a");
     ESP_LOGI(TAG, "Init Watchdog");
@@ -328,8 +343,10 @@ void app_main() {
 #endif
 #ifdef CONFIG_LORA
     ESP_LOGI(TAG, "Start LoRa task");
-    xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
-                            1);
+
+    ESP_ERROR_CHECK(init_lora());
+    // xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
+    //                        1);
 #endif
 
 #ifdef CONFIG_OTA

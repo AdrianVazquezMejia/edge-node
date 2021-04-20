@@ -84,42 +84,39 @@ static void uart_event_task(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
-esp_err_t setup_esp_uart(uart_lora_t *config) {
+esp_err_t init_lora_uart(uart_lora_t *uartParameters) {
 
-    esp_err_t error;
+    esp_err_t err;
+    int loraSerialBaudarate = uartParameters->baud_rate;
+    int loraUARTTX          = uartParameters->uart_tx;
+    int loraUARTRX          = uartParameters->uart_rx;
+    QueueHandle_t uart2Queue;
+    uart_port_t loraUARTNUM = uartParameters->uart_num;
 
-    uart_config_t uart_config = {.baud_rate = config->baud_rate,
+    uart_config_t uart_config = {.baud_rate = loraSerialBaudarate,
                                  .data_bits = UART_DATA_8_BITS,
                                  .parity    = UART_PARITY_DISABLE,
                                  .stop_bits = UART_STOP_BITS_1,
                                  .flow_ctrl = UART_HW_FLOWCTRL_DISABLE};
-
-    error = uart_param_config(UART_RF1276, &uart_config);
-
-    if (error != ESP_OK) {
-        ESP_LOGI(RF1276, "No se establecieron los parametros del UART");
+    err                       = uart_param_config(loraUARTNUM, &uart_config);
+    if (err == ESP_FAIL) {
+        return err;
     }
 
-    // Set UART log level
-    esp_log_level_set(RF1276, ESP_LOG_INFO);
-    // Set UART pins (using UART0 default pins ie no changes.)
-    uart_set_pin(UART_RF1276, config->uart_tx, config->uart_rx,
-                 UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    err = uart_set_pin(UART_RF1276, loraUARTTX, loraUARTRX, UART_PIN_NO_CHANGE,
+                       UART_PIN_NO_CHANGE);
+    if (err == ESP_FAIL) {
+        return err;
+    }
 
-    // Install UART driver, and get the queue.
-    uart_driver_install(UART_RF1276, BUF_SIZE * 2, BUF_SIZE * 2, 20,
-                        &uart0_queue, 0);
+    err = uart_driver_install(loraUARTNUM, BUF_SIZE, BUF_SIZE, 20, &uart2Queue,
+                              0);
+    if (err == ESP_FAIL) {
+        return err;
+    }
+    ESP_LOGI(RF1276, "UART [%d] Parameters Set", loraUARTNUM);
 
-    // Create a task to handler UART event from ISR
-    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 12, NULL);
-
-    ESP_LOGI(RF1276,
-             "Configuracion UART para RF1276 completa: UART Port : %d, Pin Tx "
-             ": %d, Pin Rx : %d, "
-             "BaudRate : %d",
-             UART_RF1276, config->uart_tx, config->uart_rx, config->baud_rate);
-
-    return ESP_OK;
+    return err;
 }
 
 void loRa_mesh_data_stack(void *param) {
@@ -209,9 +206,9 @@ esp_err_t start_lora_mesh(uart_lora_t uart_config,
                           struct config_rf1276 config_mesh,
                           QueueHandle_t *cola) {
 
-    esp_err_t error;
+    esp_err_t error = 0;
 
-    error = setup_esp_uart(&uart_config);
+    // error = setup_esp_uart(&uart_config);
 
     if (error != ESP_OK) {
         return ESP_FAIL;

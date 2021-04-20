@@ -25,6 +25,7 @@ typedef struct uart_lora {
     uint8_t uart_tx;
     uint8_t uart_rx;
     int baud_rate;
+    uart_port_t uart_num;
 } uart_lora_t;
 
 /**
@@ -214,5 +215,6 @@ int read_routing_table_esp_rf1276(struct routing *rutas);
 esp_err_t start_lora_mesh(struct uart_lora config_uart,
                           struct config_rf1276 config_mesh,
                           QueueHandle_t *cola);
+esp_err_t init_lora_uart(uart_lora_t *uartParameters);
 
 #endif

@@ -77,6 +77,7 @@ void save_register(uint8_t *data, uint8_t length, uint16_t **modbus_registers) {
         break;
     }
 }
+#ifdef CONFIG_MASTER_MODBUS
 void init_slaves(bool *slaves) {
     int i = 0;
     for (i = 0; i < 256; i++)
@@ -84,6 +85,7 @@ void init_slaves(bool *slaves) {
     for (i = 1; i <= SLAVES; i++)
         slaves[i] = true;
 }
+#endif
 
 int check_exceptions(uint8_t *data) {
     uint8_t FUNCTION  = data[1];
