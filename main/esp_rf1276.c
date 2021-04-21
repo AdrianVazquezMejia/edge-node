@@ -6,6 +6,9 @@ QueueHandle_t *cola_data;
 QueueHandle_t cola_config;
 QueueHandle_t cola_general;
 QueueHandle_t cola_tamano;
+QueueHandle_t *mainQueue;
+QueueHandle_t uartQueue;
+
 static QueueHandle_t uart0_queue;
 int baud_rate_aux;
 
@@ -22,64 +25,21 @@ static void uart_event_task(void *pvParameters) {
     ESP_LOGI(RF1276, "Configurado Eventos UART%d", UART_RF1276);
 
     uart_event_t event;
-    // size_t buffered_size;
-    // uint8_t buffer_din[RD_BUF_SIZE];
     uint8_t *dtmp = (uint8_t *)malloc(RD_BUF_SIZE);
     while (1) {
-        // Waiting for UART event.
-        if (xQueueReceive(uart0_queue, (void *)&event,
+        if (xQueueReceive(uartQueue, (void *)&event,
                           (portTickType)portMAX_DELAY)) {
             bzero(dtmp, RD_BUF_SIZE);
             ESP_LOGI(RF1276, "uart[%d] event:", UART_RF1276);
             switch (event.type) {
-            // Event of UART receving data
-            /*We'd better handler data event fast, there would be much more data
-            events than other types of events. If we take too much time on data
-            event, the queue might be full.*/
             case UART_DATA:
                 ESP_LOGI(RF1276, "[UART DATA]: %d", event.size);
                 uart_read_bytes(UART_RF1276, dtmp, event.size, portMAX_DELAY);
-                uint8_t *buffer_din =
-                    (uint8_t *)calloc(event.size, sizeof(uint8_t));
-                for (int i = 0; i < event.size; i++) {
-                    buffer_din[i] = dtmp[i];
-                }
-                xQueueSend(cola_tamano, &event.size, portMAX_DELAY);
-                xQueueSend(cola_general, buffer_din, portMAX_DELAY);
-                free(buffer_din);
-
-                //                    uart_write_bytes(pvParameters, (const
-                //                    char*) dtmp, event.size);
-                break;
-            // Event of HW FIFO overflow detected
-            case UART_FIFO_OVF:
-                ESP_LOGI(RF1276, "hw fifo overflow");
-                // If fifo overflow happened, you should consider adding flow
-                // control for your application. The ISR has already reset the
-                // rx FIFO, As an example, we directly flush the rx buffer here
-                // in order to read more data.
-                uart_flush_input(UART_RF1276);
-                xQueueReset(uart0_queue);
-                break;
-            // Event of UART ring buffer full
-            case UART_BUFFER_FULL:
-                ESP_LOGI(RF1276, "ring buffer full");
-                // If buffer full happened, you should consider encreasing your
-                // buffer size As an example, we directly flush the rx buffer
-                // here in order to read more data.
-                uart_flush_input(UART_RF1276);
-                xQueueReset(uart0_queue);
-                break;
-            // Event of UART RX break detected
-            case UART_BREAK:
-                ESP_LOGI(RF1276, "uart rx break");
-                break;
-            // Event of UART parity check error
-            case UART_PARITY_ERR:
-                ESP_LOGI(RF1276, "uart parity error");
+                for (int i = 0; i < event.size; i++)
+                    ESP_LOGI(RF1276, "LoRa frame %x", dtmp[i]);
+                xQueueSend(*mainQueue, dtmp, portMAX_DELAY);
                 break;
 
-            // Others
             default:
                 ESP_LOGI(RF1276, "uart event type: %d", event.type);
                 break;
@@ -97,7 +57,6 @@ esp_err_t init_lora_uart(uart_lora_t *uartParameters) {
     int loraSerialBaudarate = uartParameters->baud_rate;
     int loraUARTTX          = uartParameters->uart_tx;
     int loraUARTRX          = uartParameters->uart_rx;
-    QueueHandle_t uart2Queue;
     uart_port_t loraUARTNUM = uartParameters->uart_num;
 
     uart_config_t uart_config = {.baud_rate = loraSerialBaudarate,
@@ -116,22 +75,17 @@ esp_err_t init_lora_uart(uart_lora_t *uartParameters) {
         return err;
     }
 
-    err = uart_driver_install(loraUARTNUM, BUF_SIZE, BUF_SIZE, 20, &uart2Queue,
-                              0);
+    err =
+        uart_driver_install(loraUARTNUM, BUF_SIZE, BUF_SIZE, 20, &uartQueue, 0);
     if (err == ESP_FAIL) {
         return err;
     }
-    /*if (xTaskCreate(uart_event_task, "uart_event_task",
-                    configMINIMAL_STACK_SIZE, &uart2Queue,
-                    configMAX_PRIORITIES - 1, NULL) != pdPASS) {
-        return ESP_FAIL;
-    };*/
 
     return err;
 }
 
 esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
-                         uart_port_t uart_num) {
+                         QueueHandle_t *loraQueue, uart_port_t uart_num) {
 
     uint8_t sendFrame[18];
     uint8_t recvFrame[18];
@@ -176,7 +130,11 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
 
     if (memcmp(sendFrame, recvFrame, sizeof(sendFrame)))
         return ESP_FAIL;
-
+    mainQueue = loraQueue;
+    if (xTaskCreate(uart_event_task, "uart_event_task", 2048 * 2, NULL,
+                    configMAX_PRIORITIES - 1, NULL) != pdPASS) {
+        return ESP_FAIL;
+    }
     return ESP_OK;
 }
 

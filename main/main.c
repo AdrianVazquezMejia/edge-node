@@ -59,6 +59,7 @@ static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
 nvs_address_t pulse_address;
+QueueHandle_t lora_queue;
 // key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
 // and 192 bits encrypting mode
 
@@ -301,9 +302,21 @@ void task_lora(void *arg) {
     mbedtls_aes_free(&aes);
 #endif
 }
-
+static void task_lora2(void *arg) {
+    ESP_LOGI(TAG, "LoRa Task initialized");
+    uint8_t frame[10];
+    while (1) {
+        if (xQueueReceive(lora_queue, frame, portMAX_DELAY)) {
+            for (int i = 0; i < 10; i++)
+                ESP_LOGI(TAG, "LoRa frame %x", frame[i]);
+        }
+        vTaskDelay(10);
+    }
+}
 static esp_err_t init_lora(void) {
     esp_err_t err;
+    lora_queue = xQueueCreate(1, 128);
+
     uart_lora_t configUART = {.uart_tx   = 14,
                               .uart_rx   = 15,
                               .baud_rate = 9600,
@@ -324,12 +337,12 @@ static esp_err_t init_lora(void) {
     }
     ESP_LOGI(TAG_LORA, "UART [%d] Parameters Set", UART_NUM_2);
 
-    err = init_lora_mesh(&config_mesh, UART_NUM_2);
+    err = init_lora_mesh(&config_mesh, &lora_queue, UART_NUM_2);
     if (err == ESP_FAIL) {
         ESP_LOGE(TAG_LORA, "Lora Mesh set up fail");
         return err;
     }
-    ESP_LOGI(TAG_LORA, "Lora Init Success", UART_NUM_2);
+    ESP_LOGI(TAG_LORA, "Lora Init Success");
 
     return err;
 }
@@ -365,6 +378,7 @@ void app_main() {
     ESP_ERROR_CHECK(init_lora());
     // xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
     //                       1);
+    xTaskCreatePinnedToCore(task_lora2, "task_lora2", 2048, NULL, 10, NULL, 1);
 #endif
 
 #ifdef CONFIG_OTA

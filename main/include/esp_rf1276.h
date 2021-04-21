@@ -217,7 +217,8 @@ esp_err_t start_lora_mesh(struct uart_lora config_uart,
                           QueueHandle_t *cola);
 esp_err_t init_lora_uart(uart_lora_t *uartParameters);
 
-esp_err_t init_lora_mesh(config_rf1276_t *loraParameters, uart_port_t uart_num);
+esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
+                         QueueHandle_t *loraQueue, uart_port_t uart_num);
 typedef union {
     struct {
         uint8_t low_byte_;
