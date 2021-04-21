@@ -301,19 +301,37 @@ void task_lora(void *arg) {
     mbedtls_aes_free(&aes);
 #endif
 }
+
 static esp_err_t init_lora(void) {
     esp_err_t err;
     uart_lora_t configUART = {.uart_tx   = 14,
                               .uart_rx   = 15,
                               .baud_rate = 9600,
                               .uart_num  = UART_NUM_2};
-    err                    = init_lora_uart(&configUART);
+
+    config_rf1276_t config_mesh = {.baud_rate    = 9600,
+                                   .network_id   = 1,
+                                   .node_id      = NODE_ID,
+                                   .power        = 7,
+                                   .routing_time = 1,
+                                   .freq         = 433.0,
+                                   .port_check   = 0};
+
+    err = init_lora_uart(&configUART);
     if (err == ESP_FAIL) {
         ESP_LOGE(TAG_LORA, "UART [%d] fail", configUART.uart_num);
         return err;
     }
+    ESP_LOGI(TAG_LORA, "UART [%d] Parameters Set", UART_NUM_2);
 
-    return ESP_FAIL;
+    err = init_lora_mesh(&config_mesh, UART_NUM_2);
+    if (err == ESP_FAIL) {
+        ESP_LOGE(TAG_LORA, "Lora Mesh set up fail");
+        return err;
+    }
+    ESP_LOGI(TAG_LORA, "Lora Init Success", UART_NUM_2);
+
+    return err;
 }
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized, fimware version 1.0.13122020a");
@@ -346,7 +364,7 @@ void app_main() {
 
     ESP_ERROR_CHECK(init_lora());
     // xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
-    //                        1);
+    //                       1);
 #endif
 
 #ifdef CONFIG_OTA

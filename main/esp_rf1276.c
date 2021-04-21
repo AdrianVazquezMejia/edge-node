@@ -10,7 +10,14 @@ static QueueHandle_t uart0_queue;
 int baud_rate_aux;
 
 #define WRITE_FLAG 0x01
+static uint8_t CHECK_SUM(uint8_t *frame, const uint8_t len) {
 
+    uint8_t checkSum = frame[0];
+    for (uint i = 0; i < len; i++) {
+        checkSum = checkSum ^ frame[i + 1];
+    }
+    return checkSum;
+}
 static void uart_event_task(void *pvParameters) {
     ESP_LOGI(RF1276, "Configurado Eventos UART%d", UART_RF1276);
 
@@ -114,9 +121,63 @@ esp_err_t init_lora_uart(uart_lora_t *uartParameters) {
     if (err == ESP_FAIL) {
         return err;
     }
-    ESP_LOGI(RF1276, "UART [%d] Parameters Set", loraUARTNUM);
+    /*if (xTaskCreate(uart_event_task, "uart_event_task",
+                    configMINIMAL_STACK_SIZE, &uart2Queue,
+                    configMAX_PRIORITIES - 1, NULL) != pdPASS) {
+        return ESP_FAIL;
+    };*/
 
     return err;
+}
+
+esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
+                         uart_port_t uart_num) {
+
+    uint8_t sendFrame[18];
+    uint8_t recvFrame[18];
+    sendFrame[0] = 0x01;
+    sendFrame[1] = 0x00;
+    sendFrame[2] = 0x01;
+    sendFrame[3] = 0x0d;
+    sendFrame[4] = 0xa5;
+    sendFrame[5] = 0xa5;
+    doubleword_t frequency;
+    doubleword_t networkID;
+    doubleword_t nodeID;
+    frequency.doubleword_ =
+        (uint32_t)(loraParameters->freq * 1000000000 / 61035);
+    sendFrame[6]          = frequency.high_word_.low_byte_;
+    sendFrame[7]          = frequency.low_word_.high_byte_;
+    sendFrame[8]          = frequency.low_word_.low_byte_;
+    sendFrame[9]          = loraParameters->power;
+    sendFrame[10]         = loraParameters->routing_time;
+    networkID.doubleword_ = (uint32_t)loraParameters->network_id;
+    sendFrame[11]         = networkID.low_word_.high_byte_;
+    sendFrame[12]         = networkID.low_word_.low_byte_;
+    nodeID.doubleword_    = (uint32_t)loraParameters->node_id;
+    sendFrame[13]         = nodeID.low_word_.high_byte_;
+    sendFrame[14]         = nodeID.low_word_.low_byte_;
+    sendFrame[15]         = 0x03;
+    sendFrame[16]         = loraParameters->port_check;
+    sendFrame[17]         = CHECK_SUM(sendFrame, sizeof(sendFrame) - 2);
+
+    uart_write_bytes(uart_num, (const char *)sendFrame, sizeof(sendFrame));
+
+    uint8_t readBytes = uart_read_bytes(uart_num, recvFrame, sizeof(recvFrame),
+                                        pdMS_TO_TICKS(1000));
+
+    uint8_t checkSum = CHECK_SUM(recvFrame, sizeof(recvFrame) - 1);
+    if (!readBytes && checkSum)
+        return ESP_FAIL;
+
+    sendFrame[2]  = 0x81;
+    sendFrame[3]  = 0x0c;
+    sendFrame[17] = CHECK_SUM(sendFrame, sizeof(sendFrame) - 2);
+
+    if (memcmp(sendFrame, recvFrame, sizeof(sendFrame)))
+        return ESP_FAIL;
+
+    return ESP_OK;
 }
 
 void loRa_mesh_data_stack(void *param) {
