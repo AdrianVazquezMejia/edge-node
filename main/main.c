@@ -39,6 +39,8 @@
 #define TWDT_TIMEOUT_S 20
 #define TWDT_RESET     5000
 #define MODBUS_TIMEOUT 100 // in ticks == 1 s
+
+#define BUF_LORA_SIZE 5
 #ifdef CONFIG_PRODUCTION
 #define PULSE_GPIO 35
 #else
@@ -304,19 +306,28 @@ void task_lora(void *arg) {
 }
 static void task_lora2(void *arg) {
     ESP_LOGI(TAG, "LoRa Task initialized");
-    uint8_t frame[10];
+    lora_mesh_t *loraFrame = (lora_mesh_t *)malloc(sizeof(lora_mesh_t));
+    mb_response_t modbus_response;
+    modbus_registers[1] = &inputRegister[0];
     while (1) {
-        if (xQueueReceive(lora_queue, frame, portMAX_DELAY)) {
-            for (int i = 0; i < 10; i++)
-                ESP_LOGI(TAG, "LoRa frame %x", frame[i]);
+        if (xQueueReceive(lora_queue, loraFrame, portMAX_DELAY)) {
+            for (int i = 0; i < loraFrame->load_.recv_load_.data_len_; i++)
+                ESP_LOGI(TAG, "Data recv %x",
+                         loraFrame->load_.recv_load_.data_[i]);
+            modbus_response = modbus_lora_functions(
+                loraFrame->load_.recv_load_.data_,
+                loraFrame->load_.recv_load_.data_len_, modbus_registers);
+            for (int i = 0; i < modbus_response.len; i++)
+                ESP_LOGI(TAG, "Data send %x", modbus_response.frame[i]);
         }
         vTaskDelay(10);
     }
+    free(loraFrame);
 }
 static esp_err_t init_lora(void) {
     esp_err_t err;
-    lora_queue = xQueueCreate(1, 128);
 
+    lora_queue             = xQueueCreate(BUF_LORA_SIZE, sizeof(lora_mesh_t));
     uart_lora_t configUART = {.uart_tx   = 14,
                               .uart_rx   = 15,
                               .baud_rate = 9600,
@@ -378,7 +389,8 @@ void app_main() {
     ESP_ERROR_CHECK(init_lora());
     // xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
     //                       1);
-    xTaskCreatePinnedToCore(task_lora2, "task_lora2", 2048, NULL, 10, NULL, 1);
+    xTaskCreatePinnedToCore(task_lora2, "task_lora2", 2048 * 2, NULL, 10, NULL,
+                            1);
 #endif
 
 #ifdef CONFIG_OTA

@@ -9,35 +9,86 @@ QueueHandle_t cola_tamano;
 QueueHandle_t *mainQueue;
 QueueHandle_t uartQueue;
 
-static QueueHandle_t uart0_queue;
 int baud_rate_aux;
 
 #define WRITE_FLAG 0x01
-static uint8_t CHECK_SUM(uint8_t *frame, const uint8_t len) {
+static uint8_t CHECK_SUM(uint8_t *frame, uint8_t len) {
 
     uint8_t checkSum = frame[0];
-    for (uint i = 0; i < len; i++) {
+    for (uint i = 0; i < len - 1; i++) {
         checkSum = checkSum ^ frame[i + 1];
     }
     return checkSum;
+}
+static void recv_data_prepare(lora_mesh_t *recvParameter,
+                              const uint8_t *uart_data, const uint8_t len) {
+    recvParameter->header_.frame_type_   = uart_data[0];
+    recvParameter->header_.frame_number_ = uart_data[1];
+    recvParameter->header_.command_type_ = uart_data[2];
+    recvParameter->header_.load_len_     = uart_data[3];
+
+    switch (recvParameter->header_.frame_type_) {
+    case INTERNAL_USE:
+        /// TODO
+        break;
+    case APPLICATION_DATA:
+        switch (recvParameter->header_.command_type_) {
+
+        case ACK_SEND:
+            recvParameter->load_.local_resp_.dest_address_.high_byte_ =
+                uart_data[4];
+            recvParameter->load_.local_resp_.dest_address_.low_byte_ =
+                uart_data[5];
+            recvParameter->load_.local_resp_.result = uart_data[6];
+            recvParameter->check_sum_               = uart_data[7];
+            break;
+        case RECV_PACKAGE:
+            recvParameter->load_.recv_load_.source_address_.high_byte_ =
+                uart_data[4];
+            recvParameter->load_.recv_load_.source_address_.low_byte_ =
+                uart_data[5];
+            recvParameter->load_.recv_load_.signal_   = uart_data[6];
+            recvParameter->load_.recv_load_.data_len_ = uart_data[7];
+            memcpy(recvParameter->load_.recv_load_.data_, uart_data + 8,
+                   recvParameter->load_.recv_load_.data_len_);
+            recvParameter->check_sum_ =
+                uart_data[8 + recvParameter->load_.recv_load_.data_len_];
+            break;
+        default:
+            ESP_LOGW(RF1276, "Unknown Application Data Command Type");
+
+            break;
+        }
+
+        break;
+    default:
+        ESP_LOGW(RF1276, "Unknown Received Frame Type");
+        break;
+    }
 }
 static void uart_event_task(void *pvParameters) {
     ESP_LOGI(RF1276, "Configurado Eventos UART%d", UART_RF1276);
 
     uart_event_t event;
-    uint8_t *dtmp = (uint8_t *)malloc(RD_BUF_SIZE);
+    uint8_t *dtmp          = (uint8_t *)malloc(RD_BUF_SIZE);
+    lora_mesh_t *recvFrame = (lora_mesh_t *)malloc(sizeof(lora_mesh_t));
     while (1) {
         if (xQueueReceive(uartQueue, (void *)&event,
                           (portTickType)portMAX_DELAY)) {
             bzero(dtmp, RD_BUF_SIZE);
-            ESP_LOGI(RF1276, "uart[%d] event:", UART_RF1276);
             switch (event.type) {
             case UART_DATA:
                 ESP_LOGI(RF1276, "[UART DATA]: %d", event.size);
                 uart_read_bytes(UART_RF1276, dtmp, event.size, portMAX_DELAY);
+                if (CHECK_SUM(dtmp, event.size) != 0) {
+                    ESP_LOGW(RF1276, "Check sum error");
+                    break;
+                }
                 for (int i = 0; i < event.size; i++)
                     ESP_LOGI(RF1276, "LoRa frame %x", dtmp[i]);
-                xQueueSend(*mainQueue, dtmp, portMAX_DELAY);
+
+                recv_data_prepare(recvFrame, dtmp, event.size);
+                xQueueSend(*mainQueue, recvFrame, portMAX_DELAY);
                 break;
 
             default:
@@ -47,6 +98,7 @@ static void uart_event_task(void *pvParameters) {
         }
     }
     free(dtmp);
+    free(recvFrame);
     dtmp = NULL;
     vTaskDelete(NULL);
 }
@@ -113,24 +165,26 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
     sendFrame[14]         = nodeID.low_word_.low_byte_;
     sendFrame[15]         = 0x03;
     sendFrame[16]         = loraParameters->port_check;
-    sendFrame[17]         = CHECK_SUM(sendFrame, sizeof(sendFrame) - 2);
+    sendFrame[17]         = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
 
     uart_write_bytes(uart_num, (const char *)sendFrame, sizeof(sendFrame));
 
     uint8_t readBytes = uart_read_bytes(uart_num, recvFrame, sizeof(recvFrame),
                                         pdMS_TO_TICKS(1000));
 
-    uint8_t checkSum = CHECK_SUM(recvFrame, sizeof(recvFrame) - 1);
+    uint8_t checkSum = CHECK_SUM(recvFrame, sizeof(recvFrame));
     if (!readBytes && checkSum)
         return ESP_FAIL;
 
     sendFrame[2]  = 0x81;
     sendFrame[3]  = 0x0c;
-    sendFrame[17] = CHECK_SUM(sendFrame, sizeof(sendFrame) - 2);
+    sendFrame[17] = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
 
     if (memcmp(sendFrame, recvFrame, sizeof(sendFrame)))
         return ESP_FAIL;
     mainQueue = loraQueue;
+    uart_read_bytes(uart_num, recvFrame, 33, pdMS_TO_TICKS(4000));
+    ESP_LOGI(RF1276, "%s", recvFrame); // Version
     if (xTaskCreate(uart_event_task, "uart_event_task", 2048 * 2, NULL,
                     configMAX_PRIORITIES - 1, NULL) != pdPASS) {
         return ESP_FAIL;

@@ -234,5 +234,51 @@ typedef union {
     };
     uint32_t doubleword_;
 } doubleword_t;
+typedef struct {
+    word_t dest_address_;
+    doubleword_t ack_request_;
+    uint8_t sending_radius_;
+    uint8_t routing_type_;
+    uint8_t data_len_;
+    uint8_t data_[109];
 
+} lora_rout_load_t;
+typedef struct {
+    word_t source_address_;
+    uint8_t signal_;
+    uint8_t data_len_;
+    uint8_t data_[113];
+} lora_recv_load_t;
+
+typedef struct {
+
+} lora_conf_load_t;
+typedef struct {
+    word_t dest_address_;
+    uint8_t result;
+} lora_local_resp_t;
+// data request is remaining to implement
+typedef union {
+    lora_rout_load_t transmit_load_;
+    lora_recv_load_t recv_load_;
+    lora_local_resp_t local_resp_;
+    lora_conf_load_t config_load_;
+} lora_load_t;
+
+typedef struct {
+    uint8_t load_len_;
+    uint8_t command_type_;
+    uint8_t frame_number_;
+    uint8_t frame_type_;
+} lora_header_t;
+
+typedef struct {
+    uint8_t check_sum_;
+    lora_load_t load_;
+    lora_header_t header_;
+
+} lora_mesh_t;
+
+enum { INTERNAL_USE = 0x01, APPLICATION_DATA = 0x05 };
+enum { ACK_SEND = 0x81, RECV_PACKAGE = 0x82 };
 #endif
