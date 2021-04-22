@@ -212,7 +212,7 @@ void lora_send(lora_mesh_t *sendFrame) {
     memcpy(serialSendData + 10, sendFrame->load_.transmit_load_.data_,
            serialSendData[9]);
     serialSendData[10 + serialSendData[9]] =
-        CHECK_SUM(serialSendData, lenSendData);
+        CHECK_SUM(serialSendData, lenSendData - 1);
 
     for (int i = 0; i < lenSendData; i++)
         ESP_LOGW(RF1276, "LoRa send frame %x", serialSendData[i]);
