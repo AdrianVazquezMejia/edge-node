@@ -236,7 +236,7 @@ typedef union {
 } doubleword_t;
 typedef struct {
     word_t dest_address_;
-    doubleword_t ack_request_;
+    uint8_t ack_request_;
     uint8_t sending_radius_;
     uint8_t routing_type_;
     uint8_t data_len_;
@@ -278,7 +278,9 @@ typedef struct {
     lora_header_t header_;
 
 } lora_mesh_t;
+void lora_send(lora_mesh_t *sendFrame);
 
 enum { INTERNAL_USE = 0x01, APPLICATION_DATA = 0x05 };
 enum { ACK_SEND = 0x81, RECV_PACKAGE = 0x82 };
+enum { SENDING_DATA = 0x01 };
 #endif

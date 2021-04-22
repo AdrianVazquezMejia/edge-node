@@ -304,6 +304,24 @@ void task_lora(void *arg) {
     mbedtls_aes_free(&aes);
 #endif
 }
+static void prepare_to_send(lora_mesh_t *loraFrame,
+                            mb_response_t *modbus_response) {
+    loraFrame->header_.frame_type_   = APPLICATION_DATA;
+    loraFrame->header_.frame_number_ = 0x00;
+    loraFrame->header_.command_type_ = SENDING_DATA;
+    loraFrame->header_.load_len_     = 0x06 + modbus_response->len;
+
+    loraFrame->load_.transmit_load_.dest_address_.high_byte_ =
+        loraFrame->load_.recv_load_.source_address_.high_byte_;
+    loraFrame->load_.transmit_load_.dest_address_.low_byte_ =
+        loraFrame->load_.recv_load_.source_address_.low_byte_;
+    loraFrame->load_.transmit_load_.ack_request_    = 0x00;
+    loraFrame->load_.transmit_load_.sending_radius_ = 0x07;
+    loraFrame->load_.transmit_load_.routing_type_   = 0x01;
+    loraFrame->load_.transmit_load_.data_len_       = modbus_response->len;
+    memcpy(loraFrame->load_.transmit_load_.data_, modbus_response->frame,
+           modbus_response->len);
+}
 static void task_lora2(void *arg) {
     ESP_LOGI(TAG, "LoRa Task initialized");
     lora_mesh_t *loraFrame = (lora_mesh_t *)malloc(sizeof(lora_mesh_t));
@@ -311,14 +329,28 @@ static void task_lora2(void *arg) {
     modbus_registers[1] = &inputRegister[0];
     while (1) {
         if (xQueueReceive(lora_queue, loraFrame, portMAX_DELAY)) {
-            for (int i = 0; i < loraFrame->load_.recv_load_.data_len_; i++)
-                ESP_LOGI(TAG, "Data recv %x",
-                         loraFrame->load_.recv_load_.data_[i]);
-            modbus_response = modbus_lora_functions(
-                loraFrame->load_.recv_load_.data_,
-                loraFrame->load_.recv_load_.data_len_, modbus_registers);
-            for (int i = 0; i < modbus_response.len; i++)
-                ESP_LOGI(TAG, "Data send %x", modbus_response.frame[i]);
+
+            switch (loraFrame->header_.frame_type_) {
+            case INTERNAL_USE:
+                /// TODO
+                break;
+            case APPLICATION_DATA:
+                switch (loraFrame->header_.command_type_) {
+                case ACK_SEND:
+
+                    break;
+                case RECV_PACKAGE:
+                    ESP_LOGI(TAG, "Data package received");
+                    modbus_response = modbus_lora_functions(
+                        loraFrame->load_.recv_load_.data_,
+                        loraFrame->load_.recv_load_.data_len_,
+                        modbus_registers);
+
+                    prepare_to_send(loraFrame, &modbus_response);
+                    lora_send(loraFrame);
+                    break;
+                }
+            }
         }
         vTaskDelay(10);
     }
@@ -333,7 +365,7 @@ static esp_err_t init_lora(void) {
                               .baud_rate = 9600,
                               .uart_num  = UART_NUM_2};
 
-    config_rf1276_t config_mesh = {.baud_rate    = 9600,
+    config_rf1276_t config_mesh = {.baud_rate    = 0x03,
                                    .network_id   = 1,
                                    .node_id      = NODE_ID,
                                    .power        = 7,
@@ -387,7 +419,8 @@ void app_main() {
     ESP_LOGI(TAG, "Start LoRa task");
 
     ESP_ERROR_CHECK(init_lora());
-    // xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10, NULL,
+    // xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10,
+    // NULL,
     //                       1);
     xTaskCreatePinnedToCore(task_lora2, "task_lora2", 2048 * 2, NULL, 10, NULL,
                             1);

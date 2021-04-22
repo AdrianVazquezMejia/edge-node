@@ -78,14 +78,15 @@ static void uart_event_task(void *pvParameters) {
             bzero(dtmp, RD_BUF_SIZE);
             switch (event.type) {
             case UART_DATA:
-                ESP_LOGI(RF1276, "[UART DATA]: %d", event.size);
-                uart_read_bytes(UART_RF1276, dtmp, event.size, portMAX_DELAY);
+                ESP_LOGI(RF1276, "Primero esto : %d", event.size);
+                uart_read_bytes(UART_RF1276, dtmp, event.size,
+                                pdMS_TO_TICKS(500));
+                for (int i = 0; i < event.size; i++)
+                    ESP_LOGI(RF1276, "LoRa frame %x", dtmp[i]);
                 if (CHECK_SUM(dtmp, event.size) != 0) {
                     ESP_LOGW(RF1276, "Check sum error");
                     break;
                 }
-                for (int i = 0; i < event.size; i++)
-                    ESP_LOGI(RF1276, "LoRa frame %x", dtmp[i]);
 
                 recv_data_prepare(recvFrame, dtmp, event.size);
                 xQueueSend(*mainQueue, recvFrame, portMAX_DELAY);
@@ -163,7 +164,7 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
     nodeID.doubleword_    = (uint32_t)loraParameters->node_id;
     sendFrame[13]         = nodeID.low_word_.high_byte_;
     sendFrame[14]         = nodeID.low_word_.low_byte_;
-    sendFrame[15]         = 0x03;
+    sendFrame[15]         = loraParameters->baud_rate;
     sendFrame[16]         = loraParameters->port_check;
     sendFrame[17]         = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
 
@@ -190,6 +191,33 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
         return ESP_FAIL;
     }
     return ESP_OK;
+}
+
+void lora_send(lora_mesh_t *sendFrame) {
+
+    uint8_t lenSendData     = 5 + sendFrame->header_.load_len_;
+    uint8_t *serialSendData = (uint8_t *)malloc(lenSendData);
+
+    serialSendData[0] = sendFrame->header_.frame_type_;
+    serialSendData[1] = sendFrame->header_.frame_number_;
+    serialSendData[2] = sendFrame->header_.command_type_;
+    serialSendData[3] = sendFrame->header_.load_len_;
+    serialSendData[4] =
+        sendFrame->load_.transmit_load_.dest_address_.high_byte_;
+    serialSendData[5] = sendFrame->load_.transmit_load_.dest_address_.low_byte_;
+    serialSendData[6] = sendFrame->load_.transmit_load_.ack_request_;
+    serialSendData[7] = sendFrame->load_.transmit_load_.sending_radius_;
+    serialSendData[8] = sendFrame->load_.transmit_load_.routing_type_;
+    serialSendData[9] = sendFrame->load_.transmit_load_.data_len_;
+    memcpy(serialSendData + 10, sendFrame->load_.transmit_load_.data_,
+           serialSendData[9]);
+    serialSendData[10 + serialSendData[9]] =
+        CHECK_SUM(serialSendData, lenSendData);
+
+    for (int i = 0; i < lenSendData; i++)
+        ESP_LOGW(RF1276, "LoRa send frame %x", serialSendData[i]);
+    uart_write_bytes(UART_RF1276, (const char *)serialSendData, lenSendData);
+    free(serialSendData);
 }
 
 void loRa_mesh_data_stack(void *param) {
