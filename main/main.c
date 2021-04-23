@@ -360,10 +360,7 @@ void app_main() {
     ESP_LOGI(TAG, "Start LoRa task");
 
     ESP_ERROR_CHECK(init_lora());
-    // xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 4, NULL, 10,
-    // NULL,
-    //                       1);
-    xTaskCreatePinnedToCore(task_lora, "task_lora2", 2048 * 2, NULL, 10, NULL,
+    xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 2, NULL, 10, NULL,
                             1);
 #endif
 
