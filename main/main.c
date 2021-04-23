@@ -18,6 +18,7 @@
 #include "freertos/task.h"
 #include "global_variables.h"
 #include "led.h"
+#include "lora_mesh.h"
 #include "modbus_lora.h"
 #include "modbus_master.h"
 #include "modbus_slave.h"
@@ -26,7 +27,6 @@
 #include "ota_update.h"
 #include "string.h"
 #include <stdio.h>
-
 #define PULSES_KW 225
 
 #define RX_BUF_SIZE 1024
@@ -222,24 +222,6 @@ void task_modbus_master(void *arg) {
     }
 }
 
-static void prepare_to_send(lora_mesh_t *loraFrame,
-                            mb_response_t *modbus_response) {
-    loraFrame->header_.frame_type_   = APPLICATION_DATA;
-    loraFrame->header_.frame_number_ = 0x00;
-    loraFrame->header_.command_type_ = SENDING_DATA;
-    loraFrame->header_.load_len_     = 0x06 + modbus_response->len;
-
-    loraFrame->load_.transmit_load_.dest_address_.high_byte_ =
-        loraFrame->load_.recv_load_.source_address_.high_byte_;
-    loraFrame->load_.transmit_load_.dest_address_.low_byte_ =
-        loraFrame->load_.recv_load_.source_address_.low_byte_;
-    loraFrame->load_.transmit_load_.ack_request_    = 0x00;
-    loraFrame->load_.transmit_load_.sending_radius_ = 0x07;
-    loraFrame->load_.transmit_load_.routing_type_   = 0x01;
-    loraFrame->load_.transmit_load_.data_len_       = modbus_response->len;
-    memcpy(loraFrame->load_.transmit_load_.data_, modbus_response->frame,
-           modbus_response->len);
-}
 static void task_lora(void *arg) {
     ESP_LOGI(TAG, "LoRa Task initialized");
     lora_mesh_t *loraFrame = (lora_mesh_t *)malloc(sizeof(lora_mesh_t));
