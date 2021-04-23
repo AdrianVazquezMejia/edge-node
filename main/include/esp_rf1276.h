@@ -8,7 +8,7 @@
 #define BUF_SIZE    (1024)
 #define RD_BUF_SIZE (BUF_SIZE)
 #define UART_RF1276 UART_NUM_2
-//#define DEBUG_LORA
+#define DEBUG_LORA
 
 /**
  * @brief Estructura de configuración del UART

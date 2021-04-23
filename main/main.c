@@ -226,7 +226,13 @@ static void task_lora(void *arg) {
     ESP_LOGI(TAG, "LoRa Task initialized");
     lora_mesh_t *loraFrame = (lora_mesh_t *)malloc(sizeof(lora_mesh_t));
     mb_response_t modbus_response;
+    mb_response_t auxFrame;
     modbus_registers[1] = &inputRegister[0];
+#ifdef CONFIG_CIPHER
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_enc(&aes, key, 256);
+#endif
+
     while (1) {
         if (xQueueReceive(lora_queue, loraFrame, portMAX_DELAY)) {
 
@@ -245,15 +251,32 @@ static void task_lora(void *arg) {
                         ESP_LOGE(TAG_LORA, "LORA ERROR CODE %2x",
                                  loraFrame->load_.local_resp_.result);
                     }
+                    ESP_LOGI(TAG_LORA, "Ack from dest node");
                     break;
                 case RECV_PACKAGE:
-                    ESP_LOGI(TAG_LORA, "Data package received");
-                    modbus_response = modbus_lora_functions(
-                        loraFrame->load_.recv_load_.data_,
-                        loraFrame->load_.recv_load_.data_len_,
-                        modbus_registers);
 
-                    prepare_to_send(loraFrame, &modbus_response);
+                    ESP_LOGI(TAG_LORA, "Data package received");
+
+                    memcpy(auxFrame.frame, loraFrame->load_.recv_load_.data_,
+                           loraFrame->load_.recv_load_.data_len_);
+                    auxFrame.len = loraFrame->load_.recv_load_.data_len_;
+
+#ifdef CONFIG_CIPHER
+                    cfb8decrypt(loraFrame->load_.recv_load_.data_,
+                                loraFrame->load_.recv_load_.data_len_,
+                                auxFrame.frame);
+#endif
+                    ESP_LOGI(TAG_UART, "Unencrypted R data is:");
+
+                    modbus_response = modbus_lora_functions(
+                        auxFrame.frame, auxFrame.len, modbus_registers);
+                    auxFrame = modbus_response;
+#ifdef CONFIG_CIPHER
+                    bzero(auxFrame.frame, auxFrame.len);
+                    cfb8encrypt(modbus_response.frame, auxFrame.len,
+                                auxFrame.frame);
+#endif
+                    prepare_to_send(loraFrame, &auxFrame);
                     if (lora_send(loraFrame) == ESP_FAIL) {
                         ESP_LOGW(TAG_LORA, "Fail to send");
                     }
