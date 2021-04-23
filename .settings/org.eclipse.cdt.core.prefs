@@ -28,5 +28,5 @@ indexer/skipIncludedFilesLargerThanMB=16
 indexer/skipMacroReferences=false
 indexer/skipReferences=false
 indexer/skipTypeReferences=false
-indexer/useHeuristicIncludeResolution=false
+indexer/useHeuristicIncludeResolution=true
 org.eclipse.cdt.core.code_formatter=org.eclipse.cdt.core.defaultCodeFormatter
