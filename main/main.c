@@ -237,7 +237,14 @@ static void task_lora(void *arg) {
             case APPLICATION_DATA:
                 switch (loraFrame->header_.command_type_) {
                 case ACK_SEND:
-
+                    if (loraFrame->header_.load_len_ == 0x01) {
+                        ESP_LOGE(TAG_LORA,
+                                 "Lora Can not verify the CRC to send");
+                    } else if (loraFrame->header_.load_len_ == 0x03 &&
+                               loraFrame->load_.local_resp_.result != 0) {
+                        ESP_LOGE(TAG_LORA, "LORA ERROR CODE %2x",
+                                 loraFrame->load_.local_resp_.result);
+                    }
                     break;
                 case RECV_PACKAGE:
                     ESP_LOGI(TAG_LORA, "Data package received");
@@ -248,8 +255,9 @@ static void task_lora(void *arg) {
 
                     prepare_to_send(loraFrame, &modbus_response);
                     if (lora_send(loraFrame) == ESP_FAIL) {
-                        ESP_LOGI(TAG_LORA, "Answer sent");
+                        ESP_LOGW(TAG_LORA, "Fail to send");
                     }
+                    ESP_LOGI(TAG_LORA, "Answer Sent");
                     break;
                 }
             }
