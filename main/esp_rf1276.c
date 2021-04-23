@@ -3,9 +3,7 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
-
 #include "freertos/task.h"
-
 #include <string.h>
 
 static const char *RF1276 = "ESP_RF1276";
@@ -147,6 +145,7 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
                          QueueHandle_t *loraQueue, uart_port_t uart_num) {
 
     uint8_t sendFrame[18];
+    uint8_t auxFrameV20[18];
     uint8_t recvFrame[18];
     sendFrame[0] = 0x01;
     sendFrame[1] = 0x00;
@@ -187,7 +186,13 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
     sendFrame[3]  = 0x0c;
     sendFrame[17] = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
 
-    if (memcmp(sendFrame, recvFrame, sizeof(sendFrame)))
+    memcpy(auxFrameV20, sendFrame, sizeof(sendFrame));
+    auxFrameV20[2]  = 0x81;
+    auxFrameV20[3]  = 0x0d; // Version 4.0
+    auxFrameV20[17] = CHECK_SUM(auxFrameV20, sizeof(sendFrame) - 1);
+
+    if ((memcmp(sendFrame, recvFrame, sizeof(sendFrame)) != 0) &&
+        (memcmp(auxFrameV20, recvFrame, sizeof(sendFrame)) != 0))
         return ESP_FAIL;
     mainQueue = loraQueue;
     uart_read_bytes(uart_num, recvFrame, 33, pdMS_TO_TICKS(4000));

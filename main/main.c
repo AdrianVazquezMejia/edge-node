@@ -292,9 +292,17 @@ static void task_lora(void *arg) {
 static esp_err_t init_lora(void) {
     esp_err_t err;
 
-    lora_queue             = xQueueCreate(BUF_LORA_SIZE, sizeof(lora_mesh_t));
-    uart_lora_t configUART = {.uart_tx   = 14,
-                              .uart_rx   = 15,
+    lora_queue = xQueueCreate(BUF_LORA_SIZE, sizeof(lora_mesh_t));
+#ifdef CONFIG_PRODUCTION
+    int UART_TX = 13;
+    int UART_RX = 15;
+#else
+    int UART_TX = 14;
+#endif
+    int UART_RX = 15;
+
+    uart_lora_t configUART = {.uart_tx   = UART_TX,
+                              .uart_rx   = UART_RX,
                               .baud_rate = 9600,
                               .uart_num  = UART_NUM_2};
 
