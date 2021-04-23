@@ -8,7 +8,7 @@
 #include "CRC.h"
 #include "esp_log.h"
 #include "esp_rf1276.h"
-#include "rf1276.h"
+#include "string.h"
 enum modbus_function_t { READ_HOLDING = 3, READ_INPUT };
 typedef union {
     uint16_t Val;
