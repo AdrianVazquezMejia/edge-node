@@ -91,7 +91,7 @@ int check_exceptions(uint8_t *data) {
     uint8_t FUNCTION  = data[1];
     uint8_t SLAVE     = data[0];
     uint8_t EXCEPTION = data[2];
-    if (FUNCTION < 0x80)
+    if (FUNCTION == 0x04)
         return ESP_OK;
     switch (EXCEPTION) {
     case ILLEGAL_FUNC:

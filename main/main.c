@@ -199,7 +199,8 @@ void task_modbus_master(void *arg) {
                 if (CRC16(dtmp, event.size) == 0) {
                     led_blink();
                     ESP_LOGI(TAG, "Modbus frame verified");
-                    check_exceptions(dtmp);
+                    if (check_exceptions(dtmp) == ESP_FAIL)
+                        break;
                     save_register(dtmp, event.size, modbus_registers);
                 } else {
                     ESP_LOGI(TAG, "Frame not verified CRC : %d",
@@ -293,7 +294,6 @@ static esp_err_t init_lora(void) {
     lora_queue = xQueueCreate(BUF_LORA_SIZE, sizeof(lora_mesh_t));
 #ifdef CONFIG_PRODUCTION
     int UART_TX = 13;
-    int UART_RX = 15;
 #else
     int UART_TX = 14;
 #endif
