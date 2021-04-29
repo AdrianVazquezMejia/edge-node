@@ -245,7 +245,7 @@ static void task_lora(void *arg) {
                 case ACK_SEND:
                     if (loraFrame->header_.load_len_ == 0x01) {
                         ESP_LOGE(TAG_LORA,
-                                 "Lora Can not verify the CRC to send");
+                                 "LoRa Can not verify the CRC to send");
                     } else if (loraFrame->header_.load_len_ == 0x03 &&
                                loraFrame->load_.local_resp_.result != 0) {
                         ESP_LOGE(TAG_LORA, "LORA ERROR CODE %2x",
@@ -266,8 +266,6 @@ static void task_lora(void *arg) {
                                 loraFrame->load_.recv_load_.data_len_,
                                 auxFrame.frame);
 #endif
-                    ESP_LOGI(TAG_UART, "Unencrypted R data is:");
-
                     modbus_response = modbus_lora_functions(
                         auxFrame.frame, auxFrame.len, modbus_registers);
                     auxFrame = modbus_response;
