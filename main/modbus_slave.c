@@ -91,34 +91,33 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
             if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
                                  response_len) == ESP_FAIL) {
                 ESP_LOGE(TAG, "Error writig UART data");
-                free(response_frame);
                 break;
             }
             for (int i = 0; i < response_len; i++)
                 printf("tx[%d]: %x\n", i, response_frame[i]);
-            free(response_frame);
             break;
 
         default:
             response_frame[0] = NODE_ID;
             response_frame[1] = frame[1] + 0x80;
-            response_frame[0] = 0x01;
+            response_frame[2] = 0x01;
             response_len      = EXCEPTION_LEN;
             CRC.Val           = CRC16(response_frame, response_len);
             response_frame[response_len++] = CRC.byte.LB;
             response_frame[response_len++] = CRC.byte.HB;
+            ESP_LOGI(TAG, "Exception sent");
             if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
                                  response_len) == ESP_FAIL) {
                 ESP_LOGE(TAG, "Error writig UART data");
-                free(response_frame);
                 break;
             }
             ESP_LOGE(TAG, "Invalid function response");
-            free(response_frame);
+
             break;
         }
     } else
         crc_error_response(frame);
+    free(response_frame);
 }
 void register_save(uint32_t value, uint16_t *modbus_register) {
     WORD_VAL aux_register;

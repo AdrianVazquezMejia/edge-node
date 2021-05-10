@@ -8,7 +8,6 @@
 #include "cypher.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
-#include "esp_intr_alloc.h"
 #include "esp_log.h"
 #include "esp_rf1276.h"
 #include "esp_task_wdt.h"
