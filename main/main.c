@@ -205,6 +205,7 @@ void task_modbus_master(void *arg) {
                     ESP_LOGI(TAG, "Frame not verified CRC : %d",
                              CRC16(dtmp, event.size));
                     uart_flush(UART_NUM_1);
+                    vTaskDelay(pdMS_TO_TICKS(1000));
                 }
                 break;
             default:
