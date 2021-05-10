@@ -87,7 +87,7 @@ and set the file __partitions.csv__
 
 # Hardware specs to test in dev board
 
-Make sure you have selected *Deploy (dev board)* in the menuconfig.
+Make sure you have selected *HARDWARE (TEST)* in the `menuconfig` to flash the code into devboards.
 
 
 ## Uart IOs for RS-485
