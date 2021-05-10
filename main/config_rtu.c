@@ -184,7 +184,7 @@ void check_rtu_config(void) {
     if (nvs_get_u32(my_handle, "INITIAL_E", &INITIAL_ENERGY) ==
         ESP_ERR_NVS_NOT_FOUND) {
         INITIAL_ENERGY = 0;
-        nvs_set_i32(my_handle, "INITIAL_E", INITIAL_ENERGY);
+        nvs_set_u32(my_handle, "INITIAL_E", INITIAL_ENERGY);
         ESP_LOGE(TAG, "IMPULSE CONVERSION NOT FOUND");
     }
     ESP_LOGW(TAG, "INITIAL_ENERGY >>> % d", INITIAL_ENERGY);
@@ -195,5 +195,6 @@ void check_rtu_config(void) {
     nvs_close(my_handle);
     nvs_flash_deinit();
 
-    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL, 12, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 2048, NULL,
+                tskIDLE_PRIORITY, NULL);
 }
