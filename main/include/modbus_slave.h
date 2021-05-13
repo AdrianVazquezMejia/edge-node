@@ -9,6 +9,7 @@
 #define MAIN_INCLUDE_MODBUS_SLAVE_H_
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+
 typedef union {
     uint16_t Val;
     struct {
@@ -17,9 +18,15 @@ typedef union {
     } byte;
 
 } INT_VAL;
+
+typedef struct mb_response {
+    uint8_t frame[256];
+    uint8_t len;
+} mb_response_t;
+
 void uart_init(QueueHandle_t *queue);
-void modbus_slave_functions(const uint8_t *frame, uint8_t length,
-                            uint16_t **modbus_registers);
+void modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
+                            uint8_t length, uint16_t **modbus_registers);
 void register_save(uint32_t value, uint16_t *modbus_register);
 void crc_error_response(const uint8_t *frame);
 uint32_t normalize_pulses(uint32_t value);
