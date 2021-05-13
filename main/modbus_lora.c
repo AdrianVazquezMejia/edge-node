@@ -19,8 +19,9 @@ typedef union {
 
 } INT_VAL;
 static char *TAG = "LORA_MODBUS";
-mb_response_t modbus_lora_functions(const uint8_t *frame, uint8_t length,
-                                    uint16_t **modbus_registers) {
+esp_err_t modbus_lora_functions(mb_response_t *response_frame,
+                                const uint8_t *frame, uint8_t length,
+                                uint16_t **modbus_registers) {
     uint8_t FUNCTION = frame[1];
     INT_VAL address;
     address.byte.HB = frame[2];
@@ -29,38 +30,38 @@ mb_response_t modbus_lora_functions(const uint8_t *frame, uint8_t length,
     value.byte.HB = frame[4];
     value.byte.LB = frame[5];
     INT_VAL CRC;
-    uint8_t response_frame[255];
-    uint8_t response_len   = 0;
-    INT_VAL *inputRegister = (INT_VAL *)modbus_registers[1];
-    response_frame[0]      = frame[0];
-    response_frame[1]      = frame[1];
+    uint8_t response_len     = 0;
+    INT_VAL *inputRegister   = (INT_VAL *)modbus_registers[1];
+    response_frame->frame[0] = frame[0];
+    response_frame->frame[1] = frame[1];
 
     mb_response_t output;
     if (CRC16(frame, length) == 0) {
         switch (FUNCTION) {
         case READ_INPUT:
             ESP_LOGI(TAG, "Reading inputs Registers");
-            response_frame[2] = frame[5] * 2;
-            response_len      = 3;
+            response_frame->frame[2] = frame[5] * 2;
+            response_len             = 3;
             for (uint16_t i = 0; i < value.Val; i++) {
-                response_frame[response_len] =
+                response_frame->frame[response_len] =
                     inputRegister[address.Val + i].byte.HB;
                 response_len++;
-                response_frame[response_len] =
+                response_frame->frame[response_len] =
                     inputRegister[address.Val + i].byte.LB;
                 response_len++;
             }
-            CRC.Val = CRC16(response_frame, response_len);
-            response_frame[response_len++] = CRC.byte.LB;
-            response_frame[response_len++] = CRC.byte.HB;
+            CRC.Val = CRC16(response_frame->frame, response_len);
+            response_frame->frame[response_len++] = CRC.byte.LB;
+            response_frame->frame[response_len++] = CRC.byte.HB;
             memcpy(output.frame, response_frame, response_len);
-            output.len = response_len;
+            response_frame->len = response_len;
             ESP_LOGI(TAG,
                      "Register read"); // BOGUS without this log crc is missing
             break;
         }
     } else {
         uart_flush(UART_NUM_2);
+        return ESP_FAIL;
     }
-    return output;
+    return ESP_OK;
 }

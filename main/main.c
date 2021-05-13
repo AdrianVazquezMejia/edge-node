@@ -254,6 +254,7 @@ static void task_lora(void *arg) {
                     }
                     ESP_LOGI(TAG_LORA, "Ack from dest node");
                     break;
+
                 case RECV_PACKAGE:
 
                     ESP_LOGI(TAG_LORA, "Data package received");
@@ -267,8 +268,8 @@ static void task_lora(void *arg) {
                                 loraFrame->load_.recv_load_.data_len_,
                                 auxFrame.frame);
 #endif
-                    modbus_response = modbus_lora_functions(
-                        auxFrame.frame, auxFrame.len, modbus_registers);
+                    modbus_lora_functions(&modbus_response, auxFrame.frame,
+                                          auxFrame.len, modbus_registers);
                     auxFrame = modbus_response;
 #ifdef CONFIG_CIPHER
                     bzero(auxFrame.frame, auxFrame.len);
