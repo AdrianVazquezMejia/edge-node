@@ -44,16 +44,18 @@
 #define PULSE_GPIO 0
 #endif
 
-#define CHECK_ERROR_CODE(returned, expected)                                   \
-    ({                                                                         \
-        if (returned != expected) {                                            \
-            printf("TWDT ERROR\n");                                            \
-            abort();                                                           \
-        }                                                                      \
-    })
 static char *TAG      = "INFO";
 static char *TAG_UART = "MODBUS";
 static char *TAG_LORA = "LORA";
+
+#define CHECK_ERROR_CODE(returned, expected)                                   \
+    ({                                                                         \
+        if (returned != expected) {                                            \
+            ESP_LOGE(TAG, "TWDT ERROR\n");                                     \
+            abort();                                                           \
+        }                                                                      \
+    })
+
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
@@ -170,8 +172,8 @@ void task_modbus_master(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
     uart_event_t event;
-    uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
-    modbus_registers[1] = &inputRegister[0];
+    uint8_t *slave_response = (uint8_t *)malloc(RX_BUF_SIZE);
+    modbus_registers[1]     = &inputRegister[0];
     uart_init(&uart_queue);
     uint16_t quantity = 2;
     bool slaves[MAX_SLAVES + 1];
@@ -195,25 +197,22 @@ void task_modbus_master(void *arg) {
                           (portTickType)MODBUS_TIMEOUT)) {
             switch (event.type) {
             case UART_DATA:
-                if (uart_read_bytes(UART_NUM_1, dtmp, event.size,
+                if (uart_read_bytes(UART_NUM_1, slave_response, event.size,
                                     (portTickType)MODBUS_TIMEOUT) == ESP_FAIL) {
                     ESP_LOGE(TAG_UART, "Error while reading UART data");
                     break;
                 }
-                ESP_LOGI(TAG, "Received data is:");
-                for (int i = 0; i < event.size; i++) {
-                    printf("%x ", dtmp[i]);
-                }
-                printf("\n");
-                if (CRC16(dtmp, event.size) == 0) {
+                ESP_LOGI(TAG_UART, "Response received is:");
+                ESP_LOG_BUFFER_HEX(TAG_UART, slave_response, event.size);
+                if (CRC16(slave_response, event.size) == 0) {
                     led_blink();
                     ESP_LOGI(TAG, "Modbus frame verified");
-                    if (check_exceptions(dtmp) == ESP_FAIL)
+                    if (check_exceptions(slave_response) == ESP_FAIL)
                         break;
-                    save_register(dtmp, event.size, modbus_registers);
+                    save_register(slave_response, event.size, modbus_registers);
                 } else {
                     ESP_LOGI(TAG, "Frame not verified CRC : %d",
-                             CRC16(dtmp, event.size));
+                             CRC16(slave_response, event.size));
                     uart_flush(UART_NUM_1);
                     vTaskDelay(pdMS_TO_TICKS(1000));
                 }
@@ -277,7 +276,7 @@ static void task_lora(void *arg) {
                     if (cfb8decrypt(loraFrame->load_.recv_load_.data_,
                                     loraFrame->load_.recv_load_.data_len_,
                                     auxFrame.frame) != ESP_OK) {
-                        ESP_LOGI(TAG_LORA, "Decryption Error");
+                        ESP_LOGE(TAG_LORA, "Decryption Error");
                         break;
                     }
 #endif
@@ -288,7 +287,7 @@ static void task_lora(void *arg) {
                     bzero(auxFrame.frame, auxFrame.len);
                     if (cfb8encrypt(modbus_response.frame, auxFrame.len,
                                     auxFrame.frame) != ESP_OK) {
-                        ESP_LOGI(TAG_LORA, "Encryption Error");
+                        ESP_LOGE(TAG_LORA, "Encryption Error");
                         break;
                     }
 #endif
