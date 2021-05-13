@@ -1,5 +1,7 @@
 #include "include/esp_rf1276.h"
 
+#include "driver/uart.h"
+#include "esp_err.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"

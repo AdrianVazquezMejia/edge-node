@@ -18,7 +18,6 @@
 #include "global_variables.h"
 #include "led.h"
 #include "lora_mesh.h"
-#include "modbus_lora.h"
 #include "modbus_master.h"
 #include "modbus_slave.h"
 #include "nvs.h"
@@ -110,7 +109,8 @@ void task_modbus_slave(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
     uart_event_t event;
-    uint8_t *dtmp       = (uint8_t *)malloc(RX_BUF_SIZE);
+    uint8_t *dtmp = (uint8_t *)malloc(RX_BUF_SIZE);
+    mb_response_t modbus_response;
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
     while (1) {
@@ -134,8 +134,14 @@ void task_modbus_slave(void *arg) {
                     if (dtmp[0] == NODE_ID) {
                         led_blink();
                         ESP_LOGI(TAG, "Frame to this slave");
-                        modbus_slave_functions(dtmp, event.size,
-                                               modbus_registers);
+                        modbus_slave_functions(&modbus_response, dtmp,
+                                               event.size, modbus_registers);
+                        if (uart_write_bytes(
+                                UART_NUM_1, (const char *)modbus_response.frame,
+                                modbus_response.len) == ESP_FAIL) {
+                            ESP_LOGE(TAG, "Error writig UART data");
+                            break;
+                        }
                     }
                 } else {
                     ESP_LOGE(TAG_UART, " CRC ERROR: %d",
@@ -254,6 +260,7 @@ static void task_lora(void *arg) {
                     }
                     ESP_LOGI(TAG_LORA, "Ack from dest node");
                     break;
+
                 case RECV_PACKAGE:
 
                     ESP_LOGI(TAG_LORA, "Data package received");
@@ -267,8 +274,8 @@ static void task_lora(void *arg) {
                                 loraFrame->load_.recv_load_.data_len_,
                                 auxFrame.frame);
 #endif
-                    modbus_response = modbus_lora_functions(
-                        auxFrame.frame, auxFrame.len, modbus_registers);
+                    modbus_slave_functions(&modbus_response, auxFrame.frame,
+                                           auxFrame.len, modbus_registers);
                     auxFrame = modbus_response;
 #ifdef CONFIG_CIPHER
                     bzero(auxFrame.frame, auxFrame.len);

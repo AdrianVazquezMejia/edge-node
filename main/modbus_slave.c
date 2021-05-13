@@ -54,8 +54,8 @@ void uart_init(QueueHandle_t *queue) {
     uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
 }
 
-void modbus_slave_functions(const uint8_t *frame, uint8_t length,
-                            uint16_t **modbus_registers) {
+void modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
+                            uint8_t length, uint16_t **modbus_registers) {
     uint8_t FUNCTION = frame[1];
     INT_VAL address;
     address.byte.HB = frame[2];
@@ -64,60 +64,52 @@ void modbus_slave_functions(const uint8_t *frame, uint8_t length,
     value.byte.HB = frame[4];
     value.byte.LB = frame[5];
     INT_VAL CRC;
-    uint8_t *response_frame = (uint8_t *)malloc(255);
-    uint8_t response_len    = 0;
-    INT_VAL *inputRegister  = (INT_VAL *)modbus_registers[1];
-    response_frame[0]       = frame[0];
-    response_frame[1]       = frame[1];
+    uint8_t response_len     = 0;
+    INT_VAL *inputRegister   = (INT_VAL *)modbus_registers[1];
+    response_frame->frame[0] = frame[0];
+    response_frame->frame[1] = frame[1];
     if (CRC16(frame, length) == 0) {
         switch (FUNCTION) {
         case READ_INPUT:
             ESP_LOGI(TAG, "Reading inputs Registers");
-            response_frame[2] = frame[5] * 2;
-            response_len      = 3;
+            response_frame->frame[2] = frame[5] * 2;
+            response_len             = 3;
             for (uint16_t i = 0; i < value.Val; i++) {
-                response_frame[response_len] =
+                response_frame->frame[response_len] =
                     inputRegister[address.Val + i].byte.HB;
                 response_len++;
-                response_frame[response_len] =
+                response_frame->frame[response_len] =
                     inputRegister[address.Val + i].byte.LB;
                 response_len++;
             }
-            CRC.Val = CRC16(response_frame, response_len);
-            response_frame[response_len++] = CRC.byte.LB;
-            response_frame[response_len++] = CRC.byte.HB;
+            CRC.Val = CRC16(response_frame->frame, response_len);
+            response_frame->frame[response_len++] = CRC.byte.LB;
+            response_frame->frame[response_len++] = CRC.byte.HB;
+            response_frame->len                   = response_len;
             ESP_LOGI(TAG,
                      "Register read"); // BOGUS without this log crc is missing
-            if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
-                                 response_len) == ESP_FAIL) {
-                ESP_LOGE(TAG, "Error writig UART data");
-                break;
-            }
+
             for (int i = 0; i < response_len; i++)
-                printf("tx[%d]: %x\n", i, response_frame[i]);
+                printf("tx[%d]: %x\n", i, response_frame->frame[i]);
             break;
 
         default:
-            response_frame[0] = NODE_ID;
-            response_frame[1] = frame[1] + 0x80;
-            response_frame[2] = 0x01;
-            response_len      = EXCEPTION_LEN;
-            CRC.Val           = CRC16(response_frame, response_len);
-            response_frame[response_len++] = CRC.byte.LB;
-            response_frame[response_len++] = CRC.byte.HB;
+            response_frame->frame[0] = NODE_ID;
+            response_frame->frame[1] = frame[1] + 0x80;
+            response_frame->frame[2] = 0x01;
+            response_len             = EXCEPTION_LEN;
+            CRC.Val = CRC16(response_frame->frame, response_len);
+            response_frame->frame[response_len++] = CRC.byte.LB;
+            response_frame->frame[response_len++] = CRC.byte.HB;
+            response_frame->len                   = response_len;
+
             ESP_LOGI(TAG, "Exception sent");
-            if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
-                                 response_len) == ESP_FAIL) {
-                ESP_LOGE(TAG, "Error writig UART data");
-                break;
-            }
             ESP_LOGE(TAG, "Invalid function response");
 
             break;
         }
     } else
         crc_error_response(frame);
-    free(response_frame);
 }
 void register_save(uint32_t value, uint16_t *modbus_register) {
     WORD_VAL aux_register;
