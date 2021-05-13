@@ -242,7 +242,10 @@ static void task_lora(void *arg) {
     mbedtls_aes_init(&aes);
     mbedtls_aes_setkey_enc(&aes, key, 256);
 #endif
-
+#ifdef CONFIG_MASTER_MODBUS
+    vTaskDelay(pdMS_TO_TICKS((SLAVES + 2) * TIME_SCAN));
+#endif
+    ESP_LOGI(TAG, "LoRa Task available");
     while (1) {
         if (xQueueReceive(lora_queue, loraFrame, portMAX_DELAY)) {
 
