@@ -13,7 +13,6 @@
 #include "global_variables.h"
 #include "math.h"
 #include "stdint.h"
-static char *TAG = "UART";
 #ifdef CONFIG_PRODUCTION
 #define RTS_PIN 25
 #else
@@ -38,8 +37,7 @@ typedef union {
 
 void uart_init(QueueHandle_t *queue) {
     uart_driver_delete(UART_NUM_1);
-    int uart_baudarate = 9600;
-    ESP_LOGI(TAG, "Baudarate is %d", uart_baudarate);
+    int uart_baudarate              = 9600;
     const uart_config_t uart_config = {
         .baud_rate = uart_baudarate,
         .data_bits = UART_DATA_8_BITS,
@@ -54,8 +52,22 @@ void uart_init(QueueHandle_t *queue) {
     uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
 }
 
-void modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
-                            uint8_t length, uint16_t **modbus_registers) {
+void crc_error_response(mb_response_t *response_frame, const uint8_t *frame) {
+    uint8_t response_len = 0;
+    INT_VAL CRC;
+
+    response_frame->frame[0] = NODE_ID;
+    response_frame->frame[1] = frame[1] + 0x80;
+    response_frame->frame[2] = 0x08;
+    response_len             = EXCEPTION_LEN;
+    CRC.Val                  = CRC16(response_frame->frame, response_len);
+    response_frame->frame[response_len++] = CRC.byte.LB;
+    response_frame->frame[response_len++] = CRC.byte.HB;
+    response_frame->len                   = response_len;
+}
+
+int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
+                           uint8_t length, uint16_t **modbus_registers) {
     uint8_t FUNCTION = frame[1];
     INT_VAL address;
     address.byte.HB = frame[2];
@@ -71,7 +83,6 @@ void modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
     if (CRC16(frame, length) == 0) {
         switch (FUNCTION) {
         case READ_INPUT:
-            ESP_LOGI(TAG, "Reading inputs Registers");
             response_frame->frame[2] = frame[5] * 2;
             response_len             = 3;
             for (uint16_t i = 0; i < value.Val; i++) {
@@ -86,11 +97,6 @@ void modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             response_frame->frame[response_len++] = CRC.byte.LB;
             response_frame->frame[response_len++] = CRC.byte.HB;
             response_frame->len                   = response_len;
-            ESP_LOGI(TAG,
-                     "Register read"); // BOGUS without this log crc is missing
-
-            for (int i = 0; i < response_len; i++)
-                printf("tx[%d]: %x\n", i, response_frame->frame[i]);
             break;
 
         default:
@@ -103,40 +109,21 @@ void modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             response_frame->frame[response_len++] = CRC.byte.HB;
             response_frame->len                   = response_len;
 
-            ESP_LOGI(TAG, "Exception sent");
-            ESP_LOGE(TAG, "Invalid function response");
+            return response_frame->frame[2];
 
             break;
         }
-    } else
-        crc_error_response(frame);
+    } else {
+        crc_error_response(response_frame, frame);
+        return response_frame->frame[2];
+    }
+    return ESP_OK;
 }
 void register_save(uint32_t value, uint16_t *modbus_register) {
     WORD_VAL aux_register;
     aux_register.doubleword      = normalize_pulses(value);
     modbus_register[NODE_ID]     = aux_register.word.wordH;
     modbus_register[NODE_ID + 1] = aux_register.word.wordL;
-}
-void crc_error_response(const uint8_t *frame) {
-    uint8_t *response_frame = (uint8_t *)malloc(255);
-    uint8_t response_len    = 0;
-    INT_VAL CRC;
-
-    response_frame[0]              = NODE_ID;
-    response_frame[1]              = frame[1] + 0x80;
-    response_frame[2]              = 0x08;
-    response_len                   = EXCEPTION_LEN;
-    CRC.Val                        = CRC16(response_frame, response_len);
-    response_frame[response_len++] = CRC.byte.LB;
-    response_frame[response_len++] = CRC.byte.HB;
-    if (uart_write_bytes(UART_NUM_1, (const char *)response_frame,
-                         response_len) == ESP_FAIL) {
-        ESP_LOGE(TAG, "Error writig UART data");
-        free(response_frame);
-        return;
-    }
-    ESP_LOGI(TAG, "CRC error response");
-    free(response_frame);
 }
 
 uint32_t normalize_pulses(uint32_t value) {

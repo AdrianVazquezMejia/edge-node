@@ -109,45 +109,49 @@ void task_modbus_slave(void *arg) {
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
     QueueHandle_t uart_queue;
     uart_event_t event;
-    uint8_t *dtmp = (uint8_t *)malloc(RX_BUF_SIZE);
+    uint8_t *received_buffer = (uint8_t *)malloc(RX_BUF_SIZE);
     mb_response_t modbus_response;
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
     while (1) {
         if (xQueueReceive(uart_queue, (void *)&event,
                           pdMS_TO_TICKS(TWDT_RESET)) == pdTRUE) {
-            bzero(dtmp, RX_BUF_SIZE);
+            bzero(received_buffer, RX_BUF_SIZE);
             switch (event.type) {
             case UART_DATA:
-                if (uart_read_bytes(UART_NUM_1, dtmp, event.size,
+                if (uart_read_bytes(UART_NUM_1, received_buffer, event.size,
                                     portMAX_DELAY) == ESP_FAIL) {
                     ESP_LOGE(TAG_UART, "Error while reading UART data");
                     break;
                 }
-                ESP_LOGI(TAG_UART, "Rec31eived data is:");
-                for (int i = 0; i < event.size; i++) {
-                    printf("%x ", dtmp[i]);
-                }
-                printf("\n");
-                if (CRC16(dtmp, event.size) == 0) {
+                ESP_LOGI(TAG_UART, "Received data is:");
+                ESP_LOG_BUFFER_HEX(TAG_UART, received_buffer, event.size);
+                if (CRC16(received_buffer, event.size) == 0) {
                     ESP_LOGI(TAG_UART, "Modbus frame verified");
-                    if (dtmp[0] == NODE_ID) {
+                    if (received_buffer[0] == NODE_ID) {
                         led_blink();
-                        ESP_LOGI(TAG, "Frame to this slave");
-                        modbus_slave_functions(&modbus_response, dtmp,
-                                               event.size, modbus_registers);
+                        modbus_slave_functions(&modbus_response,
+                                               received_buffer, event.size,
+                                               modbus_registers);
                         if (uart_write_bytes(
                                 UART_NUM_1, (const char *)modbus_response.frame,
                                 modbus_response.len) == ESP_FAIL) {
                             ESP_LOGE(TAG, "Error writig UART data");
-                            break;
                         }
+                        ESP_LOGI(TAG_UART, "Response sent is:");
+                        ESP_LOG_BUFFER_HEX(TAG_UART, modbus_response.frame,
+                                           modbus_response.len);
                     }
                 } else {
                     ESP_LOGE(TAG_UART, " CRC ERROR: %d",
-                             CRC16(dtmp, event.size));
-                    crc_error_response(dtmp);
-                    uart_flush(UART_NUM_1);
+                             CRC16(received_buffer, event.size));
+                    crc_error_response(&modbus_response, received_buffer);
+                    if (uart_write_bytes(UART_NUM_1,
+                                         (const char *)modbus_response.frame,
+                                         modbus_response.len) == ESP_FAIL) {
+                        ESP_LOGE(TAG, "Error writig UART data");
+                        uart_flush(UART_NUM_1);
+                    }
                 }
                 break;
             default:
@@ -156,8 +160,8 @@ void task_modbus_slave(void *arg) {
         }
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
-    free(dtmp);
-    dtmp = NULL;
+    free(received_buffer);
+    received_buffer = NULL;
 }
 
 void task_modbus_master(void *arg) {
