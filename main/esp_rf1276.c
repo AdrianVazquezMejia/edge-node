@@ -86,8 +86,8 @@ static void uart_event_task(void *pvParameters) {
                 uart_read_bytes(UART_RF1276, dtmp, event.size,
                                 pdMS_TO_TICKS(500));
 #ifdef DEBUG_LORA
-                for (int i = 0; i < event.size; i++)
-                    ESP_LOGI(RF1276, "LoRa frame %x", dtmp[i]);
+                ESP_LOGI(RF1276, "LoRa frame received");
+                ESP_LOG_BUFFER_HEX(RF1276, dtmp, event.size);
 #endif
                 if (CHECK_SUM(dtmp, event.size) != 0) {
 #ifdef DEBUG_LORA
@@ -228,8 +228,8 @@ int lora_send(lora_mesh_t *sendFrame) {
     serialSendData[10 + serialSendData[9]] =
         CHECK_SUM(serialSendData, lenSendData - 1);
 #ifdef DEBUG_LORA
-    for (int i = 0; i < lenSendData; i++)
-        ESP_LOGI(RF1276, "LoRa send frame %x", serialSendData[i]);
+    ESP_LOGI(RF1276, "LoRa frame sent:");
+    ESP_LOG_BUFFER_HEX(RF1276, serialSendData, lenSendData);
 #endif
     result = uart_write_bytes(UART_RF1276, (const char *)serialSendData,
                               lenSendData);

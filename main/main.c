@@ -274,17 +274,23 @@ static void task_lora(void *arg) {
                     auxFrame.len = loraFrame->load_.recv_load_.data_len_;
 
 #ifdef CONFIG_CIPHER
-                    cfb8decrypt(loraFrame->load_.recv_load_.data_,
-                                loraFrame->load_.recv_load_.data_len_,
-                                auxFrame.frame);
+                    if (cfb8decrypt(loraFrame->load_.recv_load_.data_,
+                                    loraFrame->load_.recv_load_.data_len_,
+                                    auxFrame.frame) != ESP_OK) {
+                        ESP_LOGI(TAG_LORA, "Decryption Error");
+                        break;
+                    }
 #endif
                     modbus_slave_functions(&modbus_response, auxFrame.frame,
                                            auxFrame.len, modbus_registers);
                     auxFrame = modbus_response;
 #ifdef CONFIG_CIPHER
                     bzero(auxFrame.frame, auxFrame.len);
-                    cfb8encrypt(modbus_response.frame, auxFrame.len,
-                                auxFrame.frame);
+                    if (cfb8encrypt(modbus_response.frame, auxFrame.len,
+                                    auxFrame.frame) != ESP_OK) {
+                        ESP_LOGI(TAG_LORA, "Encryption Error");
+                        break;
+                    }
 #endif
                     prepare_to_send(loraFrame, &auxFrame);
                     if (lora_send(loraFrame) == ESP_FAIL) {
