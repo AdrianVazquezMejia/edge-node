@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['nvs_5fclose',['nvs_close',['../nvs_8h.html#a67e6e6b8ba9a43fc08ca9a9609905c8d',1,'nvs.h']]],
+  ['nvs_5fcommit',['nvs_commit',['../nvs_8h.html#a88e2da69bd240354fdc0be908a933ca1',1,'nvs.h']]],
+  ['nvs_5fentry_5ffind',['nvs_entry_find',['../nvs_8h.html#a0cf723ae4ccbe18d6a5d0e7b7b132990',1,'nvs.h']]],
+  ['nvs_5fentry_5finfo',['nvs_entry_info',['../nvs_8h.html#ae2c17aa8c05f476c47bf3c4b9ebba6b0',1,'nvs.h']]],
+  ['nvs_5fentry_5fnext',['nvs_entry_next',['../nvs_8h.html#a2862fd9de99c7e5b6947d2e5706a194b',1,'nvs.h']]],
+  ['nvs_5ferase_5fall',['nvs_erase_all',['../nvs_8h.html#a8c72514b8e1a7c464ad0356e4927158b',1,'nvs.h']]],
+  ['nvs_5ferase_5fkey',['nvs_erase_key',['../nvs_8h.html#a0ba2174523872e14ef96b3add427e4dd',1,'nvs.h']]],
+  ['nvs_5fget_5fi8',['nvs_get_i8',['../nvs_8h.html#a6ecc74483c38916ea9f66fc07d086333',1,'nvs.h']]],
+  ['nvs_5fget_5fstats',['nvs_get_stats',['../nvs_8h.html#a8fed09d46b77aa6dd0e8840959fe1933',1,'nvs.h']]],
+  ['nvs_5fget_5fstr',['nvs_get_str',['../nvs_8h.html#a9e6cf0362aba1ed1601ea2d4af427d3d',1,'nvs.h']]],
+  ['nvs_5fget_5fused_5fentry_5fcount',['nvs_get_used_entry_count',['../nvs_8h.html#ae6b52d96c1dcfc9d4b2ef987503955f0',1,'nvs.h']]],
+  ['nvs_5fopen',['nvs_open',['../nvs_8h.html#ab6677099a61deabc00d05b2c92f6b0dc',1,'nvs.h']]],
+  ['nvs_5fopen_5ffrom_5fpartition',['nvs_open_from_partition',['../nvs_8h.html#a2e144fcac4b67d4e587a947f099db16b',1,'nvs.h']]],
+  ['nvs_5frelease_5fiterator',['nvs_release_iterator',['../nvs_8h.html#a33eceb70a1cc57c2fe2bae30a76f819a',1,'nvs.h']]],
+  ['nvs_5fset_5fblob',['nvs_set_blob',['../nvs_8h.html#a2a2a8a79c0df9a1682d0a1bc31f351c3',1,'nvs.h']]],
+  ['nvs_5fset_5fi8',['nvs_set_i8',['../nvs_8h.html#a6a88f61dcb7d0dc2b76e0cbb019d1eca',1,'nvs.h']]]
+];

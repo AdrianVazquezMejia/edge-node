@@ -2,7 +2,17 @@
  * Author: Adrian Vazquez
  * Date: 10-07-2020
  */
-
+/**
+ *@mainpage Project title
+ *@author Adrian Vazquez
+ *@version 4.0
+ *
+ *This is the main page for the project.
+ *
+ *1. The purpose is to document the code of the modules involved
+ *2. Visit the gitlab repository to have better look of the code
+ *3. Link https://gitlab.com/electr-nica/desarrollohardware/edge-node
+ */
 #include "CRC.h"
 #include "config_rtu.h"
 #include "cypher.h"
