@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['sar_5fsel',['sar_sel',['../unionulp__insn__t.html#acc3b94a3749efef0482cadc9c39c1da7',1,'ulp_insn_t']]],
+  ['sel',['sel',['../unionulp__insn__t.html#ab8a9946b6cebfabf4f65badcddbc32d5',1,'ulp_insn_t']]],
+  ['sign',['sign',['../unionulp__insn__t.html#ad0efe34563a4d34047cd60cd4a287786',1,'ulp_insn_t']]],
+  ['sleep',['sleep',['../unionulp__insn__t.html#a2aed0c372dd2b7d218816f832663fc5d',1,'ulp_insn_t']]],
+  ['sreg',['sreg',['../unionulp__insn__t.html#a87d4e8635e02840ec88d2cc8321ca05d',1,'ulp_insn_t']]],
+  ['st',['st',['../unionulp__insn__t.html#a321616249ffa2d309f9b594e580f2c56',1,'ulp_insn_t']]],
+  ['sub_5fopcode',['sub_opcode',['../unionulp__insn__t.html#abd9c4669e5bb2bb2a9ea73f5af7577d3',1,'ulp_insn_t']]],
+  ['sub_5fopcode_5falu_5fcnt',['SUB_OPCODE_ALU_CNT',['../group__ulp__opcodes.html#ga813d817f129ae5e048156c0ebef7f221',1,'ulp.h']]],
+  ['sub_5fopcode_5falu_5fimm',['SUB_OPCODE_ALU_IMM',['../group__ulp__opcodes.html#ga1329375cfbb6ebf4dfafb2e9a100a4dc',1,'ulp.h']]],
+  ['sub_5fopcode_5falu_5freg',['SUB_OPCODE_ALU_REG',['../group__ulp__opcodes.html#gadfe2873a10bf29a68aec0949512dd086',1,'ulp.h']]],
+  ['sub_5fopcode_5fb',['SUB_OPCODE_B',['../group__ulp__opcodes.html#ga726bebe51a674189ce8086041f931e31',1,'ulp.h']]],
+  ['sub_5fopcode_5fbx',['SUB_OPCODE_BX',['../group__ulp__opcodes.html#ga621c51bda2a834d1fbcad865a8c469a5',1,'ulp.h']]],
+  ['sub_5fopcode_5fend',['SUB_OPCODE_END',['../group__ulp__opcodes.html#ga356a7d875cfb7783deb3c5d273da6967',1,'ulp.h']]],
+  ['sub_5fopcode_5fmacro_5fbranch',['SUB_OPCODE_MACRO_BRANCH',['../group__ulp__opcodes.html#ga0845bc8fafa862ec2a969c4c23f695ae',1,'ulp.h']]],
+  ['sub_5fopcode_5fmacro_5flabel',['SUB_OPCODE_MACRO_LABEL',['../group__ulp__opcodes.html#gaf7c15b913de4f127128427345f0e46b2',1,'ulp.h']]],
+  ['sub_5fopcode_5fsleep',['SUB_OPCODE_SLEEP',['../group__ulp__opcodes.html#ga0005d08eebbca3381b8c16b4136c7d34',1,'ulp.h']]],
+  ['sub_5fopcode_5fst',['SUB_OPCODE_ST',['../group__ulp__opcodes.html#ga023799a03d479717e367a48d31f5bd04',1,'ulp.h']]]
+];
