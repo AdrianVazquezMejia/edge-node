@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: lora_recv_load_t Struct Reference</title>
+<title>Edge node: lora_recv_load_t Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -66,29 +66,101 @@ $(function() {
 <div class="title">lora_recv_load_t Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Struct with the frame load of received data.  
+ <a href="structlora__recv__load__t.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for lora_recv_load_t:</div>
+<div class="dyncontent">
+<div class="center"><img src="structlora__recv__load__t__coll__graph.png" border="0" usemap="#lora__recv__load__t_coll__map" alt="Collaboration graph"/></div>
+<map name="lora__recv__load__t_coll__map" id="lora__recv__load__t_coll__map">
+<area shape="rect" id="node2" href="unionword__t.html" title="Union to divide word size data to byte size divisible data. " alt="" coords="33,5,95,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a215f68fb04473fd8bc3ce4ae9b3895c6"><td class="memItemLeft" align="right" valign="top"><a id="a215f68fb04473fd8bc3ce4ae9b3895c6"></a>
-<a class="el" href="unionword__t.html">word_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>source_address_</b></td></tr>
+<tr class="memitem:a215f68fb04473fd8bc3ce4ae9b3895c6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionword__t.html">word_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__recv__load__t.html#a215f68fb04473fd8bc3ce4ae9b3895c6">source_address_</a></td></tr>
 <tr class="separator:a215f68fb04473fd8bc3ce4ae9b3895c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a119e755c0661aee835a86c17b74df4c6"><td class="memItemLeft" align="right" valign="top"><a id="a119e755c0661aee835a86c17b74df4c6"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>signal_</b></td></tr>
+<tr class="memitem:a119e755c0661aee835a86c17b74df4c6"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__recv__load__t.html#a119e755c0661aee835a86c17b74df4c6">signal_</a></td></tr>
 <tr class="separator:a119e755c0661aee835a86c17b74df4c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b482a3d888704e8554e1c808d4cb79d"><td class="memItemLeft" align="right" valign="top"><a id="a7b482a3d888704e8554e1c808d4cb79d"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_len_</b></td></tr>
+<tr class="memitem:a7b482a3d888704e8554e1c808d4cb79d"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__recv__load__t.html#a7b482a3d888704e8554e1c808d4cb79d">data_len_</a></td></tr>
 <tr class="separator:a7b482a3d888704e8554e1c808d4cb79d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a82252c83a3222f55bd0bc6b979a028d4"><td class="memItemLeft" align="right" valign="top"><a id="a82252c83a3222f55bd0bc6b979a028d4"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_</b> [113]</td></tr>
+<tr class="memitem:a82252c83a3222f55bd0bc6b979a028d4"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__recv__load__t.html#a82252c83a3222f55bd0bc6b979a028d4">data_</a> [113]</td></tr>
 <tr class="separator:a82252c83a3222f55bd0bc6b979a028d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Struct with the frame load of received data. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="a215f68fb04473fd8bc3ce4ae9b3895c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a215f68fb04473fd8bc3ce4ae9b3895c6">&#9670;&nbsp;</a></span>source_address_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionword__t.html">word_t</a> lora_recv_load_t::source_address_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>ID of the source of the data </p>
+
+</div>
+</div>
+<a id="a119e755c0661aee835a86c17b74df4c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a119e755c0661aee835a86c17b74df4c6">&#9670;&nbsp;</a></span>signal_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_recv_load_t::signal_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Signal information of the last hop </p>
+
+</div>
+</div>
+<a id="a7b482a3d888704e8554e1c808d4cb79d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b482a3d888704e8554e1c808d4cb79d">&#9670;&nbsp;</a></span>data_len_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_recv_load_t::data_len_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Actual payload len </p>
+
+</div>
+</div>
+<a id="a82252c83a3222f55bd0bc6b979a028d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82252c83a3222f55bd0bc6b979a028d4">&#9670;&nbsp;</a></span>data_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_recv_load_t::data_[113]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Payload </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

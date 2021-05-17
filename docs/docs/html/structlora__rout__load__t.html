@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: lora_rout_load_t Struct Reference</title>
+<title>Edge node: lora_rout_load_t Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -66,35 +66,135 @@ $(function() {
 <div class="title">lora_rout_load_t Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>LoRa struct with the frame load of Routing information.  
+ <a href="structlora__rout__load__t.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for lora_rout_load_t:</div>
+<div class="dyncontent">
+<div class="center"><img src="structlora__rout__load__t__coll__graph.png" border="0" usemap="#lora__rout__load__t_coll__map" alt="Collaboration graph"/></div>
+<map name="lora__rout__load__t_coll__map" id="lora__rout__load__t_coll__map">
+<area shape="rect" id="node2" href="unionword__t.html" title="Union to divide word size data to byte size divisible data. " alt="" coords="32,5,93,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a8bc7dc799cd139b0826a8bc34093da08"><td class="memItemLeft" align="right" valign="top"><a id="a8bc7dc799cd139b0826a8bc34093da08"></a>
-<a class="el" href="unionword__t.html">word_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>dest_address_</b></td></tr>
+<tr class="memitem:a8bc7dc799cd139b0826a8bc34093da08"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionword__t.html">word_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__rout__load__t.html#a8bc7dc799cd139b0826a8bc34093da08">dest_address_</a></td></tr>
 <tr class="separator:a8bc7dc799cd139b0826a8bc34093da08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86362f0110e549cda412c5f0b0431b6e"><td class="memItemLeft" align="right" valign="top"><a id="a86362f0110e549cda412c5f0b0431b6e"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>ack_request_</b></td></tr>
+<tr class="memitem:a86362f0110e549cda412c5f0b0431b6e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__rout__load__t.html#a86362f0110e549cda412c5f0b0431b6e">ack_request_</a></td></tr>
 <tr class="separator:a86362f0110e549cda412c5f0b0431b6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e6da2a981fc82e4996e1ffe9a38ec71"><td class="memItemLeft" align="right" valign="top"><a id="a4e6da2a981fc82e4996e1ffe9a38ec71"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>sending_radius_</b></td></tr>
+<tr class="memitem:a4e6da2a981fc82e4996e1ffe9a38ec71"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__rout__load__t.html#a4e6da2a981fc82e4996e1ffe9a38ec71">sending_radius_</a></td></tr>
 <tr class="separator:a4e6da2a981fc82e4996e1ffe9a38ec71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a733ad180662cace7cc6055518dcd58e0"><td class="memItemLeft" align="right" valign="top"><a id="a733ad180662cace7cc6055518dcd58e0"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>routing_type_</b></td></tr>
+<tr class="memitem:a733ad180662cace7cc6055518dcd58e0"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__rout__load__t.html#a733ad180662cace7cc6055518dcd58e0">routing_type_</a></td></tr>
 <tr class="separator:a733ad180662cace7cc6055518dcd58e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc0a6786e55a030fdff8ba68e48d0587"><td class="memItemLeft" align="right" valign="top"><a id="afc0a6786e55a030fdff8ba68e48d0587"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_len_</b></td></tr>
+<tr class="memitem:afc0a6786e55a030fdff8ba68e48d0587"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__rout__load__t.html#afc0a6786e55a030fdff8ba68e48d0587">data_len_</a></td></tr>
 <tr class="separator:afc0a6786e55a030fdff8ba68e48d0587"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a808e9e13c6d0855872a6d250247c4981"><td class="memItemLeft" align="right" valign="top"><a id="a808e9e13c6d0855872a6d250247c4981"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_</b> [109]</td></tr>
+<tr class="memitem:a808e9e13c6d0855872a6d250247c4981"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__rout__load__t.html#a808e9e13c6d0855872a6d250247c4981">data_</a> [109]</td></tr>
 <tr class="separator:a808e9e13c6d0855872a6d250247c4981"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>LoRa struct with the frame load of Routing information. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="a8bc7dc799cd139b0826a8bc34093da08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bc7dc799cd139b0826a8bc34093da08">&#9670;&nbsp;</a></span>dest_address_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionword__t.html">word_t</a> lora_rout_load_t::dest_address_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Destination address of the node </p>
+
+</div>
+</div>
+<a id="a86362f0110e549cda412c5f0b0431b6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86362f0110e549cda412c5f0b0431b6e">&#9670;&nbsp;</a></span>ack_request_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_rout_load_t::ack_request_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Request of acknowledge of sent data </p>
+
+</div>
+</div>
+<a id="a4e6da2a981fc82e4996e1ffe9a38ec71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e6da2a981fc82e4996e1ffe9a38ec71">&#9670;&nbsp;</a></span>sending_radius_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_rout_load_t::sending_radius_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Routing lifetime </p>
+
+</div>
+</div>
+<a id="a733ad180662cace7cc6055518dcd58e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a733ad180662cace7cc6055518dcd58e0">&#9670;&nbsp;</a></span>routing_type_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_rout_load_t::routing_type_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Routing Type </p>
+
+</div>
+</div>
+<a id="afc0a6786e55a030fdff8ba68e48d0587"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc0a6786e55a030fdff8ba68e48d0587">&#9670;&nbsp;</a></span>data_len_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_rout_load_t::data_len_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Len of the actual payload </p>
+
+</div>
+</div>
+<a id="a808e9e13c6d0855872a6d250247c4981"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a808e9e13c6d0855872a6d250247c4981">&#9670;&nbsp;</a></span>data_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_rout_load_t::data_[109]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Payload </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

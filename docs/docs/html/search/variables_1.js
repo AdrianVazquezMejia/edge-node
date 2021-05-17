@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['b',['b',['../unionulp__insn__t.html#a7fd794034036280228ae90bbf5f72d3c',1,'ulp_insn_t']]],
-  ['bx',['bx',['../unionulp__insn__t.html#a9e90384acd788ffb309fde238aa08156',1,'ulp_insn_t']]]
+  ['baud_5frate',['baud_rate',['../structuart__lora__t.html#a05ce2013285578c42e8062e6d6fa1aae',1,'uart_lora_t::baud_rate()'],['../structconfig__rf1276__t.html#a8ecfc0a68d3f26c01ba93020cf1241c0',1,'config_rf1276_t::baud_rate()']]]
 ];

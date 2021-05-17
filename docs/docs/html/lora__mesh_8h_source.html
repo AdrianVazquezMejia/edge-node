@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: lora_mesh.h Source File</title>
+<title>Edge node: lora_mesh.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -68,12 +68,13 @@ $(function() {
 <div class="title">lora_mesh.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * lora_mesh.h</span></div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> *  Created on: Apr 23, 2021</span></div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> *      Author: adrian-estelio</span></div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment"> */</span></div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#ifndef MAIN_INCLUDE_LORA_MESH_H_</span></div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#define MAIN_INCLUDE_LORA_MESH_H_</span></div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;esp_rf1276.h&quot;</span></div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;modbus_slave.h&quot;</span></div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div><div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keywordtype">void</span> prepare_to_send(<a class="code" href="structlora__mesh__t.html">lora_mesh_t</a> *loraFrame, <a class="code" href="structmb__response__t.html">mb_response_t</a> *modbus_response);</div><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* MAIN_INCLUDE_LORA_MESH_H_ */</span><span class="preprocessor"></span></div><div class="ttc" id="structmb__response__t_html"><div class="ttname"><a href="structmb__response__t.html">mb_response_t</a></div><div class="ttdef"><b>Definition:</b> modbus_slave.h:22</div></div>
-<div class="ttc" id="structlora__mesh__t_html"><div class="ttname"><a href="structlora__mesh__t.html">lora_mesh_t</a></div><div class="ttdef"><b>Definition:</b> esp_rf1276.h:93</div></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * lora_mesh.h</span></div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> *</span></div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> *  Created on: Apr 23, 2021</span></div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> *      Author: adrian-estelio</span></div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment"> */</span></div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#ifndef MAIN_INCLUDE_LORA_MESH_H_</span></div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#define MAIN_INCLUDE_LORA_MESH_H_</span></div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="esp__rf1276_8h.html">esp_rf1276.h</a>&quot;</span></div><div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;modbus_slave.h&quot;</span></div><div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div><div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keywordtype">void</span> prepare_to_send(<a class="code" href="structlora__mesh__t.html">lora_mesh_t</a> *loraFrame, <a class="code" href="structmb__response__t.html">mb_response_t</a> *modbus_response);</div><div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* MAIN_INCLUDE_LORA_MESH_H_ */</span><span class="preprocessor"></span></div><div class="ttc" id="structmb__response__t_html"><div class="ttname"><a href="structmb__response__t.html">mb_response_t</a></div><div class="ttdef"><b>Definition:</b> modbus_slave.h:22</div></div>
+<div class="ttc" id="structlora__mesh__t_html"><div class="ttname"><a href="structlora__mesh__t.html">lora_mesh_t</a></div><div class="ttdoc">Struct of the whole LoRa frame. </div><div class="ttdef"><b>Definition:</b> esp_rf1276.h:132</div></div>
+<div class="ttc" id="esp__rf1276_8h_html"><div class="ttname"><a href="esp__rf1276_8h.html">esp_rf1276.h</a></div><div class="ttdoc">File with function of LoRa functionalities. </div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

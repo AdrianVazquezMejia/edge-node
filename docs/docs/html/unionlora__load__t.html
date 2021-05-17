@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: lora_load_t Union Reference</title>
+<title>Edge node: lora_load_t Union Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -66,29 +66,105 @@ $(function() {
 <div class="title">lora_load_t Union Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Union of the different load frames.  
+ <a href="unionlora__load__t.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for lora_load_t:</div>
+<div class="dyncontent">
+<div class="center"><img src="unionlora__load__t__coll__graph.png" border="0" usemap="#lora__load__t_coll__map" alt="Collaboration graph"/></div>
+<map name="lora__load__t_coll__map" id="lora__load__t_coll__map">
+<area shape="rect" id="node2" href="structlora__recv__load__t.html" title="Struct with the frame load of received data. " alt="" coords="5,95,123,121"/>
+<area shape="rect" id="node3" href="unionword__t.html" title="Union to divide word size data to byte size divisible data. " alt="" coords="173,5,235,32"/>
+<area shape="rect" id="node5" href="structlora__rout__load__t.html" title="LoRa struct with the frame load of Routing information. " alt="" coords="147,95,261,121"/>
+<area shape="rect" id="node6" href="structlora__local__resp__t.html" title="Struct of the load frame of the local response. " alt="" coords="285,95,405,121"/>
+<area shape="rect" id="node4" href="structlora__conf__load__t.html" title="Struct of config frame. " alt="" coords="429,95,547,121"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a844fc83ab6766c295bf42e3454c522b0"><td class="memItemLeft" align="right" valign="top"><a id="a844fc83ab6766c295bf42e3454c522b0"></a>
-<a class="el" href="structlora__rout__load__t.html">lora_rout_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>transmit_load_</b></td></tr>
+<tr class="memitem:a844fc83ab6766c295bf42e3454c522b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlora__rout__load__t.html">lora_rout_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionlora__load__t.html#a844fc83ab6766c295bf42e3454c522b0">transmit_load_</a></td></tr>
 <tr class="separator:a844fc83ab6766c295bf42e3454c522b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a133b8332c407df62637ae11f0f41f127"><td class="memItemLeft" align="right" valign="top"><a id="a133b8332c407df62637ae11f0f41f127"></a>
-<a class="el" href="structlora__recv__load__t.html">lora_recv_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>recv_load_</b></td></tr>
+<tr class="memitem:a133b8332c407df62637ae11f0f41f127"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlora__recv__load__t.html">lora_recv_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionlora__load__t.html#a133b8332c407df62637ae11f0f41f127">recv_load_</a></td></tr>
 <tr class="separator:a133b8332c407df62637ae11f0f41f127"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1280c47c0718e78f4e1e7171f53238b3"><td class="memItemLeft" align="right" valign="top"><a id="a1280c47c0718e78f4e1e7171f53238b3"></a>
-<a class="el" href="structlora__local__resp__t.html">lora_local_resp_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>local_resp_</b></td></tr>
+<tr class="memitem:a1280c47c0718e78f4e1e7171f53238b3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlora__local__resp__t.html">lora_local_resp_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionlora__load__t.html#a1280c47c0718e78f4e1e7171f53238b3">local_resp_</a></td></tr>
 <tr class="separator:a1280c47c0718e78f4e1e7171f53238b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a910525da9e7ce13d90a78fdbd37a30ab"><td class="memItemLeft" align="right" valign="top"><a id="a910525da9e7ce13d90a78fdbd37a30ab"></a>
-<a class="el" href="structlora__conf__load__t.html">lora_conf_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>config_load_</b></td></tr>
+<tr class="memitem:a910525da9e7ce13d90a78fdbd37a30ab"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlora__conf__load__t.html">lora_conf_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionlora__load__t.html#a910525da9e7ce13d90a78fdbd37a30ab">config_load_</a></td></tr>
 <tr class="separator:a910525da9e7ce13d90a78fdbd37a30ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Union of the different load frames. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="a844fc83ab6766c295bf42e3454c522b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a844fc83ab6766c295bf42e3454c522b0">&#9670;&nbsp;</a></span>transmit_load_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlora__rout__load__t.html">lora_rout_load_t</a> lora_load_t::transmit_load_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Struct of transmit Load </p>
+
+</div>
+</div>
+<a id="a133b8332c407df62637ae11f0f41f127"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a133b8332c407df62637ae11f0f41f127">&#9670;&nbsp;</a></span>recv_load_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlora__recv__load__t.html">lora_recv_load_t</a> lora_load_t::recv_load_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Struct of receive Load </p>
+
+</div>
+</div>
+<a id="a1280c47c0718e78f4e1e7171f53238b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1280c47c0718e78f4e1e7171f53238b3">&#9670;&nbsp;</a></span>local_resp_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlora__local__resp__t.html">lora_local_resp_t</a> lora_load_t::local_resp_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Struct of Local response Load </p>
+
+</div>
+</div>
+<a id="a910525da9e7ce13d90a78fdbd37a30ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a910525da9e7ce13d90a78fdbd37a30ab">&#9670;&nbsp;</a></span>config_load_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlora__conf__load__t.html">lora_conf_load_t</a> lora_load_t::config_load_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Struct of Config Load </p>
+
+</div>
+</div>
 <hr/>The documentation for this union was generated from the following file:<ul>
 <li><a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

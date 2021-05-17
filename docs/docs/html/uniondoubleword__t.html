@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: doubleword_t Union Reference</title>
+<title>Edge node: doubleword_t Union Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -66,30 +66,102 @@ $(function() {
 <div class="title">doubleword_t Union Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Union to divide double word size data to word size divisible data.  
+ <a href="uniondoubleword__t.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for doubleword_t:</div>
+<div class="dyncontent">
+<div class="center"><img src="uniondoubleword__t__coll__graph.png" border="0" usemap="#doubleword__t_coll__map" alt="Collaboration graph"/></div>
+<map name="doubleword__t_coll__map" id="doubleword__t_coll__map">
+<area shape="rect" id="node2" href="unionword__t.html" title="Union to divide word size data to byte size divisible data. " alt="" coords="24,5,85,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a4e8304d56503d07a445bbede8f8feff4"><td class="memItemLeft" ><a id="a4e8304d56503d07a445bbede8f8feff4"></a>
-struct {</td></tr>
-<tr class="memitem:a99b179ace079bfb98cf8b80016ba99f6"><td class="memItemLeft" >
-&#160;&#160;&#160;<a class="el" href="unionword__t.html">word_t</a>&#160;&#160;&#160;<b>low_word_</b></td></tr>
+<tr class="memitem:a4e8304d56503d07a445bbede8f8feff4"><td class="memItemLeft" >struct {</td></tr>
+<tr class="memitem:a99b179ace079bfb98cf8b80016ba99f6"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="unionword__t.html">word_t</a>&#160;&#160;&#160;<a class="el" href="uniondoubleword__t.html#adecedaad13894b380c8468ed7e61e081">low_word_</a></td></tr>
 <tr class="separator:a99b179ace079bfb98cf8b80016ba99f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5aee6bedfe068243fd7e3ee37c9e6a67"><td class="memItemLeft" >
-&#160;&#160;&#160;<a class="el" href="unionword__t.html">word_t</a>&#160;&#160;&#160;<b>high_word_</b></td></tr>
+<tr class="memitem:a5aee6bedfe068243fd7e3ee37c9e6a67"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="unionword__t.html">word_t</a>&#160;&#160;&#160;<a class="el" href="uniondoubleword__t.html#a487aececc283aa0cf7800946b13b5b15">high_word_</a></td></tr>
 <tr class="separator:a5aee6bedfe068243fd7e3ee37c9e6a67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e8304d56503d07a445bbede8f8feff4"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a4e8304d56503d07a445bbede8f8feff4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e20d580eb56b954454d829165e9edc8"><td class="memItemLeft" align="right" valign="top"><a id="a4e20d580eb56b954454d829165e9edc8"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>doubleword_</b></td></tr>
+<tr class="memitem:a4e20d580eb56b954454d829165e9edc8"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uniondoubleword__t.html#a4e20d580eb56b954454d829165e9edc8">doubleword_</a></td></tr>
 <tr class="separator:a4e20d580eb56b954454d829165e9edc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Union to divide double word size data to word size divisible data. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="adecedaad13894b380c8468ed7e61e081"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adecedaad13894b380c8468ed7e61e081">&#9670;&nbsp;</a></span>low_word_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionword__t.html">word_t</a> doubleword_t::low_word_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Lower word data of the struct </p>
+
+</div>
+</div>
+<a id="a487aececc283aa0cf7800946b13b5b15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a487aececc283aa0cf7800946b13b5b15">&#9670;&nbsp;</a></span>high_word_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionword__t.html">word_t</a> doubleword_t::high_word_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Upper data of the struct </p>
+
+</div>
+</div>
+<a id="a4e8304d56503d07a445bbede8f8feff4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e8304d56503d07a445bbede8f8feff4">&#9670;&nbsp;</a></span>@6</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct { ... } </td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Struct divisible </p>
+
+</div>
+</div>
+<a id="a4e20d580eb56b954454d829165e9edc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e20d580eb56b954454d829165e9edc8">&#9670;&nbsp;</a></span>doubleword_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t doubleword_t::doubleword_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Double word size of the data </p>
+
+</div>
+</div>
 <hr/>The documentation for this union was generated from the following file:<ul>
 <li><a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

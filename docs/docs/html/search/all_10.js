@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['total_5fentries',['total_entries',['../structnvs__stats__t.html#aefc55846fa9a1c4b66002dc2064cb6f8',1,'nvs_stats_t']]],
-  ['treg',['treg',['../unionulp__insn__t.html#a33e5e08bda16093bab2eda4892a86507',1,'ulp_insn_t']]],
-  ['tsens',['tsens',['../unionulp__insn__t.html#acdcf1c811ca6f8767e1850f7ff1a543e',1,'ulp_insn_t']]],
-  ['type',['type',['../structnvs__entry__info__t.html#ad9cd8f3eb0f354e9f1074586bc7580dd',1,'nvs_entry_info_t::type()'],['../unionulp__insn__t.html#a1100a249e10f7c3da0f1da973e977f22',1,'ulp_insn_t::type()']]]
+  ['uart_5flora_5ft',['uart_lora_t',['../structuart__lora__t.html',1,'']]],
+  ['uart_5fnum',['uart_num',['../structuart__lora__t.html#a8dbbd4a4fbfda7ae70677895c4e1bbed',1,'uart_lora_t']]],
+  ['uart_5frf1276',['UART_RF1276',['../esp__rf1276_8h.html#a9917d50532a4a31632b5008262ca978a',1,'esp_rf1276.h']]],
+  ['uart_5frx',['uart_rx',['../structuart__lora__t.html#a39bbe3025449da3f269149a30a7dcb58',1,'uart_lora_t']]],
+  ['uart_5ftx',['uart_tx',['../structuart__lora__t.html#a047bdca1b36bacd8a2c9dc0d63a5ea83',1,'uart_lora_t']]]
 ];

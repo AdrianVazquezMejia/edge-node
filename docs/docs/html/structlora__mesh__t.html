@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: lora_mesh_t Struct Reference</title>
+<title>Edge node: lora_mesh_t Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -66,26 +66,90 @@ $(function() {
 <div class="title">lora_mesh_t Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Struct of the whole LoRa frame.  
+ <a href="structlora__mesh__t.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a>&gt;</code></p>
+<div class="dynheader">
+Collaboration diagram for lora_mesh_t:</div>
+<div class="dyncontent">
+<div class="center"><img src="structlora__mesh__t__coll__graph.png" border="0" usemap="#lora__mesh__t_coll__map" alt="Collaboration graph"/></div>
+<map name="lora__mesh__t_coll__map" id="lora__mesh__t_coll__map">
+<area shape="rect" id="node2" href="structlora__header__t.html" title="Struct of the header of the LoRa frame. " alt="" coords="107,184,207,211"/>
+<area shape="rect" id="node3" href="unionlora__load__t.html" title="Union of the different load frames. " alt="" coords="232,184,317,211"/>
+<area shape="rect" id="node4" href="structlora__recv__load__t.html" title="Struct with the frame load of received data. " alt="" coords="5,95,123,121"/>
+<area shape="rect" id="node5" href="unionword__t.html" title="Union to divide word size data to byte size divisible data. " alt="" coords="173,5,235,32"/>
+<area shape="rect" id="node7" href="structlora__rout__load__t.html" title="LoRa struct with the frame load of Routing information. " alt="" coords="147,95,261,121"/>
+<area shape="rect" id="node8" href="structlora__local__resp__t.html" title="Struct of the load frame of the local response. " alt="" coords="285,95,405,121"/>
+<area shape="rect" id="node6" href="structlora__conf__load__t.html" title="Struct of config frame. " alt="" coords="429,95,547,121"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ae994c1378638b183e895f9613577ac4c"><td class="memItemLeft" align="right" valign="top"><a id="ae994c1378638b183e895f9613577ac4c"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>check_sum_</b></td></tr>
+<tr class="memitem:ae994c1378638b183e895f9613577ac4c"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__mesh__t.html#ae994c1378638b183e895f9613577ac4c">check_sum_</a></td></tr>
 <tr class="separator:ae994c1378638b183e895f9613577ac4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a735a358b29b91a05d77104a28ee29560"><td class="memItemLeft" align="right" valign="top"><a id="a735a358b29b91a05d77104a28ee29560"></a>
-<a class="el" href="unionlora__load__t.html">lora_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>load_</b></td></tr>
+<tr class="memitem:a735a358b29b91a05d77104a28ee29560"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionlora__load__t.html">lora_load_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__mesh__t.html#a735a358b29b91a05d77104a28ee29560">load_</a></td></tr>
 <tr class="separator:a735a358b29b91a05d77104a28ee29560"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19a7b881e8c40e76d375195c16d0e314"><td class="memItemLeft" align="right" valign="top"><a id="a19a7b881e8c40e76d375195c16d0e314"></a>
-<a class="el" href="structlora__header__t.html">lora_header_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>header_</b></td></tr>
+<tr class="memitem:a19a7b881e8c40e76d375195c16d0e314"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlora__header__t.html">lora_header_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlora__mesh__t.html#a19a7b881e8c40e76d375195c16d0e314">header_</a></td></tr>
 <tr class="separator:a19a7b881e8c40e76d375195c16d0e314"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Struct of the whole LoRa frame. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="ae994c1378638b183e895f9613577ac4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae994c1378638b183e895f9613577ac4c">&#9670;&nbsp;</a></span>check_sum_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t lora_mesh_t::check_sum_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The frame end is one byte checksum.This checksum is the result of XOR operation from the first byte to the last second byte </p>
+
+</div>
+</div>
+<a id="a735a358b29b91a05d77104a28ee29560"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a735a358b29b91a05d77104a28ee29560">&#9670;&nbsp;</a></span>load_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionlora__load__t.html">lora_load_t</a> lora_mesh_t::load_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Its format is determined by the types of frames and the types of commands </p>
+
+</div>
+</div>
+<a id="a19a7b881e8c40e76d375195c16d0e314"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19a7b881e8c40e76d375195c16d0e314">&#9670;&nbsp;</a></span>header_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlora__header__t.html">lora_header_t</a> lora_mesh_t::header_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Header of the frame </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
