@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: cypher.h Source File</title>
+<title>Edge node: cypher.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -68,10 +68,13 @@ $(function() {
 <div class="title">cypher.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// only CBC requires that input length shall be multiple of 16</span></div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;mbedtls/aes.h&quot;</span></div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;mbedtls_aes_context aes;</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;esp_err.h&quot;</span></div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;esp_err_t cfb8encrypt(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *raw_data, <span class="keywordtype">size_t</span> raw_data_len,</div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;                      <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *encrypted_output);</div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;esp_err_t cfb8decrypt(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *encrypted_data, <span class="keywordtype">size_t</span> encrypted_data_len,</div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;                      <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *decrypted_output);</div></div><!-- fragment --></div><!-- contents -->
+<a href="cypher_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">// only CBC requires that input length shall be multiple of 16</span></div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"></span><span class="preprocessor">#ifndef MAIN_INCLUDE_CYPHER_H_</span></div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#define MAIN_INCLUDE_CYPHER_H_</span></div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &quot;esp_err.h&quot;</span></div><div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &quot;mbedtls/aes.h&quot;</span></div><div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div><div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;mbedtls_aes_context</div><div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="cypher_8h.html#a3c53ab947cb057c547a652c8141b9da0">   11</a></span>&#160;    <a class="code" href="cypher_8h.html#a3c53ab947cb057c547a652c8141b9da0">aes</a>; </div><div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;esp_err_t <a class="code" href="cypher_8h.html#ae34cd83cdd45f467680c1e6bc4609816">cfb8encrypt</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *raw_data, <span class="keywordtype">size_t</span> raw_data_len,</div><div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;                      <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *encrypted_output);</div><div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div><div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;esp_err_t <a class="code" href="cypher_8h.html#abd145b5fafe0ed0937a8e9b6cfd8f8df">cfb8decrypt</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *encrypted_data, <span class="keywordtype">size_t</span> encrypted_data_len,</div><div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;                      <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *decrypted_output);</div><div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div><div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* MAIN_INCLUDE_CYPHER_H_ */</span><span class="preprocessor"></span></div><div class="ttc" id="cypher_8h_html_abd145b5fafe0ed0937a8e9b6cfd8f8df"><div class="ttname"><a href="cypher_8h.html#abd145b5fafe0ed0937a8e9b6cfd8f8df">cfb8decrypt</a></div><div class="ttdeci">esp_err_t cfb8decrypt(unsigned char *encrypted_data, size_t encrypted_data_len, unsigned char *decrypted_output)</div><div class="ttdoc">This function performs an AES-CFB8 decryption operation. </div><div class="ttdef"><b>Definition:</b> cypher.c:24</div></div>
+<div class="ttc" id="cypher_8h_html_a3c53ab947cb057c547a652c8141b9da0"><div class="ttname"><a href="cypher_8h.html#a3c53ab947cb057c547a652c8141b9da0">aes</a></div><div class="ttdeci">mbedtls_aes_context aes</div><div class="ttdef"><b>Definition:</b> cypher.h:11</div></div>
+<div class="ttc" id="cypher_8h_html_ae34cd83cdd45f467680c1e6bc4609816"><div class="ttname"><a href="cypher_8h.html#ae34cd83cdd45f467680c1e6bc4609816">cfb8encrypt</a></div><div class="ttdeci">esp_err_t cfb8encrypt(unsigned char *raw_data, size_t raw_data_len, unsigned char *encrypted_output)</div><div class="ttdoc">This function performs an AES-CFB8 encryption It performs the operation defined in the mode parameter...</div><div class="ttdef"><b>Definition:</b> cypher.c:11</div></div>
+</div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

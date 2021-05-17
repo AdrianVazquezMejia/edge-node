@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: uart_lora_t Struct Reference</title>
+<title>Edge node: uart_lora_t Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -67,35 +67,92 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Estructura de configuración del UART.  
+<p>Used to pass the UART LoRa configuration data.  
  <a href="structuart__lora__t.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a047bdca1b36bacd8a2c9dc0d63a5ea83"><td class="memItemLeft" align="right" valign="top"><a id="a047bdca1b36bacd8a2c9dc0d63a5ea83"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>uart_tx</b></td></tr>
+<tr class="memitem:a047bdca1b36bacd8a2c9dc0d63a5ea83"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structuart__lora__t.html#a047bdca1b36bacd8a2c9dc0d63a5ea83">uart_tx</a></td></tr>
 <tr class="separator:a047bdca1b36bacd8a2c9dc0d63a5ea83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39bbe3025449da3f269149a30a7dcb58"><td class="memItemLeft" align="right" valign="top"><a id="a39bbe3025449da3f269149a30a7dcb58"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>uart_rx</b></td></tr>
+<tr class="memitem:a39bbe3025449da3f269149a30a7dcb58"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structuart__lora__t.html#a39bbe3025449da3f269149a30a7dcb58">uart_rx</a></td></tr>
 <tr class="separator:a39bbe3025449da3f269149a30a7dcb58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a05ce2013285578c42e8062e6d6fa1aae"><td class="memItemLeft" align="right" valign="top"><a id="a05ce2013285578c42e8062e6d6fa1aae"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>baud_rate</b></td></tr>
+<tr class="memitem:a05ce2013285578c42e8062e6d6fa1aae"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structuart__lora__t.html#a05ce2013285578c42e8062e6d6fa1aae">baud_rate</a></td></tr>
 <tr class="separator:a05ce2013285578c42e8062e6d6fa1aae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dbbd4a4fbfda7ae70677895c4e1bbed"><td class="memItemLeft" align="right" valign="top"><a id="a8dbbd4a4fbfda7ae70677895c4e1bbed"></a>
-uart_port_t&#160;</td><td class="memItemRight" valign="bottom"><b>uart_num</b></td></tr>
+<tr class="memitem:a8dbbd4a4fbfda7ae70677895c4e1bbed"><td class="memItemLeft" align="right" valign="top">uart_port_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structuart__lora__t.html#a8dbbd4a4fbfda7ae70677895c4e1bbed">uart_num</a></td></tr>
 <tr class="separator:a8dbbd4a4fbfda7ae70677895c4e1bbed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Estructura de configuración del UART. </p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<div class="textblock"><p>Used to pass the UART LoRa configuration data. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="a047bdca1b36bacd8a2c9dc0d63a5ea83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a047bdca1b36bacd8a2c9dc0d63a5ea83">&#9670;&nbsp;</a></span>uart_tx</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t uart_lora_t::uart_tx</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TX GPIO connected to LoRA chip </p>
+
+</div>
+</div>
+<a id="a39bbe3025449da3f269149a30a7dcb58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39bbe3025449da3f269149a30a7dcb58">&#9670;&nbsp;</a></span>uart_rx</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t uart_lora_t::uart_rx</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>RX GPIO connected to LoRA chip </p>
+
+</div>
+</div>
+<a id="a05ce2013285578c42e8062e6d6fa1aae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a05ce2013285578c42e8062e6d6fa1aae">&#9670;&nbsp;</a></span>baud_rate</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int uart_lora_t::baud_rate</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Baurate to communicate with LoRa chip: 9600 by default </p>
+
+</div>
+</div>
+<a id="a8dbbd4a4fbfda7ae70677895c4e1bbed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8dbbd4a4fbfda7ae70677895c4e1bbed">&#9670;&nbsp;</a></span>uart_num</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uart_port_t uart_lora_t::uart_num</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>UART connected to LoRa chip </p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

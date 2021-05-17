@@ -44,8 +44,7 @@
 /**
  * This fuction uses a table to speed up the calculation of the residual
  *
- * @param nData Even if there is only one possible unified theory. it is just a
- *               set of rules and equations.
+ * @param nData Array with the data
  *
  * @param wLength Length
  *

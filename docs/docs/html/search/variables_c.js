@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['offset',['offset',['../unionulp__insn__t.html#a1d3476e1ced400c553a069c080512a93',1,'ulp_insn_t']]],
-  ['opcode',['opcode',['../unionulp__insn__t.html#ade60469ad4a1276b213ac0eead5af401',1,'ulp_insn_t']]]
+  ['transmit_5fload_5f',['transmit_load_',['../unionlora__load__t.html#a844fc83ab6766c295bf42e3454c522b0',1,'lora_load_t']]]
 ];

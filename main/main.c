@@ -3,7 +3,7 @@
  * Date: 10-07-2020
  */
 /**
- *@mainpage Project title
+ *@mainpage Edge Node
  *@author Adrian Vazquez
  *@version 4.0
  *

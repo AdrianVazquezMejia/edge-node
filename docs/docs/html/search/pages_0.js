@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['project_20title',['Project title',['../index.html',1,'']]]
+  ['edge_20node',['Edge Node',['../index.html',1,'']]]
 ];

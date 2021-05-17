@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gumbo: word_t Union Reference</title>
+<title>Edge node: word_t Union Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,8 +21,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Gumbo
-   &#160;<span id="projectnumber">{{VERSION}}</span>
+   <div id="projectname">Edge node
+   &#160;<span id="projectnumber">3.0</span>
    </div>
    <div id="projectbrief">A C library for parsing HTML.</div>
   </td>
@@ -66,30 +66,80 @@ $(function() {
 <div class="title">word_t Union Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Union to divide word size data to byte size divisible data.  
+ <a href="unionword__t.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:acd96c174892a3ceee8f440103f06ed5c"><td class="memItemLeft" ><a id="acd96c174892a3ceee8f440103f06ed5c"></a>
 struct {</td></tr>
-<tr class="memitem:a05bf557b732dd08e66e1642206aa62c6"><td class="memItemLeft" >
-&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<b>low_byte_</b></td></tr>
+<tr class="memitem:a05bf557b732dd08e66e1642206aa62c6"><td class="memItemLeft" >&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="unionword__t.html#aff9f1e756f55d4e24044cd82d54fd1c9">low_byte_</a></td></tr>
 <tr class="separator:a05bf557b732dd08e66e1642206aa62c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4268ac9254b840caa66be612c5cef81"><td class="memItemLeft" >
-&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<b>high_byte_</b></td></tr>
+<tr class="memitem:ab4268ac9254b840caa66be612c5cef81"><td class="memItemLeft" >&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="unionword__t.html#a1cbe1e7af6a56fe52deefc5945037a87">high_byte_</a></td></tr>
 <tr class="separator:ab4268ac9254b840caa66be612c5cef81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd96c174892a3ceee8f440103f06ed5c"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:acd96c174892a3ceee8f440103f06ed5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac92dd645a576bef5bb898d4914805d80"><td class="memItemLeft" align="right" valign="top"><a id="ac92dd645a576bef5bb898d4914805d80"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>word_</b></td></tr>
+<tr class="memitem:ac92dd645a576bef5bb898d4914805d80"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionword__t.html#ac92dd645a576bef5bb898d4914805d80">word_</a></td></tr>
 <tr class="separator:ac92dd645a576bef5bb898d4914805d80"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Union to divide word size data to byte size divisible data. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="aff9f1e756f55d4e24044cd82d54fd1c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff9f1e756f55d4e24044cd82d54fd1c9">&#9670;&nbsp;</a></span>low_byte_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t word_t::low_byte_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Lower byte </p>
+
+</div>
+</div>
+<a id="a1cbe1e7af6a56fe52deefc5945037a87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1cbe1e7af6a56fe52deefc5945037a87">&#9670;&nbsp;</a></span>high_byte_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t word_t::high_byte_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Higher byte </p>
+
+</div>
+</div>
+<a id="ac92dd645a576bef5bb898d4914805d80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac92dd645a576bef5bb898d4914805d80">&#9670;&nbsp;</a></span>word_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t word_t::word_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Word size data of the union </p>
+
+</div>
+</div>
 <hr/>The documentation for this union was generated from the following file:<ul>
 <li><a class="el" href="esp__rf1276_8h_source.html">esp_rf1276.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 14 2021 16:12:30 for Gumbo by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

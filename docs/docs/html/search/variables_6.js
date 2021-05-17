@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['halt',['halt',['../unionulp__insn__t.html#a507a80d21c3338c0bda59d26895f84e6',1,'ulp_insn_t']]],
-  ['high',['high',['../unionulp__insn__t.html#a99a1d6816f5cfbff9514f3ee4f030498',1,'ulp_insn_t']]],
-  ['high_5fbits',['high_bits',['../unionulp__insn__t.html#abc2e6760d3abb204b27198250af09878',1,'ulp_insn_t']]]
+  ['impulse_5fconversion',['IMPULSE_CONVERSION',['../global__variables_8h.html#af1dd230d06f4b03f3100f63a04c862cb',1,'global_variables.h']]],
+  ['initial_5fenergy',['INITIAL_ENERGY',['../global__variables_8h.html#a383f0ca7c778d28516d87c2309fb84b5',1,'global_variables.h']]]
 ];
