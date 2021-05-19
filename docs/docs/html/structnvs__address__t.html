@@ -66,26 +66,76 @@ $(function() {
 <div class="title">nvs_address_t Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Struct to point a memory location in a partition, page and entry.  
+ <a href="structnvs__address__t.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="flash_8h_source.html">flash.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a336a54f6c5d5eb1d0dd5a72f3d26b985"><td class="memItemLeft" align="right" valign="top"><a id="a336a54f6c5d5eb1d0dd5a72f3d26b985"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>partition</b></td></tr>
+<tr class="memitem:a336a54f6c5d5eb1d0dd5a72f3d26b985"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnvs__address__t.html#a336a54f6c5d5eb1d0dd5a72f3d26b985">partition</a></td></tr>
 <tr class="separator:a336a54f6c5d5eb1d0dd5a72f3d26b985"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abf324fabb4bc8b35c278a68e3230eca8"><td class="memItemLeft" align="right" valign="top"><a id="abf324fabb4bc8b35c278a68e3230eca8"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>page</b></td></tr>
+<tr class="memitem:abf324fabb4bc8b35c278a68e3230eca8"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnvs__address__t.html#abf324fabb4bc8b35c278a68e3230eca8">page</a></td></tr>
 <tr class="separator:abf324fabb4bc8b35c278a68e3230eca8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb8abbb2259259e4ca19256aec58adbf"><td class="memItemLeft" align="right" valign="top"><a id="afb8abbb2259259e4ca19256aec58adbf"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_index</b></td></tr>
+<tr class="memitem:afb8abbb2259259e4ca19256aec58adbf"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structnvs__address__t.html#afb8abbb2259259e4ca19256aec58adbf">entry_index</a></td></tr>
 <tr class="separator:afb8abbb2259259e4ca19256aec58adbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Struct to point a memory location in a partition, page and entry. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="a336a54f6c5d5eb1d0dd5a72f3d26b985"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a336a54f6c5d5eb1d0dd5a72f3d26b985">&#9670;&nbsp;</a></span>partition</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t nvs_address_t::partition</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Number of flash partition </p>
+
+</div>
+</div>
+<a id="abf324fabb4bc8b35c278a68e3230eca8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf324fabb4bc8b35c278a68e3230eca8">&#9670;&nbsp;</a></span>page</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t nvs_address_t::page</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Number of page in the current partition </p>
+
+</div>
+</div>
+<a id="afb8abbb2259259e4ca19256aec58adbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb8abbb2259259e4ca19256aec58adbf">&#9670;&nbsp;</a></span>entry_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t nvs_address_t::entry_index</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Number of entry in the current page </p>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="flash_8h_source.html">flash.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon May 17 2021 17:12:08 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed May 19 2021 17:34:16 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

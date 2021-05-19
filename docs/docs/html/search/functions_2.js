@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['lora_5fsend',['lora_send',['../esp__rf1276_8h.html#af27442fb4c2af1172b7ef6d83e82ca49',1,'esp_rf1276.c']]]
+  ['example_5fconfigure_5fstdin_5fstdout',['example_configure_stdin_stdout',['../protocol__common_8h.html#a8b557c0b97db90fdacd6dd26ed942924',1,'protocol_common.h']]]
 ];

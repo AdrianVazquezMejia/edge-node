@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['load_5f',['load_',['../structlora__mesh__t.html#a735a358b29b91a05d77104a28ee29560',1,'lora_mesh_t']]],
-  ['load_5flen_5f',['load_len_',['../structlora__header__t.html#a7b5c83a57eec76bdfeb630a96ae59f97',1,'lora_header_t']]],
-  ['local_5fresp_5f',['local_resp_',['../unionlora__load__t.html#a1280c47c0718e78f4e1e7171f53238b3',1,'lora_load_t']]],
-  ['low_5fbyte_5f',['low_byte_',['../unionword__t.html#aff9f1e756f55d4e24044cd82d54fd1c9',1,'word_t']]],
-  ['low_5fword_5f',['low_word_',['../uniondoubleword__t.html#adecedaad13894b380c8468ed7e61e081',1,'doubleword_t']]]
+  ['impulse_5fconversion',['IMPULSE_CONVERSION',['../global__variables_8h.html#af1dd230d06f4b03f3100f63a04c862cb',1,'global_variables.h']]],
+  ['initial_5fenergy',['INITIAL_ENERGY',['../global__variables_8h.html#a383f0ca7c778d28516d87c2309fb84b5',1,'global_variables.h']]]
 ];

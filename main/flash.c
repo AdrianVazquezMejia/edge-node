@@ -147,7 +147,7 @@ void put_partition_info(char *name) {
              info.namespace_count);
     nvs_flash_deinit_partition(name);
 }
-esp_err_t search_init_partition(uint8_t *pnumber) {
+static esp_err_t search_init_partition(uint8_t *pnumber) {
     char *pname;
     nvs_handle_t my_handle;
     uint8_t isFull;

@@ -1,4 +1,5 @@
-/* Common functions for protocol examples, to establish Wi-Fi or Ethernet connection.
+/* Common functions for protocol examples, to establish Wi-Fi or Ethernet
+   connection.
 
    This example code is in the Public Domain (or CC0 licensed, at your option.)
 
@@ -6,7 +7,10 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
  */
-
+/**
+ * @file
+ * @brief Common TCP/IP functions
+ * */
 #pragma once
 
 #ifdef __cplusplus

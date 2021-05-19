@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['recv_5fload_5f',['recv_load_',['../unionlora__load__t.html#a133b8332c407df62637ae11f0f41f127',1,'lora_load_t']]],
-  ['result',['result',['../structlora__local__resp__t.html#a523ca0410ba993c3b7b484e9c6ca8037',1,'lora_local_resp_t']]],
-  ['routing_5ftime',['routing_time',['../structconfig__rf1276__t.html#a8ffac8d997065f7cec20ce815681f9d8',1,'config_rf1276_t']]],
-  ['routing_5ftype_5f',['routing_type_',['../structlora__rout__load__t.html#a733ad180662cace7cc6055518dcd58e0',1,'lora_rout_load_t']]]
+  ['page',['page',['../structnvs__address__t.html#abf324fabb4bc8b35c278a68e3230eca8',1,'nvs_address_t']]],
+  ['partition',['partition',['../structnvs__address__t.html#a336a54f6c5d5eb1d0dd5a72f3d26b985',1,'nvs_address_t']]],
+  ['port_5fcheck',['port_check',['../structconfig__rf1276__t.html#aaf2c4f237fae570066683655f52c46b2',1,'config_rf1276_t']]],
+  ['power',['power',['../structconfig__rf1276__t.html#a68fab7bbd037967aad77d16b247c061a',1,'config_rf1276_t']]],
+  ['pulse_5faddress',['pulse_address',['../global__variables_8h.html#a8d923ba78658b2db441bd12f4fa6a7dc',1,'main.c']]]
 ];

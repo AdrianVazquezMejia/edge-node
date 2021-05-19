@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['init_5flora_5fmesh',['init_lora_mesh',['../esp__rf1276_8h.html#a92592a3b7d0c3d063e064f0b7ae620e7',1,'esp_rf1276.c']]],
-  ['init_5flora_5fuart',['init_lora_uart',['../esp__rf1276_8h.html#acd34544f0a3ecb052c9a41ee05b80644',1,'esp_rf1276.c']]]
+  ['disconnect',['disconnect',['../protocol__common_8h.html#a4444a06a5347affabe50039d82147424',1,'connect.c']]]
 ];
