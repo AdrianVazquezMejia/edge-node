@@ -255,24 +255,38 @@ static void task_lora(void *arg) {
 #ifdef CONFIG_MASTER_MODBUS
     vTaskDelay(pdMS_TO_TICKS((SLAVES + 2) * TIME_SCAN));
 #endif
-    ESP_LOGI(TAG, "LoRa Task available");
+    ESP_LOGI(TAG_LORA, "LoRa Task available");
     while (1) {
         if (xQueueReceive(lora_queue, loraFrame, portMAX_DELAY)) {
 
             switch (loraFrame->header_.frame_type_) {
             case INTERNAL_USE:
-                /// TODO
+                switch (loraFrame->header_.command_type_) {
+                case ACK_RESET_MODEM:
+                    if (loraFrame->load_.local_resp_.result == 0x00)
+                        ESP_LOGI(TAG_LORA, "Module Successfully Reset");
+                    else {
+                        ESP_LOGE(TAG_LORA, "Error in RESET");
+                    }
+                    ESP_LOGI(TAG_LORA, "After reset modem, restart ESP32. ");
+                    esp_restart();
+                    break;
+                }
                 break;
             case APPLICATION_DATA:
                 switch (loraFrame->header_.command_type_) {
                 case ACK_SEND:
                     if (loraFrame->header_.load_len_ == 0x01) {
-                        ESP_LOGE(TAG_LORA,
-                                 "LoRa Can not verify the CRC to send");
-                    } else if (loraFrame->header_.load_len_ == 0x03 &&
-                               loraFrame->load_.local_resp_.result != 0) {
-                        ESP_LOGE(TAG_LORA, "LORA ERROR CODE %2x",
-                                 loraFrame->load_.local_resp_.result);
+                        ESP_LOGE(TAG_LORA, "Error in sending checksum");
+                    } else if (loraFrame->header_.load_len_ == 0x03) {
+                        uint8_t error_code =
+                            loraFrame->load_.local_resp_.result;
+                        ESP_LOGE(TAG_LORA, "LORA ERROR CODE %2x", error_code);
+                        if (error_code == 0xc1 || error_code == 0xc7 ||
+                            error_code == 0xea || error_code == 0xe7) {
+                            lora_reset_modem();
+                            ESP_LOGI(TAG_LORA, "RESETTING MODEM");
+                        }
                     }
                     ESP_LOGI(TAG_LORA, "Ack from dest node");
                     break;

@@ -6,6 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
+#include <stdint.h>
 #include <string.h>
 
 static const char *RF1276 = "ESP_RF1276";
@@ -33,7 +34,12 @@ static void recv_data_prepare(lora_mesh_t *recvParameter,
 
     switch (recvParameter->header_.frame_type_) {
     case INTERNAL_USE:
-        /// TODO
+        switch (recvParameter->header_.command_type_) {
+        case ACK_RESET_MODEM:
+            recvParameter->load_.local_resp_.result = uart_data[4];
+            recvParameter->check_sum_               = uart_data[5];
+            break;
+        }
         break;
     case APPLICATION_DATA:
         switch (recvParameter->header_.command_type_) {
@@ -236,4 +242,9 @@ int lora_send(lora_mesh_t *sendFrame) {
 
     free(serialSendData);
     return result;
+}
+int lora_reset_modem(void) {
+    uint8_t fixed_frame_reset[] = {1, 0, 7, 0, 6};
+    uint8_t len                 = 5;
+    return uart_write_bytes(UART_RF1276, (const char *)fixed_frame_reset, len);
 }

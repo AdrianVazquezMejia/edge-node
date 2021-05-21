@@ -149,6 +149,10 @@ enum {
 };                            /**< Enum of the  receiving Commands types. */
 enum { SENDING_DATA = 0x01 }; /**< Enum of the sending command types. */
 
+enum {
+    ACK_RESET_MODEM = 0x87
+}; /**< Enum of the internal used command types. */
+
 /**
  *@brief Function to send data to other node using the LoRa peripheral
  *
@@ -179,4 +183,6 @@ esp_err_t init_lora_uart(uart_lora_t *uartParameters);
  */
 esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
                          QueueHandle_t *loraQueue, uart_port_t uart_num);
+
+int lora_reset_modem(void);
 #endif
