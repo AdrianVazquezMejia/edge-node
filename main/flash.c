@@ -194,7 +194,6 @@ static esp_err_t search_init_partition(uint8_t *pnumber) {
             ESP_LOGI(TAG_NVS, "Partition number set first time: %d", i);
         } else if (err != ESP_OK)
             ESP_LOGE(TAG_NVS, "Get error (%s)", esp_err_to_name(err));
-        ESP_LOGI(TAG_NVS, "Partition number set: %u", *pnumber);
 
         nvs_close(my_handle);
         nvs_flash_deinit_partition(pname);
@@ -208,7 +207,9 @@ static esp_err_t search_init_partition(uint8_t *pnumber) {
             }
             continue;
         }
+#ifdef FLASH_LOG
         ESP_LOGI(TAG_NVS, "NVS init success in  %s", pname);
+#endif
         *pnumber = i;
         free(pname);
         break;
@@ -228,7 +229,6 @@ static esp_err_t get_pulse_counter_info(char *partition_name, char *page_name,
         (*entry_index)++;
         nvs_entry_info(entry, &info);
         entry = nvs_entry_next(entry);
-        ESP_LOGI(TAG_NVS_2, "key '%s', type '%d' \n", info.key, info.type);
     };
     nvs_release_iterator(entry);
     if (*entry_index > 0)
@@ -322,9 +322,12 @@ esp_err_t get_initial_pulse(uint32_t *pulse_counter, nvs_address_t *address) {
         return err;
     address->page        = page_index;
     address->entry_index = entry_index;
+#ifdef FLASH_LOG
     ESP_LOGI(TAG_NVS, "ADDRESS:");
     ESP_LOGI(TAG_NVS, "\n-Partition: %d \n - Page: %d\n - Entry %d",
              address->partition, address->page, address->entry_index);
+#endif
+
     return ESP_OK;
 }
 esp_err_t save2address(uint32_t data, nvs_address_t address) {
@@ -333,7 +336,7 @@ esp_err_t save2address(uint32_t data, nvs_address_t address) {
     char *partition_name;
     char *page_name;
     char *entry_key;
-    ESP_LOGI(TAG_NVS, "Saving data");
+
     if (get_name(&partition_name, "app", address.partition)) {
         return ESP_FAIL;
     }
