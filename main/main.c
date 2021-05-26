@@ -158,6 +158,7 @@ void task_modbus_slave(void *arg) {
                     ESP_LOGE(TAG_UART, " CRC ERROR: %d",
                              CRC16(received_buffer, event.size));
                     crc_error_response(&modbus_response, received_buffer);
+                    vTaskDelay(pdMS_TO_TICKS(1000));
                     if (uart_write_bytes(UART_NUM_1,
                                          (const char *)modbus_response.frame,
                                          modbus_response.len) == ESP_FAIL) {
@@ -268,8 +269,6 @@ static void task_lora(void *arg) {
                     else {
                         ESP_LOGE(TAG_LORA, "Error in RESET");
                     }
-                    ESP_LOGI(TAG_LORA, "After reset modem, restart ESP32. ");
-                    esp_restart();
                     break;
                 }
                 break;
@@ -281,7 +280,12 @@ static void task_lora(void *arg) {
                     } else if (loraFrame->header_.load_len_ == 0x03) {
                         uint8_t error_code =
                             loraFrame->load_.local_resp_.result;
-                        ESP_LOGE(TAG_LORA, "LORA ERROR CODE %2x", error_code);
+                        if (error_code == 0) {
+                            ESP_LOGI(TAG_LORA, "SENT SUCCESS");
+                        } else {
+                            ESP_LOGE(TAG_LORA, "ERROR CODE %2x", error_code);
+                        }
+
                         if (error_code == 0xc1 || error_code == 0xc7 ||
                             error_code == 0xea || error_code == 0xe7) {
                             lora_reset_modem();
