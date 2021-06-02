@@ -35,7 +35,9 @@
 #include "ota_update.h"
 #include "string.h"
 #include <stdio.h>
-#define PULSES_KW 225
+
+#define PULSES_KW         225
+#define LIMIT_ERROR_COUNT 10
 
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
@@ -71,6 +73,7 @@ static uint16_t inputRegister[512] = {0};
 
 nvs_address_t pulse_address;
 QueueHandle_t lora_queue;
+
 // key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
 // and 192 bits encrypting mode
 
@@ -125,9 +128,12 @@ void task_modbus_slave(void *arg) {
     mb_response_t modbus_response;
     modbus_registers[1] = &inputRegister[0];
     uart_init(&uart_queue);
+    uint error_count = 0;
     while (1) {
         if (xQueueReceive(uart_queue, (void *)&event,
                           pdMS_TO_TICKS(TWDT_RESET)) == pdTRUE) {
+            if (error_count == LIMIT_ERROR_COUNT)
+                esp_restart();
             bzero(received_buffer, RX_BUF_SIZE);
             switch (event.type) {
             case UART_DATA:
@@ -141,6 +147,7 @@ void task_modbus_slave(void *arg) {
 
                 if (CRC16(received_buffer, event.size) == 0) {
                     if (received_buffer[0] == NODE_ID) {
+                        error_count = 0;
                         led_blink();
                         modbus_slave_functions(&modbus_response,
                                                received_buffer, event.size,
@@ -155,19 +162,33 @@ void task_modbus_slave(void *arg) {
                                            modbus_response.len);
                     }
                 } else {
+                    error_count = 0;
                     ESP_LOGE(TAG_UART, " CRC ERROR: %d",
                              CRC16(received_buffer, event.size));
-                    crc_error_response(&modbus_response, received_buffer);
-                    vTaskDelay(pdMS_TO_TICKS(1000));
-                    if (uart_write_bytes(UART_NUM_1,
-                                         (const char *)modbus_response.frame,
-                                         modbus_response.len) == ESP_FAIL) {
-                        ESP_LOGE(TAG, "Error writig UART data");
-                        uart_flush(UART_NUM_1);
-                    }
+                    uart_flush(UART_NUM_1);
                 }
                 break;
+            case UART_FIFO_OVF:
+                error_count = 0;
+                ESP_LOGI(TAG, "hw fifo overflow");
+                uart_flush_input(UART_NUM_1);
+                xQueueReset(uart_queue);
+                break;
+            case UART_BUFFER_FULL:
+                error_count = 0;
+                ESP_LOGI(TAG, "ring buffer full");
+                uart_flush_input(UART_NUM_1);
+                xQueueReset(uart_queue);
+                break;
+            case UART_FRAME_ERR:
+                error_count = 0;
+                ESP_LOGI(TAG, "uart frame error");
+                uart_flush_input(UART_NUM_1);
+                xQueueReset(uart_queue);
+                uart_init(&uart_queue);
+                break;
             default:
+                error_count = 0;
                 ESP_LOGE(TAG_UART, "UART event %d", event.type);
             }
         }
@@ -335,6 +356,7 @@ static void task_lora(void *arg) {
     }
     free(loraFrame);
 }
+#ifdef CONFIG_LORA
 static esp_err_t init_lora(void) {
     esp_err_t err;
 
@@ -375,6 +397,7 @@ static esp_err_t init_lora(void) {
 
     return err;
 }
+#endif
 void app_main() {
     ESP_LOGI(TAG, "MCU initialized, fimware version 1.0.13122020a");
     ESP_LOGI(TAG, "Init Watchdog");
@@ -403,7 +426,6 @@ void app_main() {
 #endif
 #ifdef CONFIG_LORA
     ESP_LOGI(TAG, "Start LoRa task");
-
     ESP_ERROR_CHECK(init_lora());
     xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 2, NULL, 10, NULL,
                             1);
