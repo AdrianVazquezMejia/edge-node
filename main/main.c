@@ -246,8 +246,23 @@ void task_modbus_master(void *arg) {
                     ESP_LOGI(TAG, "Frame not verified CRC : %d",
                              CRC16(slave_response, event.size));
                     uart_flush(UART_NUM_1);
-                    vTaskDelay(pdMS_TO_TICKS(1000));
                 }
+                break;
+            case UART_FIFO_OVF:
+                ESP_LOGI(TAG, "hw fifo overflow");
+                uart_flush_input(UART_NUM_1);
+                xQueueReset(uart_queue);
+                break;
+            case UART_BUFFER_FULL:
+                ESP_LOGI(TAG, "ring buffer full");
+                uart_flush_input(UART_NUM_1);
+                xQueueReset(uart_queue);
+                break;
+            case UART_FRAME_ERR:
+                ESP_LOGI(TAG, "uart frame error");
+                uart_flush_input(UART_NUM_1);
+                xQueueReset(uart_queue);
+                uart_init(&uart_queue);
                 break;
             default:
                 ESP_LOGE(TAG, "uart event type: %d", event.type);
