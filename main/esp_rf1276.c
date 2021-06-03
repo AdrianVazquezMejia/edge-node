@@ -6,7 +6,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
+#include "unordered_map.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 static const char *RF1276 = "ESP_RF1276";
@@ -166,6 +168,16 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
     doubleword_t nodeID;
     frequency.doubleword_ =
         (uint32_t)(loraParameters->freq * 1000000000 / 61035);
+
+    unordered_map_t *baudarate_map = new_unordered_map(7);
+    unordered_map_insert(baudarate_map, 1200, 0);
+    unordered_map_insert(baudarate_map, 2400, 1);
+    unordered_map_insert(baudarate_map, 4800, 2);
+    unordered_map_insert(baudarate_map, 9600, 3);
+    unordered_map_insert(baudarate_map, 19200, 4);
+    unordered_map_insert(baudarate_map, 57600, 5);
+    unordered_map_insert(baudarate_map, 115200, 6);
+
     sendFrame[6]          = frequency.high_word_.low_byte_;
     sendFrame[7]          = frequency.low_word_.high_byte_;
     sendFrame[8]          = frequency.low_word_.low_byte_;
@@ -177,11 +189,14 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
     nodeID.doubleword_    = (uint32_t)loraParameters->node_id;
     sendFrame[13]         = nodeID.low_word_.high_byte_;
     sendFrame[14]         = nodeID.low_word_.low_byte_;
-    sendFrame[15]         = loraParameters->baud_rate;
-    sendFrame[16]         = loraParameters->port_check;
-    sendFrame[17]         = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
+    sendFrame[15] =
+        *unordered_map_find(baudarate_map, (int)loraParameters->baud_rate);
 
+    sendFrame[16] = loraParameters->port_check;
+    sendFrame[17] = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
     uart_write_bytes(uart_num, (const char *)sendFrame, sizeof(sendFrame));
+
+    delete_map(baudarate_map);
 
     uint8_t readBytes = uart_read_bytes(uart_num, recvFrame, sizeof(recvFrame),
                                         pdMS_TO_TICKS(1000));
@@ -193,15 +208,14 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
     sendFrame[2]  = 0x81;
     sendFrame[3]  = 0x0c;
     sendFrame[17] = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
-
     memcpy(auxFrameV20, sendFrame, sizeof(sendFrame));
     auxFrameV20[2]  = 0x81;
     auxFrameV20[3]  = 0x0d; // Version 4.0
     auxFrameV20[17] = CHECK_SUM(auxFrameV20, sizeof(sendFrame) - 1);
-
     if ((memcmp(sendFrame, recvFrame, sizeof(sendFrame)) != 0) &&
         (memcmp(auxFrameV20, recvFrame, sizeof(sendFrame)) != 0))
         return ESP_FAIL;
+
     mainQueue = loraQueue;
     uart_read_bytes(uart_num, recvFrame, 33, pdMS_TO_TICKS(4000));
     ESP_LOGI(RF1276, "%s", recvFrame); // Version
