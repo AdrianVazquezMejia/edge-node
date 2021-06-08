@@ -13,7 +13,7 @@
 #include "stdint.h"
 #define TX_BUF_SIZE 1024
 static char *TAG = "MASTER";
-
+bool modbus_coils[512];
 typedef union {
     uint16_t Val;
     struct {
@@ -22,7 +22,14 @@ typedef union {
     } byte;
 
 } INT_VAL;
+typedef union {
+    uint32_t doubleword;
+    struct {
+        uint16_t wordL;
+        uint16_t wordH;
+    } word;
 
+} WORD_VAL;
 enum modbus_function_t { READ_HOLDING = 3, READ_INPUT };
 enum modbus_excep_t {
     ILLEGAL_FUNC = 1,
@@ -60,6 +67,24 @@ void read_input_register(uint8_t slave, uint16_t start_address,
     free(frame);
     ESP_LOGI(TAG, "Poll sent to slave : %d...", slave);
 }
+static void check_toletance(uint8_t slave, INT_VAL *tolerance_register,
+                            uint16_t *input_register) {
+    WORD_VAL previous;
+    WORD_VAL current;
+    const uint TOLERANCE = 1000;
+
+    previous.word.wordH = tolerance_register[0].Val;
+    previous.word.wordL = tolerance_register[1].Val;
+    current.word.wordH  = input_register[slave * 2 - 1];
+    current.word.wordL  = input_register[slave * 2];
+    uint slope          = abs(current.doubleword - previous.doubleword);
+    modbus_coils[slave] = false;
+    if (slope > TOLERANCE) {
+        modbus_coils[slave] = true;
+        ESP_LOGW(TAG, "Noise overcome the predetermined trigger [%d]",
+                 modbus_coils[slave]);
+    }
+}
 void save_register(uint8_t *data, uint8_t length, uint16_t **modbus_registers) {
     uint8_t FUNCTION        = data[1];
     uint16_t *inputRegister = modbus_registers[1];
@@ -68,12 +93,17 @@ void save_register(uint8_t *data, uint8_t length, uint16_t **modbus_registers) {
     case READ_INPUT:;
         uint8_t byte_count = data[2];
         INT_VAL aux_registro;
+        INT_VAL *tolerance_register =
+            (INT_VAL *)malloc((byte_count / 2) * sizeof(INT_VAL));
         for (uint8_t i = 0; i < byte_count / 2; i++) {
             aux_registro.byte.HB             = data[3 + 2 * i];
             aux_registro.byte.LB             = data[4 + 2 * i];
+            tolerance_register[i].Val        = inputRegister[SLAVE * 2 + i - 1];
             inputRegister[SLAVE * 2 + i - 1] = aux_registro.Val;
         }
+        check_toletance(SLAVE, tolerance_register, inputRegister);
         ESP_LOGI(TAG, "Received data saved...");
+        free(tolerance_register);
         break;
     }
 }
@@ -116,10 +146,10 @@ int check_exceptions(uint8_t *data) {
         ESP_LOGE(TAG, "Slave %d is busy, requested action rejected ", SLAVE);
         break;
     case NEG_ACK:
-        ESP_LOGE(
-            TAG,
-            "Slave %d ACK can not perform the action with the requested query ",
-            SLAVE);
+        ESP_LOGE(TAG,
+                 "Slave %d ACK can not perform the action with the "
+                 "requested query ",
+                 SLAVE);
         break;
     case PAR_ERR:
         ESP_LOGE(TAG, "Slave %d received data with CRC ERROR ", SLAVE);

@@ -86,12 +86,17 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             response_frame->frame[2] = frame[5] * 2;
             response_len             = 3;
             for (uint16_t i = 0; i < value.Val; i++) {
-                response_frame->frame[response_len] =
-                    inputRegister[address.Val + i].byte.HB;
-                response_len++;
-                response_frame->frame[response_len] =
-                    inputRegister[address.Val + i].byte.LB;
-                response_len++;
+                if (modbus_coils[(address.Val + i + 1) / 2]) {
+                    response_frame->frame[response_len++] = 0;
+                    response_frame->frame[response_len++] = 0;
+                } else {
+                    response_frame->frame[response_len] =
+                        inputRegister[address.Val + i].byte.HB;
+                    response_len++;
+                    response_frame->frame[response_len] =
+                        inputRegister[address.Val + i].byte.LB;
+                    response_len++;
+                }
             }
             CRC.Val = CRC16(response_frame->frame, response_len);
             response_frame->frame[response_len++] = CRC.byte.LB;

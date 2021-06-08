@@ -30,4 +30,6 @@ extern nvs_address_t
 extern SemaphoreHandle_t
     smph_pulse_handler; /**< semaphore to the pulse input interruption*/
 
+extern bool modbus_coils[512];
+
 #endif /* MAIN_INCLUDE_GLOBAL_VARIABLES_H_ */
