@@ -1,4 +1,3 @@
 <map id="modbus_slave_functions" name="modbus_slave_functions">
-<area shape="rect" id="node2" href="$CRC_8h.html#ac59c3d88a3b81326bfa15e22b51ddcb6" title="CRC16" alt="" coords="401,5,468,32"/>
-<area shape="rect" id="node3" href="$modbus__slave_8h.html#a39816d439892bd316817c4bae27b3ccc" title="Function to create the CRC exception Modbus. " alt="" coords="220,31,353,57"/>
+<area shape="rect" id="node2" href="$CRC_8h.html#ac59c3d88a3b81326bfa15e22b51ddcb6" title="CRC16" alt="" coords="220,5,287,32"/>
 </map>

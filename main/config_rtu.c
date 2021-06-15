@@ -183,7 +183,7 @@ void check_rtu_config(void) {
 
     if (nvs_get_u32(my_handle, "INITIAL_E", &INITIAL_ENERGY) ==
         ESP_ERR_NVS_NOT_FOUND) {
-        INITIAL_ENERGY = 0;
+        INITIAL_ENERGY = 1;
         nvs_set_u32(my_handle, "INITIAL_E", INITIAL_ENERGY);
         ESP_LOGE(TAG, "IMPULSE CONVERSION NOT FOUND");
     }

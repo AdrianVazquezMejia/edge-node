@@ -1,5 +1,5 @@
 <map id="CRC16" name="CRC16">
-<area shape="rect" id="node2" href="$modbus__master_8h.html#aec30e1479164d36cd6f388bd9d870ccc" title="Function to read a series of input register in a external slave. " alt="" coords="121,5,253,32"/>
-<area shape="rect" id="node3" href="$modbus__slave_8h.html#a39816d439892bd316817c4bae27b3ccc" title="Function to create the CRC exception Modbus. " alt="" coords="120,56,253,83"/>
-<area shape="rect" id="node4" href="$modbus__slave_8h.html#a791ddb5bec53976e506aa065e84a54ed" title="Function to execute the modbus request and process the answers. " alt="" coords="301,81,468,108"/>
+<area shape="rect" id="node2" href="$modbus__master_8h.html#aec30e1479164d36cd6f388bd9d870ccc" title="Function to read a series of input register in a external slave. " alt="" coords="137,5,269,32"/>
+<area shape="rect" id="node3" href="$modbus__slave_8h.html#a39816d439892bd316817c4bae27b3ccc" title="Function to create the CRC exception Modbus. " alt="" coords="137,56,270,83"/>
+<area shape="rect" id="node4" href="$modbus__slave_8h.html#a791ddb5bec53976e506aa065e84a54ed" title="Function to execute the modbus request and process the answers. " alt="" coords="120,107,287,133"/>
 </map>

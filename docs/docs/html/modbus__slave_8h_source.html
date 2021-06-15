@@ -24,7 +24,7 @@
    <div id="projectname">Edge node
    &#160;<span id="projectnumber">3.0</span>
    </div>
-   <div id="projectbrief">A C library for parsing HTML.</div>
+   <div id="projectbrief">A LoRa ESP32 smart metering project</div>
   </td>
  </tr>
  </tbody>
@@ -72,17 +72,17 @@ $(function() {
 <div class="ttc" id="modbus__slave_8h_html_aae819bdafd3bf1c1f3dc7e0a797e32d5"><div class="ttname"><a href="modbus__slave_8h.html#aae819bdafd3bf1c1f3dc7e0a797e32d5">uart_init</a></div><div class="ttdeci">void uart_init(QueueHandle_t *queue)</div><div class="ttdoc">Function to start the uart that handles the Modbus RTU serial communication. </div><div class="ttdef"><b>Definition:</b> modbus_slave.c:38</div></div>
 <div class="ttc" id="structmb__response__t_html"><div class="ttname"><a href="structmb__response__t.html">mb_response_t</a></div><div class="ttdoc">Struct to handle modbus frame and length s. </div><div class="ttdef"><b>Definition:</b> modbus_slave.h:33</div></div>
 <div class="ttc" id="unionINT__VAL_html_aed74a100d82503a8ee5ce73dae59458e"><div class="ttname"><a href="unionINT__VAL.html#aed74a100d82503a8ee5ce73dae59458e">INT_VAL::LB</a></div><div class="ttdeci">uint8_t LB</div><div class="ttdef"><b>Definition:</b> modbus_slave.h:26</div></div>
-<div class="ttc" id="modbus__slave_8h_html_a6c69d3ce0ee428648c7b49861783210e"><div class="ttname"><a href="modbus__slave_8h.html#a6c69d3ce0ee428648c7b49861783210e">normalize_pulses</a></div><div class="ttdeci">uint32_t normalize_pulses(uint32_t value)</div><div class="ttdoc">Function to normalize the pulses to a virtual meter with constat 100 pulses per KWh. </div><div class="ttdef"><b>Definition:</b> modbus_slave.c:129</div></div>
+<div class="ttc" id="modbus__slave_8h_html_a6c69d3ce0ee428648c7b49861783210e"><div class="ttname"><a href="modbus__slave_8h.html#a6c69d3ce0ee428648c7b49861783210e">normalize_pulses</a></div><div class="ttdeci">uint32_t normalize_pulses(uint32_t value)</div><div class="ttdoc">Function to normalize the pulses to a virtual meter with constat 100 pulses per KWh. </div><div class="ttdef"><b>Definition:</b> modbus_slave.c:134</div></div>
 <div class="ttc" id="structmb__response__t_html_aaaffab0b26a4f8af818613648773e737"><div class="ttname"><a href="structmb__response__t.html#aaaffab0b26a4f8af818613648773e737">mb_response_t::len</a></div><div class="ttdeci">uint8_t len</div><div class="ttdef"><b>Definition:</b> modbus_slave.h:35</div></div>
 <div class="ttc" id="unionINT__VAL_html_a5a22c81c4297bc4cf62324a9c236011e"><div class="ttname"><a href="unionINT__VAL.html#a5a22c81c4297bc4cf62324a9c236011e">INT_VAL::HB</a></div><div class="ttdeci">uint8_t HB</div><div class="ttdef"><b>Definition:</b> modbus_slave.h:27</div></div>
 <div class="ttc" id="unionINT__VAL_html"><div class="ttname"><a href="unionINT__VAL.html">INT_VAL</a></div><div class="ttdoc">Union to separate the the 16 bit registers into 8 bits parts. </div><div class="ttdef"><b>Definition:</b> modbus_slave.h:19</div></div>
 <div class="ttc" id="unionINT__VAL_html_aa26c42876745a0534ccc2c22ed86fa9e"><div class="ttname"><a href="unionINT__VAL.html#aa26c42876745a0534ccc2c22ed86fa9e">INT_VAL::Val</a></div><div class="ttdeci">uint16_t Val</div><div class="ttdef"><b>Definition:</b> modbus_slave.h:20</div></div>
 <div class="ttc" id="modbus__slave_8h_html_a791ddb5bec53976e506aa065e84a54ed"><div class="ttname"><a href="modbus__slave_8h.html#a791ddb5bec53976e506aa065e84a54ed">modbus_slave_functions</a></div><div class="ttdeci">int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame, uint8_t length, uint16_t **modbus_registers)</div><div class="ttdoc">Function to execute the modbus request and process the answers. </div><div class="ttdef"><b>Definition:</b> modbus_slave.c:69</div></div>
-<div class="ttc" id="modbus__slave_8h_html_ab942797100f9c143a7e92c2759985e2f"><div class="ttname"><a href="modbus__slave_8h.html#ab942797100f9c143a7e92c2759985e2f">register_save</a></div><div class="ttdeci">void register_save(uint32_t value, uint16_t *modbus_register)</div><div class="ttdoc">Function to save the pulse counter to the input registers. </div><div class="ttdef"><b>Definition:</b> modbus_slave.c:122</div></div>
+<div class="ttc" id="modbus__slave_8h_html_ab942797100f9c143a7e92c2759985e2f"><div class="ttname"><a href="modbus__slave_8h.html#ab942797100f9c143a7e92c2759985e2f">register_save</a></div><div class="ttdeci">void register_save(uint32_t value, uint16_t *modbus_register)</div><div class="ttdoc">Function to save the pulse counter to the input registers. </div><div class="ttdef"><b>Definition:</b> modbus_slave.c:127</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 19 2021 17:34:16 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 10 2021 13:47:57 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

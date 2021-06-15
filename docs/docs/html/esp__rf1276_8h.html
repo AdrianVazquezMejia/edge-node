@@ -24,7 +24,7 @@
    <div id="projectname">Edge node
    &#160;<span id="projectnumber">3.0</span>
    </div>
-   <div id="projectbrief">A C library for parsing HTML.</div>
+   <div id="projectbrief">A LoRa ESP32 smart metering project</div>
   </td>
  </tr>
  </tbody>
@@ -155,6 +155,9 @@ Enumerations</h2></td></tr>
 <tr class="memitem:a99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top"><a id="a99fb83031ce9923c84392b4e92f956b5"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>SENDING_DATA</b> = 0x01
  }</td></tr>
 <tr class="separator:a99fb83031ce9923c84392b4e92f956b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc6126af1d45847bc59afa0aa3216b04"><td class="memItemLeft" align="right" valign="top"><a id="abc6126af1d45847bc59afa0aa3216b04"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>ACK_RESET_MODEM</b> = 0x87
+ }</td></tr>
+<tr class="separator:abc6126af1d45847bc59afa0aa3216b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -167,6 +170,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a92592a3b7d0c3d063e064f0b7ae620e7"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="esp__rf1276_8h.html#a92592a3b7d0c3d063e064f0b7ae620e7">init_lora_mesh</a> (<a class="el" href="structconfig__rf1276__t.html">config_rf1276_t</a> *loraParameters, QueueHandle_t *loraQueue, uart_port_t uart_num)</td></tr>
 <tr class="memdesc:a92592a3b7d0c3d063e064f0b7ae620e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function to set up LoRa peripheral.  <a href="#a92592a3b7d0c3d063e064f0b7ae620e7">More...</a><br /></td></tr>
 <tr class="separator:a92592a3b7d0c3d063e064f0b7ae620e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee7d23282d04bdad81cc9f38d39df5a3"><td class="memItemLeft" align="right" valign="top"><a id="aee7d23282d04bdad81cc9f38d39df5a3"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>lora_reset_modem</b> (void)</td></tr>
+<tr class="separator:aee7d23282d04bdad81cc9f38d39df5a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>File with function of LoRa functionalities. </p>
@@ -339,7 +345,7 @@ QueueHandle_t </dd></dl>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed May 19 2021 17:34:16 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 10 2021 13:47:57 for Edge node by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>
