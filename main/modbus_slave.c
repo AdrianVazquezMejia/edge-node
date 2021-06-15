@@ -13,6 +13,7 @@
 #include "global_variables.h"
 #include "math.h"
 #include "stdint.h"
+#include "string.h"
 #ifdef CONFIG_PRODUCTION
 #define RTS_PIN 25
 #else
@@ -25,7 +26,11 @@
 #define TX_BUF_SIZE 1024
 
 #define EXCEPTION_LEN 3
-enum modbus_function_t { READ_HOLDING = 3, READ_INPUT };
+
+#define CLOSE_RELAY 18
+#define OPEN_RELAY  23
+
+enum modbus_function_t { READ_HOLDING = 3, READ_INPUT, WRITE_SIGLE_COIL };
 typedef union {
     uint32_t doubleword;
     struct {
@@ -35,6 +40,7 @@ typedef union {
 
 } WORD_VAL;
 
+static char *TAG = "MODBUS SLAVE";
 void uart_init(QueueHandle_t *queue) {
     uart_driver_delete(UART_NUM_1);
     int uart_baudarate              = 9600;
@@ -50,6 +56,11 @@ void uart_init(QueueHandle_t *queue) {
     uart_driver_install(UART_NUM_1, RX_BUF_SIZE * 2, TX_BUF_SIZE * 2, 20, queue,
                         0);
     uart_set_mode(UART_NUM_1, UART_MODE_RS485_HALF_DUPLEX);
+
+    gpio_set_direction(CLOSE_RELAY, GPIO_MODE_OUTPUT);
+    gpio_set_direction(OPEN_RELAY, GPIO_MODE_OUTPUT);
+    gpio_set_pull_mode(CLOSE_RELAY, GPIO_PULLDOWN_ONLY);
+    gpio_set_pull_mode(OPEN_RELAY, GPIO_PULLDOWN_ONLY);
 }
 
 void crc_error_response(mb_response_t *response_frame, const uint8_t *frame) {
@@ -102,6 +113,24 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             response_frame->frame[response_len++] = CRC.byte.LB;
             response_frame->frame[response_len++] = CRC.byte.HB;
             response_frame->len                   = response_len;
+            break;
+        case WRITE_SIGLE_COIL:
+            ESP_LOGI(TAG, "Writing a COIl");
+            if (address.Val == NODE_ID && value.Val == 0xff00) {
+                ESP_LOGI(TAG, "Setting to 1");
+                gpio_set_level(OPEN_RELAY, 0);
+                gpio_set_level(CLOSE_RELAY, 1);
+            }
+            if (address.Val == NODE_ID && value.Val == 0x0000) {
+
+                gpio_set_level(CLOSE_RELAY, 0);
+                gpio_set_level(OPEN_RELAY, 1);
+                ESP_LOGI(TAG, "Setting to 0");
+            }
+            memcpy(response_frame->frame, frame, length);
+            response_frame->len = length;
+            ESP_LOG_BUFFER_HEX(TAG, response_frame->frame, response_frame->len);
+            ESP_LOGI(TAG, "-----------");
             break;
 
         default:
