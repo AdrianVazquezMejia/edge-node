@@ -56,6 +56,9 @@
 #define PULSE_GPIO 0
 #endif
 
+#define CLOSE_RELAY 18
+#define OPEN_RELAY  23
+#define PULSE_TIME  1000 // ms
 static char *TAG      = "INFO";
 static char *TAG_UART = "MODBUS";
 static char *TAG_LORA = "LORA";
@@ -132,6 +135,8 @@ void task_modbus_slave(void *arg) {
     while (1) {
         if (xQueueReceive(uart_queue, (void *)&event,
                           pdMS_TO_TICKS(TWDT_RESET)) == pdTRUE) {
+            gpio_set_level(OPEN_RELAY, 0);
+            gpio_set_level(CLOSE_RELAY, 0);
             if (error_count == LIMIT_ERROR_COUNT)
                 esp_restart();
             bzero(received_buffer, RX_BUF_SIZE);
@@ -217,7 +222,9 @@ void task_modbus_master(void *arg) {
     }
     while (1) {
         read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
-
+        if (modbus_coils[0]) {
+            ESP_LOGE(TAG, "Write coils");
+        }
         if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
             if (event.type == UART_BREAK) {
                 ESP_LOGI(TAG, "Cleaned");
@@ -295,7 +302,8 @@ static void task_lora(void *arg) {
     ESP_LOGI(TAG_LORA, "LoRa Task available");
     while (1) {
         if (xQueueReceive(lora_queue, loraFrame, portMAX_DELAY)) {
-
+            gpio_set_level(OPEN_RELAY, 0);
+            gpio_set_level(CLOSE_RELAY, 0);
             switch (loraFrame->header_.frame_type_) {
             case INTERNAL_USE:
                 switch (loraFrame->header_.command_type_) {

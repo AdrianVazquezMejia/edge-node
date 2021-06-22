@@ -30,7 +30,12 @@
 #define CLOSE_RELAY 18
 #define OPEN_RELAY  23
 
-enum modbus_function_t { READ_HOLDING = 3, READ_INPUT, WRITE_SIGLE_COIL };
+enum modbus_function_t {
+    READ_HOLDING = 3,
+    READ_INPUT,
+    WRITE_SIGLE_COIL,
+    WRITE_MULTIPLES_COILS = 0x0f
+};
 typedef union {
     uint32_t doubleword;
     struct {
@@ -118,18 +123,36 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             ESP_LOGI(TAG, "Writing a COIl");
             if (address.Val == NODE_ID && value.Val == 0xff00) {
                 ESP_LOGI(TAG, "Setting to 1");
-                gpio_set_level(OPEN_RELAY, 0);
                 gpio_set_level(CLOSE_RELAY, 1);
             }
             if (address.Val == NODE_ID && value.Val == 0x0000) {
-
-                gpio_set_level(CLOSE_RELAY, 0);
                 gpio_set_level(OPEN_RELAY, 1);
                 ESP_LOGI(TAG, "Setting to 0");
+            }
+            if (address.Val != NODE_ID)
+                modbus_coils[0] = true;
+            if (value.Val == 0xff00) {
+                ESP_LOGW(TAG, "Setting to 1 ");
+                modbus_coils[address.Val] = true;
+            } else {
+                ESP_LOGW(TAG, "Setting to 0");
+                modbus_coils[address.Val] = false;
             }
             memcpy(response_frame->frame, frame, length);
             response_frame->len = length;
             ESP_LOG_BUFFER_HEX(TAG, response_frame->frame, response_frame->len);
+            ESP_LOGI(TAG, "-----------");
+            break;
+        case WRITE_MULTIPLES_COILS:
+            ESP_LOGW(TAG, "Writing Multiples coils");
+
+            response_len = 6;
+            memcpy(response_frame->frame, frame, response_len);
+            CRC.Val = CRC16(response_frame->frame, response_len);
+            response_frame->frame[response_len++] = CRC.byte.LB;
+            response_frame->frame[response_len++] = CRC.byte.HB;
+            ESP_LOG_BUFFER_HEX(TAG, response_frame->frame, response_frame->len);
+            response_frame->len = response_len;
             ESP_LOGI(TAG, "-----------");
             break;
 
