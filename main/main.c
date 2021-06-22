@@ -224,6 +224,8 @@ void task_modbus_master(void *arg) {
         read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
         if (modbus_coils[0]) {
             ESP_LOGE(TAG, "Write coils");
+            write_single_coil();
+            modbus_coils[0] = false;
         }
         if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
             if (event.type == UART_BREAK) {

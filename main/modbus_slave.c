@@ -96,6 +96,7 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
     INT_VAL *inputRegister   = (INT_VAL *)modbus_registers[1];
     response_frame->frame[0] = frame[0];
     response_frame->frame[1] = frame[1];
+    slave_to_change          = 0;
     if (CRC16(frame, length) == 0) {
         switch (FUNCTION) {
         case READ_INPUT:
@@ -131,9 +132,10 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             }
             if (address.Val != NODE_ID)
                 modbus_coils[0] = true;
-            if (value.Val == 0xff00) {
+            if (address.Val != NODE_ID && value.Val == 0xff00) {
                 ESP_LOGW(TAG, "Setting to 1 ");
                 modbus_coils[address.Val] = true;
+                slave_to_change           = (uint8_t)address.Val;
             } else {
                 ESP_LOGW(TAG, "Setting to 0");
                 modbus_coils[address.Val] = false;

@@ -41,6 +41,37 @@ enum modbus_excep_t {
     NEG_ACK,
     PAR_ERR
 };
+uint8_t slave_to_change;
+void write_single_coil(void) {
+    INT_VAL address;
+    INT_VAL Number;
+    INT_VAL CRC;
+
+    uint8_t *frame = (uint8_t *)malloc(TX_BUF_SIZE);
+    frame[0]       = slave_to_change;
+    frame[1]       = 0x05;
+    address.Val    = slave_to_change;
+    frame[2]       = address.byte.HB;
+    frame[3]       = address.byte.LB;
+    if (modbus_coils[address.Val] == true) {
+        Number.Val = 0xff00;
+    } else {
+        Number.Val = 0x0000;
+    }
+    frame[4] = Number.byte.HB;
+    frame[5] = Number.byte.LB;
+    CRC.Val  = CRC16(frame, 6);
+    frame[6] = CRC.byte.LB;
+    frame[7] = CRC.byte.HB;
+    if (uart_write_bytes(UART_NUM_1, (const char *)frame, 8) == ESP_FAIL) {
+        ESP_LOGE(TAG, "Error writing UART data");
+        free(frame);
+        return;
+    }
+    free(frame);
+    ESP_LOGI(TAG, "Poll sent to slave : %d...", slave_to_change);
+    slave_to_change = 0;
+}
 void read_input_register(uint8_t slave, uint16_t start_address,
                          uint16_t quantity) {
     INT_VAL address;

@@ -32,4 +32,6 @@ extern SemaphoreHandle_t
 
 extern bool modbus_coils[512];
 
+extern uint8_t slave_to_change;
+
 #endif /* MAIN_INCLUDE_GLOBAL_VARIABLES_H_ */
