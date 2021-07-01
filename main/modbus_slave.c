@@ -122,6 +122,11 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             break;
         case WRITE_SIGLE_COIL:
             ESP_LOGI(TAG, "Writing a COIl");
+
+            if (address.Val == 0) {
+				ESP_LOGE(TAG, "ERROR");
+				esp_restart();
+            }
             if (address.Val == NODE_ID && value.Val == 0xff00) {
                 ESP_LOGI(TAG, "Setting to 1");
                 gpio_set_level(CLOSE_RELAY, 1);
@@ -146,8 +151,8 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
             ESP_LOGI(TAG, "-----------");
             break;
         case WRITE_MULTIPLES_COILS:
-            ESP_LOGW(TAG, "Writing Multiples coils");
 
+            ESP_LOGW(TAG, "Writing Multiples coils");
             response_len = 6;
             memcpy(response_frame->frame, frame, response_len);
             CRC.Val = CRC16(response_frame->frame, response_len);
