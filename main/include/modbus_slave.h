@@ -51,7 +51,7 @@ void uart_init(QueueHandle_t *queue);
  * @param[in] frame Input frame received from the master.s
  * @param[in] length Length of the input frame.
  * */
-int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
+int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
                            uint8_t length, uint16_t **modbus_registers);
 /**
  * @brief Function to save the pulse counter to the input registers.

@@ -185,4 +185,6 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
                          QueueHandle_t *loraQueue, uart_port_t uart_num);
 
 int lora_reset_modem(void);
+
+uint8_t CHECK_SUM(uint8_t *frame, uint8_t len);
 #endif

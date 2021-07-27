@@ -14,6 +14,7 @@
 #include "math.h"
 #include "stdint.h"
 #include "string.h"
+#include "esp_rf1276.h"
 #ifdef CONFIG_PRODUCTION
 #define RTS_PIN 25
 #else
@@ -86,7 +87,13 @@ void crc_error_response(mb_response_t *response_frame, const uint8_t *frame) {
     response_frame->len                   = response_len;
 }
 
-int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
+void access_write_key_validate(uint8_t *frame){
+	if(CHECK_SUM(frame, 6)==0){
+		 modbus_coils[0] = true;
+	ESP_LOGE(TAG, "Access granted");}
+}
+
+int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
                            uint8_t length, uint16_t **modbus_registers) {
     uint8_t FUNCTION = frame[1];
     INT_VAL address;
@@ -127,37 +134,47 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
         case WRITE_SIGLE_COIL:
             ESP_LOGI(TAG, "Writing a COIl");
 
-            if (address.Val == 0) {
+			if (address.Val == 0) {
 				ESP_LOGE(TAG, "ERROR");
 				esp_restart();
-            }
-            if (address.Val == NODE_ID && value.Val == 0xff00) {
-                ESP_LOGI(TAG, "Setting to 1");
-                gpio_set_level(CLOSE_RELAY, 1);
-            }
-            if (address.Val == NODE_ID && value.Val == 0x0000) {
-                gpio_set_level(OPEN_RELAY, 1);
-                ESP_LOGI(TAG, "Setting to 0");
-            }
-            if (address.Val != NODE_ID){
-                modbus_coils[0] = true;
-                queue_size++;
-                ESP_LOGW(TAG, "Queue size %d, slave %d changed", queue_size,(uint8_t)address.Val);
-                queue_changed_slaves[queue_size-1] = (uint8_t)address.Val;
-                slave_to_change           = (uint8_t)address.Val;
-            }
-            if (address.Val != NODE_ID && value.Val == 0xff00) {
-                ESP_LOGW(TAG, "Setting to 1 ");
-                modbus_coils[address.Val] = true;
+			}
 
-            } else {
-                ESP_LOGW(TAG, "Setting to 0");
-                modbus_coils[address.Val] = false;
+            access_write_key_validate(frame);
+            value.byte.LB = 0;
+            if(modbus_coils[0]){
+
+				if (address.Val == NODE_ID) {
+					if(value.Val == 0xff00){
+						ESP_LOGI(TAG, "Setting to 1");
+						gpio_set_level(CLOSE_RELAY, 1);
+					}
+					else if(value.Val == 0x0000) {
+						gpio_set_level(OPEN_RELAY, 1);
+						ESP_LOGI(TAG, "Setting to 0");
+					}
+				}
+
+				if (address.Val != NODE_ID){
+					queue_size++;
+					ESP_LOGW(TAG, "Queue size %d, slave %d changed", queue_size,(uint8_t)address.Val);
+					queue_changed_slaves[queue_size-1] = (uint8_t)address.Val;
+					slave_to_change           = (uint8_t)address.Val;
+					if (value.Val == 0xff00) {
+						ESP_LOGW(TAG, "Setting to 1 ");
+						modbus_coils[address.Val] = true;
+
+					} else if(value.Val == 0x0000){
+						ESP_LOGW(TAG, "Setting to 0");
+						modbus_coils[address.Val] = false;
+					}
+				}
+
             }
+			modbus_coils[0] = false;
             memcpy(response_frame->frame, frame, length);
             response_frame->len = length;
             ESP_LOG_BUFFER_HEX(TAG, response_frame->frame, response_frame->len);
-            ESP_LOGI(TAG, "-----------");
+            ESP_LOGI(TAG, "---------------------------------------------------");
             break;
         case WRITE_MULTIPLES_COILS:
 

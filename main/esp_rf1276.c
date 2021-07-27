@@ -19,7 +19,7 @@ QueueHandle_t uartQueue;
 int baud_rate_aux;
 
 #define WRITE_FLAG 0x01
-static uint8_t CHECK_SUM(uint8_t *frame, uint8_t len) {
+uint8_t CHECK_SUM(uint8_t *frame, uint8_t len) {
 
     uint8_t checkSum = frame[0];
     for (uint i = 0; i < len - 1; i++) {
