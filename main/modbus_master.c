@@ -42,18 +42,18 @@ enum modbus_excep_t {
     PAR_ERR
 };
 uint8_t slave_to_change;
-void write_single_coil(void) {
+void write_single_coil(uint8_t slave, bool coil_state) {
     INT_VAL address;
     INT_VAL Number;
     INT_VAL CRC;
 
     uint8_t *frame = (uint8_t *)malloc(TX_BUF_SIZE);
-    frame[0]       = slave_to_change;
+    frame[0]       = slave;
     frame[1]       = 0x05;
-    address.Val    = slave_to_change;
+    address.Val    = slave;
     frame[2]       = address.byte.HB;
     frame[3]       = address.byte.LB;
-    if (modbus_coils[address.Val] == true) {
+    if (coil_state == true) {
         Number.Val = 0xff00;
     } else {
         Number.Val = 0x0000;

@@ -46,6 +46,10 @@ typedef union {
 } WORD_VAL;
 
 static char *TAG = "MODBUS SLAVE";
+
+uint8_t queue_size = 0;
+uint8_t queue_changed_slaves[256] = {0};
+
 void uart_init(QueueHandle_t *queue) {
     uart_driver_delete(UART_NUM_1);
     int uart_baudarate              = 9600;
@@ -135,12 +139,17 @@ int modbus_slave_functions(mb_response_t *response_frame, const uint8_t *frame,
                 gpio_set_level(OPEN_RELAY, 1);
                 ESP_LOGI(TAG, "Setting to 0");
             }
-            if (address.Val != NODE_ID)
+            if (address.Val != NODE_ID){
                 modbus_coils[0] = true;
+                queue_size++;
+                ESP_LOGW(TAG, "Queue size %d, slave %d changed", queue_size,(uint8_t)address.Val);
+                queue_changed_slaves[queue_size-1] = (uint8_t)address.Val;
+                slave_to_change           = (uint8_t)address.Val;
+            }
             if (address.Val != NODE_ID && value.Val == 0xff00) {
                 ESP_LOGW(TAG, "Setting to 1 ");
                 modbus_coils[address.Val] = true;
-                slave_to_change           = (uint8_t)address.Val;
+
             } else {
                 ESP_LOGW(TAG, "Setting to 0");
                 modbus_coils[address.Val] = false;

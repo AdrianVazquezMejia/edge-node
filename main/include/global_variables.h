@@ -34,4 +34,7 @@ extern bool modbus_coils[512];
 
 extern uint8_t slave_to_change;
 
+extern uint8_t queue_size;
+extern uint8_t queue_changed_slaves[256];
+
 #endif /* MAIN_INCLUDE_GLOBAL_VARIABLES_H_ */

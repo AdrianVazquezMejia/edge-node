@@ -45,5 +45,5 @@ int check_exceptions(uint8_t *data);
  * */
 void init_slaves(bool *slaves);
 
-void write_single_coil(void);
+void write_single_coil(uint8_t slave, bool coil_state);
 #endif /* MAIN_INCLUDE_MODBUS_MASTER_H_ */

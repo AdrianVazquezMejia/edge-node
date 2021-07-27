@@ -222,10 +222,12 @@ void task_modbus_master(void *arg) {
     }
     while (1) {
         read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
-        if (modbus_coils[0]) {
-            ESP_LOGE(TAG, "Write coils");
-            write_single_coil();
-            modbus_coils[0] = false;
+        while(queue_size>0){
+        	uint8_t temp_slave = queue_changed_slaves[queue_size-1];
+        	bool temp_state = modbus_coils[temp_slave];
+            ESP_LOGW(TAG, "Writing  slave %d changed to %d", temp_slave,temp_state);
+            write_single_coil(temp_slave, temp_state);
+            queue_size--;
         }
         if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
             if (event.type == UART_BREAK) {
