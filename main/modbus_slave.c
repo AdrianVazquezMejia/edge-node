@@ -138,8 +138,12 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 				ESP_LOGE(TAG, "ERROR");
 				esp_restart();
 			}
-
+#ifdef CONFIG_MASTER_MODBUS
             access_write_key_validate(frame);
+#endif
+#ifndef CONFIG_MASTER_MODBUS
+            modbus_coils[0] = true;
+#endif
             value.byte.LB = 0;
             if(modbus_coils[0]){
 

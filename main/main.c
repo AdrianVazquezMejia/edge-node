@@ -147,11 +147,15 @@ void task_modbus_slave(void *arg) {
                     ESP_LOGE(TAG_UART, "Error while reading UART data");
                     break;
                 }
-                ESP_LOGI(TAG_UART, "Received data is:");
-                ESP_LOG_BUFFER_HEX(TAG_UART, received_buffer, event.size);
 
+                if (received_buffer[0] == NODE_ID) {
+                                        ESP_LOGI(TAG_UART, "Received data is:");
+                                        ESP_LOG_BUFFER_HEX(TAG_UART, received_buffer, event.size);}
                 if (CRC16(received_buffer, event.size) == 0) {
+
                     if (received_buffer[0] == NODE_ID) {
+                       // ESP_LOGI(TAG_UART, "Received data is:");
+                       // ESP_LOG_BUFFER_HEX(TAG_UART, received_buffer, event.size);
                         error_count = 0;
                         led_blink();
                         modbus_slave_functions(&modbus_response,
@@ -222,12 +226,14 @@ void task_modbus_master(void *arg) {
     }
     while (1) {
         read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
+        vTaskDelay(100);
         while(queue_size>0){
         	uint8_t temp_slave = queue_changed_slaves[queue_size-1];
         	bool temp_state = modbus_coils[temp_slave];
             ESP_LOGW(TAG, "Writing  slave %d changed to %d", temp_slave,temp_state);
             write_single_coil(temp_slave, temp_state);
             queue_size--;
+
         }
         if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
             if (event.type == UART_BREAK) {
