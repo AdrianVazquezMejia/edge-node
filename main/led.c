@@ -8,11 +8,15 @@
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
+#include "modbus_slave.h"
 #define LED 19
 void led_startup(void) {
     gpio_set_direction(LED, GPIO_MODE_OUTPUT);
     gpio_set_pull_mode(LED, GPIO_PULLDOWN_ONLY);
+    gpio_set_direction(OPEN_RELAY, GPIO_MODE_OUTPUT);
+    gpio_set_pull_mode(OPEN_RELAY, GPIO_PULLDOWN_ONLY);
+    gpio_set_direction(CLOSE_RELAY, GPIO_MODE_OUTPUT);
+    gpio_set_pull_mode(CLOSE_RELAY, GPIO_PULLDOWN_ONLY);
     for (uint8_t i = 0; i < 3; i++) {
         gpio_set_level(LED, 1);
         vTaskDelay(20);

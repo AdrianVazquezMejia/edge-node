@@ -28,8 +28,7 @@
 
 #define EXCEPTION_LEN 3
 
-#define CLOSE_RELAY 18
-#define OPEN_RELAY  23
+
 
 enum modbus_function_t {
     READ_HOLDING = 3,
@@ -91,6 +90,7 @@ void access_write_key_validate(uint8_t *frame){
 	if(CHECK_SUM(frame, 6)==0){
 		 modbus_coils[0] = true;
 	ESP_LOGE(TAG, "Access granted");}
+	ESP_LOGE(TAG, "Access Denied");
 }
 
 int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
@@ -108,6 +108,10 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
     response_frame->frame[0] = frame[0];
     response_frame->frame[1] = frame[1];
     slave_to_change          = 0;
+	gpio_set_level(CLOSE_RELAY, 0);
+	gpio_set_level(OPEN_RELAY, 0);
+
+
     if (CRC16(frame, length) == 0) {
         switch (FUNCTION) {
         case READ_INPUT:
@@ -149,12 +153,13 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 
 				if (address.Val == NODE_ID) {
 					if(value.Val == 0xff00){
-						ESP_LOGI(TAG, "Setting to 1");
-						gpio_set_level(CLOSE_RELAY, 1);
+						ESP_LOGE(TAG, "Setting to 1");
+						gpio_set_level(OPEN_RELAY, 1);
+
 					}
 					else if(value.Val == 0x0000) {
-						gpio_set_level(OPEN_RELAY, 1);
-						ESP_LOGI(TAG, "Setting to 0");
+						gpio_set_level(CLOSE_RELAY, 1);
+						ESP_LOGE(TAG, "Setting to 0");
 					}
 				}
 
@@ -162,7 +167,6 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 					queue_size++;
 					ESP_LOGW(TAG, "Queue size %d, slave %d changed", queue_size,(uint8_t)address.Val);
 					queue_changed_slaves[queue_size-1] = (uint8_t)address.Val;
-					slave_to_change           = (uint8_t)address.Val;
 					if (value.Val == 0xff00) {
 						ESP_LOGW(TAG, "Setting to 1 ");
 						modbus_coils[address.Val] = true;

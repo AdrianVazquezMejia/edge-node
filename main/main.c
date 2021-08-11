@@ -56,8 +56,6 @@
 #define PULSE_GPIO 0
 #endif
 
-#define CLOSE_RELAY 18
-#define OPEN_RELAY  23
 #define PULSE_TIME  1000 // ms
 static char *TAG      = "INFO";
 static char *TAG_UART = "MODBUS";
@@ -135,8 +133,6 @@ void task_modbus_slave(void *arg) {
     while (1) {
         if (xQueueReceive(uart_queue, (void *)&event,
                           pdMS_TO_TICKS(TWDT_RESET)) == pdTRUE) {
-            gpio_set_level(OPEN_RELAY, 0);
-            gpio_set_level(CLOSE_RELAY, 0);
             if (error_count == LIMIT_ERROR_COUNT)
                 esp_restart();
             bzero(received_buffer, RX_BUF_SIZE);
@@ -154,8 +150,6 @@ void task_modbus_slave(void *arg) {
                 if (CRC16(received_buffer, event.size) == 0) {
 
                     if (received_buffer[0] == NODE_ID) {
-                       // ESP_LOGI(TAG_UART, "Received data is:");
-                       // ESP_LOG_BUFFER_HEX(TAG_UART, received_buffer, event.size);
                         error_count = 0;
                         led_blink();
                         modbus_slave_functions(&modbus_response,
@@ -225,16 +219,16 @@ void task_modbus_master(void *arg) {
         vTaskDelete(NULL);
     }
     while (1) {
-        read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
-        vTaskDelay(100);
+    	vTaskDelay(1);
         while(queue_size>0){
         	uint8_t temp_slave = queue_changed_slaves[queue_size-1];
         	bool temp_state = modbus_coils[temp_slave];
             ESP_LOGW(TAG, "Writing  slave %d changed to %d", temp_slave,temp_state);
             write_single_coil(temp_slave, temp_state);
             queue_size--;
-
         }
+        vTaskDelay(10);
+        read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
         if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
             if (event.type == UART_BREAK) {
                 ESP_LOGI(TAG, "Cleaned");
@@ -312,8 +306,6 @@ static void task_lora(void *arg) {
     ESP_LOGI(TAG_LORA, "LoRa Task available");
     while (1) {
         if (xQueueReceive(lora_queue, loraFrame, portMAX_DELAY)) {
-            gpio_set_level(OPEN_RELAY, 0);
-            gpio_set_level(CLOSE_RELAY, 0);
             switch (loraFrame->header_.frame_type_) {
             case INTERNAL_USE:
                 switch (loraFrame->header_.command_type_) {
@@ -394,11 +386,8 @@ static esp_err_t init_lora(void) {
     esp_err_t err;
 
     lora_queue = xQueueCreate(BUF_LORA_SIZE, sizeof(lora_mesh_t));
-#ifdef CONFIG_PRODUCTION
+
     int UART_TX = 13;
-#else
-    int UART_TX = 14;
-#endif
     int UART_RX = 15;
 
     uart_lora_t configUART = {.uart_tx   = UART_TX,
@@ -437,7 +426,7 @@ void app_main() {
     CHECK_ERROR_CODE(esp_task_wdt_init(TWDT_TIMEOUT_S, true), ESP_OK);
     led_startup();
     check_rtu_config();
-
+	vTaskDelay(200);
 #ifdef CONFIG_PULSE_PERIPHERAL
     ESP_LOGI(TAG, "Start peripheral");
     xTaskCreatePinnedToCore(task_pulse, "task_pulse", 1024 * 2, NULL, 10, NULL,
