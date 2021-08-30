@@ -47,7 +47,7 @@
 
 #define TWDT_TIMEOUT_S 20
 #define TWDT_RESET     5000
-#define MODBUS_TIMEOUT 100 // in ticks == 1 s
+#define MODBUS_TIMEOUT 1000 // in ticks == 1 s
 
 #define BUF_LORA_SIZE 5
 #ifdef CONFIG_PRODUCTION
@@ -219,13 +219,14 @@ void task_modbus_master(void *arg) {
         vTaskDelete(NULL);
     }
     while (1) {
-    	vTaskDelay(1);
+
         while(queue_size>0){
         	uint8_t temp_slave = queue_changed_slaves[queue_size-1];
         	bool temp_state = modbus_coils[temp_slave];
             ESP_LOGW(TAG, "Writing  slave %d changed to %d", temp_slave,temp_state);
             write_single_coil(temp_slave, temp_state);
             queue_size--;
+            vTaskDelay(10);
         }
         vTaskDelay(10);
         read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
@@ -281,7 +282,7 @@ void task_modbus_master(void *arg) {
             }
         } else {
             ESP_LOGI(TAG, "Timeout");
-            vTaskDelay(TIME_SCAN / portTICK_PERIOD_MS);
+            //vTaskDelay(TIME_SCAN / portTICK_PERIOD_MS);
         }
         curr_slave++;
         if (curr_slave > SLAVES)
