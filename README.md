@@ -102,6 +102,6 @@ Make sure you have selected *HARDWARE (TEST)* in the `menuconfig` to flash the c
 ## Uart IOs for LoRa
 
 	```c
-	#define TXD_PIN     14
+	#define TXD_PIN     13
 	#define RXD_PIN     15
 	```

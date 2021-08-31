@@ -42,7 +42,6 @@
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
 
-#define TIME_SCAN  1000
 #define MAX_SLAVES 255
 
 #define TWDT_TIMEOUT_S 20
@@ -253,10 +252,9 @@ static void modbus_master_poll(void *arg){
 			xQueueSend(uart_send_queue,poll_event,pdMS_TO_TICKS(TIME_SCAN));
 		}
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
-
 	}
-
 }
+
 static void task_modbus_master(void *arg) {
     ESP_LOGI(TAG, "Modbus Master Task initialized");
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
@@ -323,7 +321,7 @@ static void task_modbus_master(void *arg) {
     free(slave_response);
     vTaskDelete(NULL);
 }
-
+#ifdef CONFIG_LORA
 static void task_lora(void *arg) {
     ESP_LOGI(TAG, "LoRa Task initialized");
     lora_mesh_t *loraFrame = (lora_mesh_t *)malloc(sizeof(lora_mesh_t));
@@ -415,7 +413,7 @@ static void task_lora(void *arg) {
     }
     free(loraFrame);
 }
-#ifdef CONFIG_LORA
+
 static esp_err_t init_lora(void) {
     esp_err_t err;
 

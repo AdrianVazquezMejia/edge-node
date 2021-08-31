@@ -5,6 +5,7 @@
  *      Author: adrian-estelio
  */
 #include "modbus_slave.h"
+#include "modbus_master.h"
 #include "CRC.h"
 #include "config_rtu.h"
 #include "driver/uart.h"
@@ -85,7 +86,9 @@ void access_write_key_validate(uint8_t *frame){
 	if(CHECK_SUM(frame, 6)==0){
 		 modbus_coils[0] = true;
 	ESP_LOGE(TAG, "Access granted");}
-	ESP_LOGE(TAG, "Access Denied");
+	else{
+		ESP_LOGE(TAG, "Access Denied");
+	}
 }
 
 int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
@@ -100,6 +103,7 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
     INT_VAL CRC;
     uint8_t response_len     = 0;
     INT_VAL *inputRegister   = (INT_VAL *)modbus_registers[1];
+    modbus_poll_event_t* poll_event = malloc(sizeof(modbus_poll_event_t));
     response_frame->frame[0] = frame[0];
     response_frame->frame[1] = frame[1];
     slave_to_change          = 0;
@@ -162,14 +166,20 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 					queue_size++;
 					ESP_LOGW(TAG, "Queue size %d, slave %d changed", queue_size,(uint8_t)address.Val);
 					queue_changed_slaves[queue_size-1] = (uint8_t)address.Val;
+					poll_event->slave =  address.Val;
+					poll_event->function = WRITE_SINGLE_COIL;
 					if (value.Val == 0xff00) {
 						ESP_LOGW(TAG, "Setting to 1 ");
 						modbus_coils[address.Val] = true;
+						poll_event->data.coil_state= true;
 
 					} else if(value.Val == 0x0000){
 						ESP_LOGW(TAG, "Setting to 0");
 						modbus_coils[address.Val] = false;
+						poll_event->data.coil_state= false;
+
 					}
+					xQueueSend(uart_send_queue,poll_event,pdMS_TO_TICKS(TIME_SCAN));
 				}
 
             }

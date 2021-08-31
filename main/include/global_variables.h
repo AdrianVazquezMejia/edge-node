@@ -16,6 +16,8 @@
 #include "freertos/semphr.h"
 #include <stdint.h>
 
+#define TIME_SCAN  1000
+
 extern uint8_t NODE_ID; /**< ID of this node, can be accessible globally. */
 
 extern int IMPULSE_CONVERSION;  /**< Constat of the energy meter, used to
