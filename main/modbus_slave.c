@@ -30,12 +30,7 @@
 
 
 
-enum modbus_function_t {
-    READ_HOLDING = 3,
-    READ_INPUT,
-    WRITE_SIGLE_COIL,
-    WRITE_MULTIPLES_COILS = 0x0f
-};
+
 typedef union {
     uint32_t doubleword;
     struct {
@@ -135,7 +130,7 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
             response_frame->frame[response_len++] = CRC.byte.HB;
             response_frame->len                   = response_len;
             break;
-        case WRITE_SIGLE_COIL:
+        case WRITE_SINGLE_COIL:
             ESP_LOGI(TAG, "Writing a COIl");
 
 			if (address.Val == 0) {

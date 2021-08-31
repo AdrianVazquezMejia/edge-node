@@ -42,12 +42,12 @@
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
 
-#define TIME_SCAN  2000
+#define TIME_SCAN  1000
 #define MAX_SLAVES 255
 
 #define TWDT_TIMEOUT_S 20
 #define TWDT_RESET     5000
-#define MODBUS_TIMEOUT 1000 // in ticks == 1 s
+#define MODBUS_TIMEOUT 2000 // in ticks == 1 s
 
 #define BUF_LORA_SIZE 5
 #ifdef CONFIG_PRODUCTION
@@ -69,12 +69,13 @@ static char *TAG_LORA = "LORA";
         }                                                                      \
     })
 
+#define MAX_POLL_QUEUE_SIZE 5  // Max quantity of polls in queue
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
 nvs_address_t pulse_address;
 QueueHandle_t lora_queue;
-
+QueueHandle_t uart_send_queue;
 // key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
 // and 192 bits encrypting mode
 
@@ -200,8 +201,63 @@ void task_modbus_slave(void *arg) {
     free(received_buffer);
     received_buffer = NULL;
 }
+/**
+ * @brief This task executes the polls for slaves, it has several inputs:
+ *
+ * 1. Since the lora slave function, if send querys to slaves to write coils is needed
+ * 2. Cyclic polls to read the registers
+ * */
+static void modbus_master_poll(void *arg){
 
-void task_modbus_master(void *arg) {
+    CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
+    CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
+
+	ESP_LOGI(TAG, "Modbus Master POLL task started");
+
+	modbus_poll_event_t* poll_event = malloc(sizeof(modbus_poll_event_t));
+	if (SLAVES == 0) {
+	        //CHECK_ERROR_CODE(esp_task_wdt_delete(NULL), ESP_OK);
+	        free(poll_event);
+	        vTaskDelete(NULL);
+	    }
+	uart_send_queue = xQueueCreate(MAX_POLL_QUEUE_SIZE,sizeof(modbus_poll_event_t));
+	// First Poll to initialize the queue
+	uint8_t curr_slave = 1;
+    uint16_t quantity = 2;
+	poll_event->slave =  curr_slave;
+	poll_event->function = READ_INPUT;
+	poll_event->data.starting_addrs= curr_slave;
+	xQueueSend(uart_send_queue,poll_event,pdMS_TO_TICKS(TIME_SCAN));
+
+	while(1){
+		if(xQueueReceive(uart_send_queue,poll_event,pdMS_TO_TICKS(TIME_SCAN))){
+			ESP_LOGI(TAG, "Function %d, slave %d",poll_event->function, poll_event->slave);
+			switch(poll_event->function){
+				case READ_INPUT:
+					read_input_register(poll_event->slave, (uint16_t)poll_event->slave, quantity);
+					break;
+				case WRITE_SINGLE_COIL:
+					write_single_coil(poll_event->slave, poll_event->data.coil_state);
+					break;
+				default:
+					ESP_LOGW(TAG, "Function not implemented YET!");
+			}
+		}else{
+			// If no external polls, just read the input register
+	        if (curr_slave >= SLAVES) /// If we reach the maximum quantity of slave, start over
+	            curr_slave = 0;
+			curr_slave++;
+			poll_event->slave =  curr_slave;
+			poll_event->function = READ_INPUT;
+			poll_event->data.starting_addrs = curr_slave;
+			xQueueSend(uart_send_queue,poll_event,pdMS_TO_TICKS(TIME_SCAN));
+		}
+        CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
+
+	}
+
+}
+static void task_modbus_master(void *arg) {
     ESP_LOGI(TAG, "Modbus Master Task initialized");
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
@@ -210,32 +266,9 @@ void task_modbus_master(void *arg) {
     uint8_t *slave_response = (uint8_t *)malloc(RX_BUF_SIZE);
     modbus_registers[1]     = &inputRegister[0];
     uart_init(&uart_queue);
-    uint16_t quantity = 2;
-    bool slaves[MAX_SLAVES + 1];
-    init_slaves(slaves);
-    uint8_t curr_slave = 1;
-    if (SLAVES == 0) {
-        CHECK_ERROR_CODE(esp_task_wdt_delete(NULL), ESP_OK);
-        vTaskDelete(NULL);
-    }
-    while (1) {
 
-        while(queue_size>0){
-        	uint8_t temp_slave = queue_changed_slaves[queue_size-1];
-        	bool temp_state = modbus_coils[temp_slave];
-            ESP_LOGW(TAG, "Writing  slave %d changed to %d", temp_slave,temp_state);
-            write_single_coil(temp_slave, temp_state);
-            queue_size--;
-            vTaskDelay(10);
-        }
-        vTaskDelay(10);
-        read_input_register(curr_slave, (uint16_t)curr_slave, quantity);
-        if (xQueuePeek(uart_queue, (void *)&event, (portTickType)10)) {
-            if (event.type == UART_BREAK) {
-                ESP_LOGI(TAG, "Cleaned");
-                xQueueReset(uart_queue);
-            }
-        }
+
+    while (1) {
 
         if (xQueueReceive(uart_queue, (void *)&event,
                           (portTickType)MODBUS_TIMEOUT)) {
@@ -260,6 +293,8 @@ void task_modbus_master(void *arg) {
                     uart_flush(UART_NUM_1);
                 }
                 break;
+            case UART_BREAK:
+            	break;
             case UART_FIFO_OVF:
                 ESP_LOGI(TAG, "hw fifo overflow");
                 uart_flush_input(UART_NUM_1);
@@ -282,13 +317,11 @@ void task_modbus_master(void *arg) {
             }
         } else {
             ESP_LOGI(TAG, "Timeout");
-            //vTaskDelay(TIME_SCAN / portTICK_PERIOD_MS);
         }
-        curr_slave++;
-        if (curr_slave > SLAVES)
-            curr_slave = 1;
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
+    free(slave_response);
+    vTaskDelete(NULL);
 }
 
 static void task_lora(void *arg) {
@@ -427,7 +460,7 @@ void app_main() {
     CHECK_ERROR_CODE(esp_task_wdt_init(TWDT_TIMEOUT_S, true), ESP_OK);
     led_startup();
     check_rtu_config();
-	vTaskDelay(200);
+
 #ifdef CONFIG_PULSE_PERIPHERAL
     ESP_LOGI(TAG, "Start peripheral");
     xTaskCreatePinnedToCore(task_pulse, "task_pulse", 1024 * 2, NULL, 10, NULL,
@@ -445,6 +478,8 @@ void app_main() {
 #ifdef CONFIG_MASTER_MODBUS
     ESP_LOGI(TAG, "Start Modbus master task");
     xTaskCreatePinnedToCore(task_modbus_master, "task_modbus_master", 2048 * 2,
+                            NULL, 10, NULL, 1);
+    xTaskCreatePinnedToCore(modbus_master_poll, "modbus_master_poll", 2048 * 2,
                             NULL, 10, NULL, 1);
 #endif
 #ifdef CONFIG_LORA

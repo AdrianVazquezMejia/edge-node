@@ -13,6 +13,23 @@
 #include "stdbool.h"
 #include "stdint.h"
 /**
+ * @brief Union to separate the data from the different poll types
+ * */
+typedef union {
+	bool coil_state; /**< For coil function*/
+	uint16_t starting_addrs; /**< For reading registers*/
+}modbus_data_t;
+
+/**
+ * @brief Type to transmit information to the modbus poll task
+ * */
+typedef struct {
+	uint8_t slave;
+	uint8_t function;
+	modbus_data_t data;
+}
+modbus_poll_event_t;
+/**
  * @brief Function to read a series of input register in a external slave
  *
  * @param[in] slave Slave which is been polled

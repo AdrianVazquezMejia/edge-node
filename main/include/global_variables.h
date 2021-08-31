@@ -37,4 +37,6 @@ extern uint8_t slave_to_change;
 extern uint8_t queue_size;
 extern uint8_t queue_changed_slaves[256];
 
+extern QueueHandle_t uart_send_queue;
+
 #endif /* MAIN_INCLUDE_GLOBAL_VARIABLES_H_ */

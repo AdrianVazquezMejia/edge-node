@@ -465,7 +465,7 @@
                             						
                         </entry>
                         						
-                        <entry kind="includePath" name="/${ProjName}/build/main">
+                        <entry kind="includePath" name="/${ProjName}/">
                             							
                             <flag value="VALUE_WORKSPACE_PATH"/>
                             						
@@ -701,7 +701,7 @@
                             						
                         </entry>
                         						
-                        <entry kind="includePath" name="/${ProjName}/build/main">
+                        <entry kind="includePath" name="/${ProjName}/">
                             							
                             <flag value="VALUE_WORKSPACE_PATH"/>
                             						
@@ -937,7 +937,7 @@
                             						
                         </entry>
                         						
-                        <entry kind="includePath" name="/${ProjName}/build/main">
+                        <entry kind="includePath" name="/${ProjName}/">
                             							
                             <flag value="VALUE_WORKSPACE_PATH"/>
                             						
@@ -1409,7 +1409,7 @@
                             						
                         </entry>
                         						
-                        <entry kind="includePath" name="/${ProjName}/build/main">
+                        <entry kind="includePath" name="/${ProjName}/">
                             							
                             <flag value="VALUE_WORKSPACE_PATH"/>
                             						
@@ -1881,7 +1881,7 @@
                             						
                         </entry>
                         						
-                        <entry kind="includePath" name="/${ProjName}/build/main">
+                        <entry kind="includePath" name="/${ProjName}/">
                             							
                             <flag value="VALUE_WORKSPACE_PATH"/>
                             						
@@ -2353,7 +2353,7 @@
                             						
                         </entry>
                         						
-                        <entry kind="includePath" name="/${ProjName}/build/main">
+                        <entry kind="includePath" name="/${ProjName}/">
                             							
                             <flag value="VALUE_WORKSPACE_PATH"/>
                             						
@@ -3061,7 +3061,7 @@
                             						
                         </entry>
                         						
-                        <entry kind="includePath" name="/${ProjName}/build/main">
+                        <entry kind="includePath" name="/${ProjName}/">
                             							
                             <flag value="VALUE_WORKSPACE_PATH"/>
                             						

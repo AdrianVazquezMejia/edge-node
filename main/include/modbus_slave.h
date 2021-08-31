@@ -37,6 +37,13 @@ typedef struct {
     uint8_t frame[256]; /**< Frame modbus, 256 bytes max length*/
     uint8_t len;        /**< Length of the frame*/
 } mb_response_t;
+
+enum modbus_function_t {
+    READ_HOLDING = 3,
+    READ_INPUT,
+    WRITE_SINGLE_COIL,
+    WRITE_MULTIPLES_COILS = 0x0f
+};
 /**
  * @brief Function to start the uart that handles the Modbus RTU serial
  * communication
