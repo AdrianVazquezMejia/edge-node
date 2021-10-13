@@ -75,6 +75,7 @@ static uint16_t inputRegister[512] = {0};
 nvs_address_t pulse_address;
 QueueHandle_t lora_queue;
 QueueHandle_t uart_send_queue;
+QueueHandle_t uart_queue;
 // key length 32 bytes for 256 bit encrypting, it can be 16 or 24 bytes for 128
 // and 192 bits encrypting mode
 
@@ -210,7 +211,6 @@ static void modbus_master_poll(void *arg){
 
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
-
 	ESP_LOGI(TAG, "Modbus Master POLL task started");
 
 	modbus_poll_event_t* poll_event = malloc(sizeof(modbus_poll_event_t));
@@ -259,11 +259,10 @@ static void task_modbus_master(void *arg) {
     ESP_LOGI(TAG, "Modbus Master Task initialized");
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
     CHECK_ERROR_CODE(esp_task_wdt_status(NULL), ESP_OK);
-    QueueHandle_t uart_queue;
+
     uart_event_t event;
     uint8_t *slave_response = (uint8_t *)malloc(RX_BUF_SIZE);
     modbus_registers[1]     = &inputRegister[0];
-    uart_init(&uart_queue);
 
 
     while (1) {
@@ -474,6 +473,7 @@ void app_main() {
 #endif
 
 #ifdef CONFIG_MASTER_MODBUS
+    uart_init(&uart_queue);
     ESP_LOGI(TAG, "Start Modbus master task");
     xTaskCreatePinnedToCore(task_modbus_master, "task_modbus_master", 2048 * 2,
                             NULL, 10, NULL, 1);

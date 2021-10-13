@@ -16,14 +16,10 @@
 #include "stdint.h"
 #include "string.h"
 #include "esp_rf1276.h"
-#ifdef CONFIG_PRODUCTION
-#define RTS_PIN 25
-#else
 #define RTS_PIN 27
-#endif
 #define TXD_PIN     33
 #define RXD_PIN     26
-#define CTS_PIN     2
+#define CTS_PIN     25
 #define RX_BUF_SIZE 1024
 #define TX_BUF_SIZE 1024
 
@@ -154,11 +150,13 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 					if(value.Val == 0xff00){
 						ESP_LOGE(TAG, "Setting to 1");
 						gpio_set_level(OPEN_RELAY, 1);
+//TODO Falta apagar el relay en un tiempo X
 
 					}
 					else if(value.Val == 0x0000) {
 						gpio_set_level(CLOSE_RELAY, 1);
 						ESP_LOGE(TAG, "Setting to 0");
+						// Same as upthere
 					}
 				}
 
