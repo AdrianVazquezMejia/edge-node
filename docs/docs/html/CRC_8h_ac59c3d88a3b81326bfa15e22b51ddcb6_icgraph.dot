@@ -1,0 +1,12 @@
+digraph "CRC16"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="CRC16",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="crc_error_response",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$modbus__slave_8h.html#a39816d439892bd316817c4bae27b3ccc",tooltip="Function to create the CRC exception Modbus."];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="read_input_register",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$modbus__master_8h.html#aec30e1479164d36cd6f388bd9d870ccc",tooltip="Function to read a series of input register in a external slave."];
+}

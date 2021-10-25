@@ -1,0 +1,23 @@
+digraph "lora_mesh_t"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="lora_mesh_t",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Struct of the whole LoRa frame."];
+  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" header_" ,fontname="Helvetica"];
+  Node2 [label="lora_header_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__header__t.html",tooltip="Struct of the header of the LoRa frame."];
+  Node3 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" load_" ,fontname="Helvetica"];
+  Node3 [label="lora_load_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$unionlora__load__t.html",tooltip="Union of the different load frames."];
+  Node4 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" recv_load_" ,fontname="Helvetica"];
+  Node4 [label="lora_recv_load_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__recv__load__t.html",tooltip="Struct with the frame load of received data."];
+  Node5 -> Node4 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" source_address_" ,fontname="Helvetica"];
+  Node5 [label="word_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$unionword__t.html",tooltip="Union to divide word size data to byte size divisible data."];
+  Node6 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" config_load_" ,fontname="Helvetica"];
+  Node6 [label="lora_conf_load_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__conf__load__t.html",tooltip="Struct of config frame."];
+  Node7 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" transmit_load_" ,fontname="Helvetica"];
+  Node7 [label="lora_rout_load_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__rout__load__t.html",tooltip="LoRa struct with the frame load of Routing information."];
+  Node5 -> Node7 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" dest_address_" ,fontname="Helvetica"];
+  Node8 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" local_resp_" ,fontname="Helvetica"];
+  Node8 [label="lora_local_resp_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__local__resp__t.html",tooltip="Struct of the load frame of the local response."];
+  Node5 -> Node8 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" dest_address_" ,fontname="Helvetica"];
+}

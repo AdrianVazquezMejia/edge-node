@@ -1,0 +1,19 @@
+digraph "lora_load_t"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="lora_load_t",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="Union of the different load frames."];
+  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" recv_load_" ,fontname="Helvetica"];
+  Node2 [label="lora_recv_load_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__recv__load__t.html",tooltip="Struct with the frame load of received data."];
+  Node3 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" source_address_" ,fontname="Helvetica"];
+  Node3 [label="word_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$unionword__t.html",tooltip="Union to divide word size data to byte size divisible data."];
+  Node4 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" config_load_" ,fontname="Helvetica"];
+  Node4 [label="lora_conf_load_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__conf__load__t.html",tooltip="Struct of config frame."];
+  Node5 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" transmit_load_" ,fontname="Helvetica"];
+  Node5 [label="lora_rout_load_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__rout__load__t.html",tooltip="LoRa struct with the frame load of Routing information."];
+  Node3 -> Node5 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" dest_address_" ,fontname="Helvetica"];
+  Node6 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" local_resp_" ,fontname="Helvetica"];
+  Node6 [label="lora_local_resp_t",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structlora__local__resp__t.html",tooltip="Struct of the load frame of the local response."];
+  Node3 -> Node6 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" dest_address_" ,fontname="Helvetica"];
+}

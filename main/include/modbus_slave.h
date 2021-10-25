@@ -14,8 +14,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
-#define CLOSE_RELAY 18
-#define OPEN_RELAY  23
+#define CLOSE_RELAY 2
+#define OPEN_RELAY  4
 /**
  * @brief Union to separate the the 16 bit registers into 8 bits parts.
  * */

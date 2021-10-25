@@ -16,7 +16,8 @@
 #include "stdint.h"
 #include "string.h"
 #include "esp_rf1276.h"
-#define RTS_PIN 27
+#include <time.h>
+#define RTS_PIN 23
 #define TXD_PIN     33
 #define RXD_PIN     26
 #define CTS_PIN     25
@@ -87,6 +88,17 @@ void access_write_key_validate(uint8_t *frame){
 	}
 }
 
+void delay(int milli_seconds)
+{
+
+    // Storing start time
+    clock_t start_time = clock();
+
+    // looping till required time is not achieved
+    while (clock() < start_time + milli_seconds)
+        ;
+}
+
 int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
                            uint8_t length, uint16_t **modbus_registers) {
     uint8_t FUNCTION = frame[1];
@@ -108,6 +120,7 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 
 
     if (CRC16(frame, length) == 0) {
+    	ESP_LOGI(TAG, "Here ok");
         switch (FUNCTION) {
         case READ_INPUT:
             response_frame->frame[2] = frame[5] * 2;
@@ -150,13 +163,14 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 					if(value.Val == 0xff00){
 						ESP_LOGE(TAG, "Setting to 1");
 						gpio_set_level(OPEN_RELAY, 1);
-//TODO Falta apagar el relay en un tiempo X
-
+					    vTaskDelay(10);
+					    gpio_set_level(OPEN_RELAY, 0);
 					}
 					else if(value.Val == 0x0000) {
 						gpio_set_level(CLOSE_RELAY, 1);
 						ESP_LOGE(TAG, "Setting to 0");
-						// Same as upthere
+						delay(100);
+						gpio_set_level(CLOSE_RELAY, 0);
 					}
 				}
 

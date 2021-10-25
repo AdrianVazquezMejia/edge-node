@@ -1,5 +1,7 @@
 #include "include/esp_rf1276.h"
 
+#include "driver/periph_ctrl.h"
+#include "driver/timer.h"
 #include "driver/uart.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -7,9 +9,11 @@
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
 #include "unordered_map.h"
+#include "driver/gpio.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 static const char *RF1276 = "ESP_RF1276";
 
@@ -19,6 +23,12 @@ QueueHandle_t uartQueue;
 int baud_rate_aux;
 
 #define WRITE_FLAG 0x01
+#define LORA_RESET 27
+#define TIMER_DIVIDER       16
+#define TIMER_SCALE         (TIMER_BASE_CLK / TIMER_DIVIDER)
+#define TIMER_INTERVAL0_SEC (6)
+#define WITH_RELOAD         1
+
 uint8_t CHECK_SUM(uint8_t *frame, uint8_t len) {
 
     uint8_t checkSum = frame[0];
@@ -118,9 +128,44 @@ static void uart_event_task(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
+void lora_reset(void){
+	ESP_LOGI(RF1276, "LoRa RESET");
+}
+void IRAM_ATTR timer_group0_isr(void *para) {
+    int timer_idx = (int)para;
+    TIMERG0.int_clr_timers.t0                   = 1;
+    TIMERG0.hw_timer[timer_idx].config.alarm_en = TIMER_ALARM_EN;
+    gpio_set_level(LORA_RESET, 0);
+    gpio_set_level(LORA_RESET, 1);
+}
+
+static void ota_timer_init(int timer_idx, bool auto_reload,
+                           double timer_interval_sec) {
+    /* Select and initialize basic parameters of the timer */
+    timer_config_t config = {.divider     = TIMER_DIVIDER,
+                             .counter_dir = TIMER_COUNT_UP,
+                             .counter_en  = TIMER_PAUSE,
+                             .alarm_en    = TIMER_ALARM_EN,
+                             .intr_type   = TIMER_INTR_LEVEL,
+                             .auto_reload = auto_reload};
+    timer_init(TIMER_GROUP_0, timer_idx, &config);
+    timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x00000000ULL);
+    timer_set_alarm_value(TIMER_GROUP_0, timer_idx,
+                          timer_interval_sec * TIMER_SCALE);
+    timer_enable_intr(TIMER_GROUP_0, timer_idx);
+    timer_isr_register(TIMER_GROUP_0, timer_idx, timer_group0_isr,
+                       (void *)timer_idx, ESP_INTR_FLAG_IRAM, NULL);
+
+    timer_start(TIMER_GROUP_0, timer_idx);
+}
 esp_err_t init_lora_uart(uart_lora_t *uartParameters) {
 
     esp_err_t err;
+    gpio_set_direction(LORA_RESET, GPIO_MODE_OUTPUT);
+    gpio_set_pull_mode(LORA_RESET, GPIO_PULLUP_ONLY);
+
+    ota_timer_init(TIMER_0, WITH_RELOAD, TIMER_INTERVAL0_SEC);
+    lora_reset();
     int loraSerialBaudarate = uartParameters->baud_rate;
     int loraUARTTX          = uartParameters->uart_tx;
     int loraUARTRX          = uartParameters->uart_rx;
