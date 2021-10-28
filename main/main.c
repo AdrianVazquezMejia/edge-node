@@ -84,7 +84,7 @@ unsigned char key[] = {0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                        0xff, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
 
-void task_pulse(void *arg) {
+static void task_pulse(void *arg) {
 
     ESP_LOGI(TAG, "Pulse counter task started");
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
@@ -119,7 +119,7 @@ void task_pulse(void *arg) {
         CHECK_ERROR_CODE(esp_task_wdt_reset(), ESP_OK);
     }
 }
-void task_modbus_slave(void *arg) {
+static void task_modbus_slave(void *arg) {
 
     ESP_LOGI(TAG, "Slave task started");
     CHECK_ERROR_CODE(esp_task_wdt_add(NULL), ESP_OK);
@@ -204,7 +204,7 @@ void task_modbus_slave(void *arg) {
 /**
  * @brief This task executes the polls for slaves, it has several inputs:
  *
- * 1. Since the lora slave function, if send querys to slaves to write coils is needed
+ * 1. Since the lora_slave function, it sends querys to slaves to write coils is needed
  * 2. Cyclic polls to read the registers
  * */
 static void modbus_master_poll(void *arg){

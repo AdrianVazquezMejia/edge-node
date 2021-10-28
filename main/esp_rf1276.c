@@ -26,7 +26,7 @@ int baud_rate_aux;
 #define LORA_RESET 27
 #define TIMER_DIVIDER       16
 #define TIMER_SCALE         (TIMER_BASE_CLK / TIMER_DIVIDER)
-#define TIMER_INTERVAL0_SEC (6)
+#define TIMER_INTERVAL0_SEC (3600*24)
 #define WITH_RELOAD         1
 
 uint8_t CHECK_SUM(uint8_t *frame, uint8_t len) {
@@ -128,9 +128,7 @@ static void uart_event_task(void *pvParameters) {
     vTaskDelete(NULL);
 }
 
-void lora_reset(void){
-	ESP_LOGI(RF1276, "LoRa RESET");
-}
+
 void IRAM_ATTR timer_group0_isr(void *para) {
     int timer_idx = (int)para;
     TIMERG0.int_clr_timers.t0                   = 1;
@@ -139,7 +137,7 @@ void IRAM_ATTR timer_group0_isr(void *para) {
     gpio_set_level(LORA_RESET, 1);
 }
 
-static void ota_timer_init(int timer_idx, bool auto_reload,
+static void lora_timer_init(int timer_idx, bool auto_reload,
                            double timer_interval_sec) {
     /* Select and initialize basic parameters of the timer */
     timer_config_t config = {.divider     = TIMER_DIVIDER,
@@ -164,8 +162,8 @@ esp_err_t init_lora_uart(uart_lora_t *uartParameters) {
     gpio_set_direction(LORA_RESET, GPIO_MODE_OUTPUT);
     gpio_set_pull_mode(LORA_RESET, GPIO_PULLUP_ONLY);
 
-    ota_timer_init(TIMER_0, WITH_RELOAD, TIMER_INTERVAL0_SEC);
-    lora_reset();
+    lora_timer_init(TIMER_0, WITH_RELOAD, TIMER_INTERVAL0_SEC);
+
     int loraSerialBaudarate = uartParameters->baud_rate;
     int loraUARTTX          = uartParameters->uart_tx;
     int loraUARTRX          = uartParameters->uart_rx;
