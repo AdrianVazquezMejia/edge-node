@@ -147,7 +147,7 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
             ESP_LOGI(TAG, "Writing a COIl");
 
 			if (address.Val == 0) {
-				ESP_LOGE(TAG, "ERROR");
+				ESP_LOGE(TAG, "RESTART ADDRESS");
 				esp_restart();
 			}
 #ifdef CONFIG_MASTER_MODBUS
@@ -173,7 +173,7 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 						gpio_set_level(CLOSE_RELAY, 0);
 					}
 				}
-
+#ifdef CONFIG_MASTER
 				if (address.Val != NODE_ID){
 					queue_size++;
 					ESP_LOGW(TAG, "Queue size %d, slave %d changed", queue_size,(uint8_t)address.Val);
@@ -191,9 +191,12 @@ int modbus_slave_functions(mb_response_t *response_frame, uint8_t *frame,
 						poll_event->data.coil_state= false;
 
 					}
-					xQueueSend(uart_send_queue,poll_event,pdMS_TO_TICKS(TIME_SCAN));
-				}
+					if(xQueueSend(uart_send_queue,poll_event,pdMS_TO_TICKS(TIME_SCAN))!=pdPASS){
+						ESP_LOGE(TAG,"Can not send to queue, may be FULL");
+					}
 
+				}
+#endif
             }
 			modbus_coils[0] = false;
             memcpy(response_frame->frame, frame, length);

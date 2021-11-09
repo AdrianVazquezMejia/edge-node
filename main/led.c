@@ -10,7 +10,11 @@
 #include "freertos/task.h"
 #include "modbus_slave.h"
 #define LED 19
+#define LORA_RESET 27
 void led_startup(void) {
+    gpio_set_direction(LORA_RESET, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(LORA_RESET, GPIO_FLOATING);
+    vTaskDelay(200);
     gpio_set_direction(LED, GPIO_MODE_OUTPUT);
     gpio_set_pull_mode(LED, GPIO_PULLDOWN_ONLY);
     gpio_set_direction(OPEN_RELAY, GPIO_MODE_OUTPUT);

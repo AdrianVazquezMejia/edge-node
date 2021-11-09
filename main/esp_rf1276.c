@@ -159,10 +159,8 @@ static void lora_timer_init(int timer_idx, bool auto_reload,
 esp_err_t init_lora_uart(uart_lora_t *uartParameters) {
 
     esp_err_t err;
-    gpio_set_direction(LORA_RESET, GPIO_MODE_OUTPUT);
-    gpio_set_pull_mode(LORA_RESET, GPIO_PULLUP_ONLY);
 
-    lora_timer_init(TIMER_0, WITH_RELOAD, TIMER_INTERVAL0_SEC);
+   // lora_timer_init(TIMER_0, WITH_RELOAD, TIMER_INTERVAL0_SEC);
 
     int loraSerialBaudarate = uartParameters->baud_rate;
     int loraUARTTX          = uartParameters->uart_tx;
@@ -232,8 +230,8 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
     nodeID.doubleword_    = (uint32_t)loraParameters->node_id;
     sendFrame[13]         = nodeID.low_word_.high_byte_;
     sendFrame[14]         = nodeID.low_word_.low_byte_;
-    sendFrame[15] =
-        *unordered_map_find(baudarate_map, (int)loraParameters->baud_rate);
+    sendFrame[15] = 0x03;
+       // *unordered_map_find(baudarate_map, (int)loraParameters->baud_rate);
 
     sendFrame[16] = loraParameters->port_check;
     sendFrame[17] = CHECK_SUM(sendFrame, sizeof(sendFrame) - 1);
@@ -243,7 +241,8 @@ esp_err_t init_lora_mesh(config_rf1276_t *loraParameters,
 
     uint8_t readBytes = uart_read_bytes(uart_num, recvFrame, sizeof(recvFrame),
                                         pdMS_TO_TICKS(1000));
-
+    ESP_LOGE(RF1276,"REsponse config");
+    ESP_LOG_BUFFER_HEX(RF1276, recvFrame, readBytes);
     uint8_t checkSum = CHECK_SUM(recvFrame, sizeof(recvFrame));
     if (!readBytes && checkSum)
         return ESP_FAIL;

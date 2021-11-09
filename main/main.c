@@ -68,7 +68,7 @@ static char *TAG_LORA = "LORA";
         }                                                                      \
     })
 
-#define MAX_POLL_QUEUE_SIZE 5  // Max quantity of polls in queue
+#define MAX_POLL_QUEUE_SIZE 15  // Max quantity of polls in queue
 static uint16_t *modbus_registers[4];
 static uint16_t inputRegister[512] = {0};
 
@@ -482,7 +482,7 @@ void app_main() {
 #endif
 #ifdef CONFIG_LORA
     ESP_LOGI(TAG, "Start LoRa task");
-    ESP_ERROR_CHECK(init_lora());
+    init_lora();
     xTaskCreatePinnedToCore(task_lora, "task_lora", 2048 * 2, NULL, 10, NULL,
                             1);
 #endif
